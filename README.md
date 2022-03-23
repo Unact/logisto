@@ -1,16 +1,11 @@
 # logisto
 
-A new Flutter project.
+Платформенно-независимое мобильное приложение для работников склада и точек забора
 
-## Getting Started
+Для сборки и запуска приложения необходимо иметь в корне проекта файл .env с переменными среды:
 
-This project is a starting point for a Flutter application.
+* LOGISTO_SENTRY_DSN
+* LOGISTO_RENEW_URL
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Также приложения можно запускать без .env файла, но тогда при запуске надо указывать
+`--dart-define LOGISTO_SENTRY_DSN=<значение> --dart-define LOGISTO_RENEW_URL=<значение>`
