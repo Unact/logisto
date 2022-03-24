@@ -17,9 +17,9 @@ class ApiOrder {
   final String? storageName;
   final DateTime? firstMovementDate;
   final DateTime? delivered;
-  final DateTime? canceled;
   final double paidSum;
   final double paySum;
+  final int documentsReturn;
   final List<ApiOrderLine> lines;
 
   const ApiOrder({
@@ -39,9 +39,9 @@ class ApiOrder {
     required this.storageName,
     this.firstMovementDate,
     this.delivered,
-    this.canceled,
     required this.paidSum,
     required this.paySum,
+    required this.documentsReturn,
     required this.lines
   });
 
@@ -65,7 +65,7 @@ class ApiOrder {
       delivered: Nullify.parseDate(json['delivered']),
       paidSum: Nullify.parseDouble(json['paidSum'])!,
       paySum: Nullify.parseDouble(json['paySum'])!,
-      canceled: Nullify.parseDate(json['canceled']),
+      documentsReturn: json['documentsReturn'],
       lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList()
     );
   }
@@ -90,7 +90,7 @@ class ApiOrder {
       delivered: delivered,
       paidSum: paidSum,
       paySum: paySum,
-      canceled: canceled
+      documentsReturn: documentsReturn == 1
     );
     List<OrderLine> orderLines = lines.map((e) => OrderLine(
       id: e.id,

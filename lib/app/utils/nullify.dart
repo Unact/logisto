@@ -1,6 +1,4 @@
 class Nullify {
-  static final List<dynamic> _trueValues = ['true', true, '1', 1];
-
   static DateTime? parseDate(value) {
     return value != null ? (value is DateTime ? value : DateTime.parse(value).toLocal()) : null;
   }
@@ -12,9 +10,5 @@ class Nullify {
     if (value is int) return value.toDouble();
 
     return double.parse(value);
-  }
-
-  static bool? parseBool(value) {
-    return value != null ? (_trueValues.contains(value) ? true : false) : null;
   }
 }

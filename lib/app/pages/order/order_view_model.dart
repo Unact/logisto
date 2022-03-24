@@ -80,7 +80,18 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> acceptOrder() async {
+  Future<void> acceptOrder(bool confirmed) async {
+    if (!confirmed) {
+      if (state.order.documentsReturn) {
+        emit(state.copyWith(
+          status: OrderStateStatus.failure,
+          message: 'Нельзя принять заказ без документов'
+        ));
+      }
+
+      return;
+    }
+
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
@@ -140,8 +151,22 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(
       status: OrderStateStatus.scanFinished,
       scanned: result,
-      message: result ? 'Позиции успешно отсканированы' : 'Сканирование позиций было прервано'
+      message: result ? 'Позиции успешно отсканированы' : 'Сканирование было прервано'
     ));
+  }
+
+  void tryAcceptOrder() {
+    if (state.order.documentsReturn) {
+      emit(state.copyWith(
+        status: OrderStateStatus.needUserConfirmation,
+        confirmationCallback: acceptOrder,
+        message: 'Есть ли документы к заказу?',
+      ));
+
+      return;
+    }
+
+    acceptOrder(true);
   }
 
   void tryConfirmOrder() {

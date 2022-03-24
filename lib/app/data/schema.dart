@@ -34,7 +34,7 @@ class Orders extends Table {
   TextColumn get storageName => text().nullable()();
   DateTimeColumn get firstMovementDate => dateTime().nullable()();
   DateTimeColumn get delivered => dateTime().nullable()();
-  DateTimeColumn get canceled => dateTime().nullable()();
+  BoolColumn get documentsReturn => boolean()();
   RealColumn get paidSum => real()();
   RealColumn get paySum => real()();
 }

@@ -11,29 +11,29 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  dio: ^4.0.0
-  device_info_plus: ^1.0.1
+  dio: ^4.0.4
+  device_info_plus: ^3.2.2
   f_logs: ^2.0.0
-  fk_user_agent: ^2.0.1
-  pub_semver: ^2.0.0
-  sqflite: ^2.0.0
-  path_provider: ^2.0.2
-  package_info: ^2.0.2
-  sentry_flutter: ^6.2.2
-  url_launcher: ^6.0.6
-  flutter_bloc: ^8.0.0
+  fk_user_agent: ^2.1.0
+  pub_semver: ^2.1.1
+  path_provider: ^2.0.9
+  package_info_plus: ^1.4.0
+  sentry_flutter: ^6.4.0
+  url_launcher: ^6.0.20
+  flutter_bloc: ^8.0.1
   flutter_blue: ^0.8.0
   flutter_signature_pad: ^3.0.0
   iboxpro_flutter: ^1.0.2
   flutter_bluetooth_serial: ^0.4.0
   quiver: ^3.0.1
-  drift: ^1.1.1
+  drift: ^1.5.0
+  qr_code_scanner: ^0.5.2
   sqlite3_flutter_libs: ^0.5.0
-  path: ^1.8.0
+  camera: ^0.9.4
 
 dev_dependencies:
-  drift_dev: ^1.1.1
-  build_runner: ^2.1.7
+  drift_dev: ^1.5.2
+  build_runner: ^2.1.8
   flutter_lints: ^1.0.4
   flutter_test:
     sdk: flutter

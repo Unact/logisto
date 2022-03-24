@@ -123,14 +123,21 @@ class _OrderViewState extends State<_OrderView> {
                 child: ListBody(
                   children: <Widget>[
                     const Text('Выберите склад для переноса'),
-                    DropdownButton(
-                      isExpanded: true,
-                      value: newOrderStorage,
-                      items: vm.state.storages.map((e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e.name, style: const TextStyle(overflow: TextOverflow.clip), softWrap: false)
-                      )).toList(),
-                      onChanged: (OrderStorage? orderStorage) => setState(() => newOrderStorage = orderStorage)
+                    ButtonTheme(
+                      alignedDropdown: true,
+                      child: DropdownButton(
+                        isExpanded: true,
+                        value: newOrderStorage,
+                        items: vm.state.storages.map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            e.name,
+                            style: const TextStyle(overflow: TextOverflow.clip, fontSize: 14),
+                            softWrap: false
+                          )
+                        )).toList(),
+                        onChanged: (OrderStorage? orderStorage) => setState(() => newOrderStorage = orderStorage)
+                      )
                     )
                   ]
                 )
@@ -227,6 +234,10 @@ class _OrderViewState extends State<_OrderView> {
         title: const Text('Дата приемки'),
         trailing: Text(Format.dateTimeStr(order.firstMovementDate))
       ),
+      InfoRow(
+        title: const Text('К оплате'),
+        trailing: Text(Format.numberStr(order.paySum))
+      ),
       ExpansionTile(
         title: const Text('Позиции', style: TextStyle(fontSize: 14)),
         initiallyExpanded: false,
@@ -248,7 +259,7 @@ class _OrderViewState extends State<_OrderView> {
     ];
     List<Widget> storageActions = [
       !vm.state.acceptable ? null : TextButton(
-        onPressed: vm.acceptOrder,
+        onPressed: vm.tryAcceptOrder,
         child: Column(children: const [Icon(Icons.fact_check), Text('Приемка')]),
         style: style
       ),
@@ -278,7 +289,7 @@ class _OrderViewState extends State<_OrderView> {
         child: Column(children: const [Icon(Icons.assignment_turned_in), Text('Выдать')]),
         style: style
       ),
-      !vm.state.cancelable ? null : TextButton(
+      !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryCancelOrder,
         child: Column(children: const [Icon(Icons.assignment_return), Text('Вернуть')]),
         style: style
@@ -351,6 +362,7 @@ class _OrderViewState extends State<_OrderView> {
   Widget build(BuildContext context) {
     return BlocConsumer<OrderViewModel, OrderState>(
       builder: (context, state) {
+        List<Widget> actions = orderActions(context);
 
         return Scaffold(
           appBar: AppBar(
@@ -362,10 +374,10 @@ class _OrderViewState extends State<_OrderView> {
               ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(top: 24, bottom: 24),
-                children: orderInfoRows(context)..add(const SizedBox(height: 62))
+                children: orderInfoRows(context)..add(const SizedBox(height: 72))
               ),
-              SizedBox(
-                height: 62,
+              actions.isEmpty ? Container() : SizedBox(
+                height: 72,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
@@ -374,10 +386,7 @@ class _OrderViewState extends State<_OrderView> {
                   ),
                   padding: const EdgeInsets.only(bottom: 4, right: 8, left: 8),
                   child: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(children: orderActions(context))
-                    )
+                    child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: actions))
                   )
                 )
               )

@@ -2,13 +2,31 @@ part of 'order_qr_scan_page.dart';
 
 class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanStateStatus> {
   OrderQRScanViewModel(BuildContext context, { required Order order }) :
-    super(context, OrderQRScanState(order: order, orderPackageScanned: List.filled(order.packages, false)));
+    super(
+      context,
+      OrderQRScanState(
+        order: order,
+        orderPackageScanned: List.filled(order.packages, false),
+        mode: Platform.isIOS ? ScanMode.camera : ScanMode.scanner
+      )
+    );
 
   @override
   OrderQRScanStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {}
+  Future<void> loadData() async {
+    List<CameraDescription> cameras = await availableCameras();
+
+    emit(state.copyWith(
+      status: OrderQRScanStateStatus.dataLoaded,
+      cameras: cameras
+    ));
+  }
+
+  void toggleMode(ScanMode mode) {
+    emit(state.copyWith(status: OrderQRScanStateStatus.modeChanged, mode: mode));
+  }
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;

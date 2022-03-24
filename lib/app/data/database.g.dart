@@ -386,7 +386,7 @@ class Order extends DataClass implements Insertable<Order> {
   final String? storageName;
   final DateTime? firstMovementDate;
   final DateTime? delivered;
-  final DateTime? canceled;
+  final bool documentsReturn;
   final double paidSum;
   final double paySum;
   Order(
@@ -406,7 +406,7 @@ class Order extends DataClass implements Insertable<Order> {
       this.storageName,
       this.firstMovementDate,
       this.delivered,
-      this.canceled,
+      required this.documentsReturn,
       required this.paidSum,
       required this.paySum});
   factory Order.fromData(Map<String, dynamic> data, {String? prefix}) {
@@ -444,8 +444,8 @@ class Order extends DataClass implements Insertable<Order> {
           data['${effectivePrefix}first_movement_date']),
       delivered: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}delivered']),
-      canceled: const DateTimeType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}canceled']),
+      documentsReturn: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}documents_return'])!,
       paidSum: const RealType()
           .mapFromDatabaseResponse(data['${effectivePrefix}paid_sum'])!,
       paySum: const RealType()
@@ -488,9 +488,7 @@ class Order extends DataClass implements Insertable<Order> {
     if (!nullToAbsent || delivered != null) {
       map['delivered'] = Variable<DateTime?>(delivered);
     }
-    if (!nullToAbsent || canceled != null) {
-      map['canceled'] = Variable<DateTime?>(canceled);
-    }
+    map['documents_return'] = Variable<bool>(documentsReturn);
     map['paid_sum'] = Variable<double>(paidSum);
     map['pay_sum'] = Variable<double>(paySum);
     return map;
@@ -528,9 +526,7 @@ class Order extends DataClass implements Insertable<Order> {
       delivered: delivered == null && nullToAbsent
           ? const Value.absent()
           : Value(delivered),
-      canceled: canceled == null && nullToAbsent
-          ? const Value.absent()
-          : Value(canceled),
+      documentsReturn: Value(documentsReturn),
       paidSum: Value(paidSum),
       paySum: Value(paySum),
     );
@@ -560,7 +556,7 @@ class Order extends DataClass implements Insertable<Order> {
       firstMovementDate:
           serializer.fromJson<DateTime?>(json['firstMovementDate']),
       delivered: serializer.fromJson<DateTime?>(json['delivered']),
-      canceled: serializer.fromJson<DateTime?>(json['canceled']),
+      documentsReturn: serializer.fromJson<bool>(json['documentsReturn']),
       paidSum: serializer.fromJson<double>(json['paidSum']),
       paySum: serializer.fromJson<double>(json['paySum']),
     );
@@ -586,7 +582,7 @@ class Order extends DataClass implements Insertable<Order> {
       'storageName': serializer.toJson<String?>(storageName),
       'firstMovementDate': serializer.toJson<DateTime?>(firstMovementDate),
       'delivered': serializer.toJson<DateTime?>(delivered),
-      'canceled': serializer.toJson<DateTime?>(canceled),
+      'documentsReturn': serializer.toJson<bool>(documentsReturn),
       'paidSum': serializer.toJson<double>(paidSum),
       'paySum': serializer.toJson<double>(paySum),
     };
@@ -609,7 +605,7 @@ class Order extends DataClass implements Insertable<Order> {
           String? storageName,
           DateTime? firstMovementDate,
           DateTime? delivered,
-          DateTime? canceled,
+          bool? documentsReturn,
           double? paidSum,
           double? paySum}) =>
       Order(
@@ -629,7 +625,7 @@ class Order extends DataClass implements Insertable<Order> {
         storageName: storageName ?? this.storageName,
         firstMovementDate: firstMovementDate ?? this.firstMovementDate,
         delivered: delivered ?? this.delivered,
-        canceled: canceled ?? this.canceled,
+        documentsReturn: documentsReturn ?? this.documentsReturn,
         paidSum: paidSum ?? this.paidSum,
         paySum: paySum ?? this.paySum,
       );
@@ -652,7 +648,7 @@ class Order extends DataClass implements Insertable<Order> {
           ..write('storageName: $storageName, ')
           ..write('firstMovementDate: $firstMovementDate, ')
           ..write('delivered: $delivered, ')
-          ..write('canceled: $canceled, ')
+          ..write('documentsReturn: $documentsReturn, ')
           ..write('paidSum: $paidSum, ')
           ..write('paySum: $paySum')
           ..write(')'))
@@ -677,7 +673,7 @@ class Order extends DataClass implements Insertable<Order> {
       storageName,
       firstMovementDate,
       delivered,
-      canceled,
+      documentsReturn,
       paidSum,
       paySum);
   @override
@@ -700,7 +696,7 @@ class Order extends DataClass implements Insertable<Order> {
           other.storageName == this.storageName &&
           other.firstMovementDate == this.firstMovementDate &&
           other.delivered == this.delivered &&
-          other.canceled == this.canceled &&
+          other.documentsReturn == this.documentsReturn &&
           other.paidSum == this.paidSum &&
           other.paySum == this.paySum);
 }
@@ -722,7 +718,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<String?> storageName;
   final Value<DateTime?> firstMovementDate;
   final Value<DateTime?> delivered;
-  final Value<DateTime?> canceled;
+  final Value<bool> documentsReturn;
   final Value<double> paidSum;
   final Value<double> paySum;
   const OrdersCompanion({
@@ -742,7 +738,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.storageName = const Value.absent(),
     this.firstMovementDate = const Value.absent(),
     this.delivered = const Value.absent(),
-    this.canceled = const Value.absent(),
+    this.documentsReturn = const Value.absent(),
     this.paidSum = const Value.absent(),
     this.paySum = const Value.absent(),
   });
@@ -763,7 +759,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.storageName = const Value.absent(),
     this.firstMovementDate = const Value.absent(),
     this.delivered = const Value.absent(),
-    this.canceled = const Value.absent(),
+    required bool documentsReturn,
     required double paidSum,
     required double paySum,
   })  : id = Value(id),
@@ -774,6 +770,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
         packages = Value(packages),
         deliveryAddressName = Value(deliveryAddressName),
         pickupAddressName = Value(pickupAddressName),
+        documentsReturn = Value(documentsReturn),
         paidSum = Value(paidSum),
         paySum = Value(paySum);
   static Insertable<Order> custom({
@@ -793,7 +790,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     Expression<String?>? storageName,
     Expression<DateTime?>? firstMovementDate,
     Expression<DateTime?>? delivered,
-    Expression<DateTime?>? canceled,
+    Expression<bool>? documentsReturn,
     Expression<double>? paidSum,
     Expression<double>? paySum,
   }) {
@@ -817,7 +814,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       if (storageName != null) 'storage_name': storageName,
       if (firstMovementDate != null) 'first_movement_date': firstMovementDate,
       if (delivered != null) 'delivered': delivered,
-      if (canceled != null) 'canceled': canceled,
+      if (documentsReturn != null) 'documents_return': documentsReturn,
       if (paidSum != null) 'paid_sum': paidSum,
       if (paySum != null) 'pay_sum': paySum,
     });
@@ -840,7 +837,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<String?>? storageName,
       Value<DateTime?>? firstMovementDate,
       Value<DateTime?>? delivered,
-      Value<DateTime?>? canceled,
+      Value<bool>? documentsReturn,
       Value<double>? paidSum,
       Value<double>? paySum}) {
     return OrdersCompanion(
@@ -860,7 +857,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       storageName: storageName ?? this.storageName,
       firstMovementDate: firstMovementDate ?? this.firstMovementDate,
       delivered: delivered ?? this.delivered,
-      canceled: canceled ?? this.canceled,
+      documentsReturn: documentsReturn ?? this.documentsReturn,
       paidSum: paidSum ?? this.paidSum,
       paySum: paySum ?? this.paySum,
     );
@@ -920,8 +917,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     if (delivered.present) {
       map['delivered'] = Variable<DateTime?>(delivered.value);
     }
-    if (canceled.present) {
-      map['canceled'] = Variable<DateTime?>(canceled.value);
+    if (documentsReturn.present) {
+      map['documents_return'] = Variable<bool>(documentsReturn.value);
     }
     if (paidSum.present) {
       map['paid_sum'] = Variable<double>(paidSum.value);
@@ -951,7 +948,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
           ..write('storageName: $storageName, ')
           ..write('firstMovementDate: $firstMovementDate, ')
           ..write('delivered: $delivered, ')
-          ..write('canceled: $canceled, ')
+          ..write('documentsReturn: $documentsReturn, ')
           ..write('paidSum: $paidSum, ')
           ..write('paySum: $paySum')
           ..write(')'))
@@ -1053,11 +1050,14 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   late final GeneratedColumn<DateTime?> delivered = GeneratedColumn<DateTime?>(
       'delivered', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
-  final VerificationMeta _canceledMeta = const VerificationMeta('canceled');
+  final VerificationMeta _documentsReturnMeta =
+      const VerificationMeta('documentsReturn');
   @override
-  late final GeneratedColumn<DateTime?> canceled = GeneratedColumn<DateTime?>(
-      'canceled', aliasedName, true,
-      type: const IntType(), requiredDuringInsert: false);
+  late final GeneratedColumn<bool?> documentsReturn = GeneratedColumn<bool?>(
+      'documents_return', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (documents_return IN (0, 1))');
   final VerificationMeta _paidSumMeta = const VerificationMeta('paidSum');
   @override
   late final GeneratedColumn<double?> paidSum = GeneratedColumn<double?>(
@@ -1086,7 +1086,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         storageName,
         firstMovementDate,
         delivered,
-        canceled,
+        documentsReturn,
         paidSum,
         paySum
       ];
@@ -1198,9 +1198,13 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
       context.handle(_deliveredMeta,
           delivered.isAcceptableOrUnknown(data['delivered']!, _deliveredMeta));
     }
-    if (data.containsKey('canceled')) {
-      context.handle(_canceledMeta,
-          canceled.isAcceptableOrUnknown(data['canceled']!, _canceledMeta));
+    if (data.containsKey('documents_return')) {
+      context.handle(
+          _documentsReturnMeta,
+          documentsReturn.isAcceptableOrUnknown(
+              data['documents_return']!, _documentsReturnMeta));
+    } else if (isInserting) {
+      context.missing(_documentsReturnMeta);
     }
     if (data.containsKey('paid_sum')) {
       context.handle(_paidSumMeta,

@@ -37,7 +37,6 @@ class OrderState {
   List<OrderLine> get lines => orderWithLines.lines;
   Order get order => orderWithLines.order;
   bool get acceptable => order.firstMovementDate == null;
-  bool get cancelable => deliverable && order.canceled == null;
   bool get deliverable => order.delivered == null;
   bool get payable => !deliverable && order.paySum != 0 && order.paidSum == 0;
   bool get storageAccess => user?.roles.contains('storage') ?? false;
