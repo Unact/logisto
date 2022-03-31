@@ -36,9 +36,12 @@ class OrderState {
 
   List<OrderLine> get lines => orderWithLines.lines;
   Order get order => orderWithLines.order;
-  bool get acceptable => order.firstMovementDate == null;
-  bool get deliverable => order.delivered == null;
-  bool get payable => !deliverable && order.paySum != 0 && order.paidSum == 0;
+  bool get transferAcceptable => scanned && (storageAccess || pickupPointAccess);
+  bool get transferable => scanned && storageAccess;
+  bool get acceptable => scanned && storageAccess && order.firstMovementDate == null;
+  bool get deliverable => scanned && pickupPointAccess && order.delivered == null;
+  bool get scannable => !scanned && (storageAccess || pickupPointAccess);
+  bool get payable => scanned && pickupPointAccess && !deliverable && order.paySum != 0 && order.paidSum == 0;
   bool get storageAccess => user?.roles.contains('storage') ?? false;
   bool get pickupPointAccess => user?.roles.contains('pickup') ?? false;
 

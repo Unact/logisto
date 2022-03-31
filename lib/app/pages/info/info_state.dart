@@ -15,25 +15,29 @@ class InfoState {
     this.status = InfoStateStatus.initial,
     this.ordersWithLines = const [],
     this.newVersionAvailable = false,
-    this.message = ''
+    this.message = '',
+    this.loading = false
   });
 
   final List<OrderWithLines> ordersWithLines;
   final bool newVersionAvailable;
   final InfoStateStatus status;
   final String message;
+  final bool loading;
 
   InfoState copyWith({
     InfoStateStatus? status,
     List<OrderWithLines>? ordersWithLines,
     bool? newVersionAvailable,
-    String? message
+    String? message,
+    bool? loading
   }) {
     return InfoState(
       status: status ?? this.status,
       ordersWithLines: ordersWithLines ?? this.ordersWithLines,
       newVersionAvailable: newVersionAvailable ?? this.newVersionAvailable,
-      message: message ?? this.message
+      message: message ?? this.message,
+      loading: loading ?? this.loading
     );
   }
 }

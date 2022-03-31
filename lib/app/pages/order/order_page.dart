@@ -43,9 +43,10 @@ class _OrderViewState extends State<_OrderView> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _volumeController = TextEditingController();
   Completer<void> _dialogCompleter = Completer();
+  final ButtonStyle _buttonStyle = TextButton.styleFrom(primary: Colors.blue);
 
   Future<void> openDialog() async {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (_) => const Center(child: CircularProgressIndicator()),
       barrierDismissible: false
@@ -79,11 +80,11 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showAcceptPaymentDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    String result = await showDialog(
+    String result = await showDialog<String>(
       context: context,
       builder: (_) => AcceptPaymentPage(order: vm.state.order, cardPayment: vm.state.cardPayment),
       barrierDismissible: false
-    );
+    ) ?? 'Платеж отменен';
 
     vm.finishPayment(result);
   }
@@ -127,6 +128,7 @@ class _OrderViewState extends State<_OrderView> {
                       alignedDropdown: true,
                       child: DropdownButton(
                         isExpanded: true,
+                        menuMaxHeight: 200,
                         value: newOrderStorage,
                         items: vm.state.storages.map((e) => DropdownMenuItem(
                           value: e,
@@ -200,7 +202,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('Вес, кг'),
-        trailing: !vm.state.deliverable || !vm.state.scanned ? Text(weight) : TextFormField(
+        trailing: !vm.state.deliverable ? Text(weight) : TextFormField(
           maxLines: 1,
           autocorrect: false,
           controller: _weightController,
@@ -212,7 +214,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('Объем, м3'),
-        trailing: !vm.state.deliverable || !vm.state.scanned ? Text(volume) : TextFormField(
+        trailing: !vm.state.deliverable ? Text(volume) : TextFormField(
           maxLines: 1,
           autocorrect: false,
           controller: _volumeController,
@@ -236,83 +238,96 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('К оплате'),
-        trailing: Text(Format.numberStr(order.paySum))
+        trailing: Row(
+          children: [
+            Text(Format.numberStr(order.paySum)),
+            !vm.state.payable ? Container() : Row(
+              children: [
+                SizedBox(
+                  width: 48,
+                  child: TextButton(
+                    onPressed: () => vm.tryStartPayment(false),
+                    child: const Icon(Icons.account_balance_wallet, color: Colors.black),
+                  ),
+                ),
+                SizedBox(
+                  width: 48,
+                  child: TextButton(
+                    onPressed: () => vm.tryStartPayment(true),
+                    child: const Icon(Icons.credit_card, color: Colors.black),
+                  )
+                )
+              ]
+            )
+          ]
+        )
       ),
       ExpansionTile(
         title: const Text('Позиции', style: TextStyle(fontSize: 14)),
         initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 8),
         children: vm.state.lines.map<Widget>((e) => _buildOrderLineTile(context, e)).toList()
-      )
+      ),
+      orderActions(context),
+      orderDeliveryActions(context)
     ];
   }
 
-  List<Widget> orderActions(BuildContext context) {
+  Widget orderActions(BuildContext context) {
     OrderViewModel vm = context.read<OrderViewModel>();
-    ButtonStyle style = TextButton.styleFrom(primary: Colors.black);
-    List<Widget> sharedActions = [
-      TextButton(
+
+    List<Widget> actions = [
+      !(vm.state.transferAcceptable) ? null : TextButton(
         onPressed: vm.acceptTransferOrder,
-        child: Column(children: const [Icon(Icons.how_to_reg_sharp), Text('Принять')]),
-        style: style
+        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
+        style: _buttonStyle
       ),
-    ];
-    List<Widget> storageActions = [
       !vm.state.acceptable ? null : TextButton(
         onPressed: vm.tryAcceptOrder,
-        child: Column(children: const [Icon(Icons.fact_check), Text('Приемка')]),
-        style: style
+        child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')]),
+        style: _buttonStyle
       ),
-      TextButton(
+      !vm.state.transferable ? null : TextButton(
         onPressed: showOrderTransferDialog,
-        child: Column(children: const [Icon(Icons.transfer_within_a_station), Text('Передать')]),
-        style: style
-      )
+        child: Column(children: const [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')]),
+        style: _buttonStyle
+      ),
     ].whereType<Widget>().toList();
-    List<Widget> pickupPointActions = [
-      !vm.state.payable ? null : TextButton(
-        onPressed: () {
-          vm.tryStartPayment(false);
-        },
-        child: Column(children: const [Icon(Icons.account_balance_wallet), Text('Наличными')]),
-        style: style
-      ),
-      !vm.state.payable ? null : TextButton(
-        onPressed: () {
-          vm.tryStartPayment(true);
-        },
-        child: Column(children: const [Icon(Icons.credit_card), Text('Картой')]),
-        style: style
-      ),
+
+    if (actions.isEmpty) return Container();
+
+    return ExpansionTile(
+      title: const Text('Передвижение', style: TextStyle(fontSize: 14)),
+      initiallyExpanded: false,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+      children: [Row(children: actions, mainAxisAlignment: MainAxisAlignment.spaceAround)]
+    );
+  }
+
+  Widget orderDeliveryActions(BuildContext context) {
+    OrderViewModel vm = context.read<OrderViewModel>();
+
+    List<Widget> actions = [
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryConfirmOrder,
-        child: Column(children: const [Icon(Icons.assignment_turned_in), Text('Выдать')]),
-        style: style
+        child: Column(children: const [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')]),
+        style: _buttonStyle
       ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryCancelOrder,
-        child: Column(children: const [Icon(Icons.assignment_return), Text('Вернуть')]),
-        style: style
+        child: Column(children: const [Icon(Icons.assignment_return, color: Colors.black), Text('Вернуть')]),
+        style: _buttonStyle
       ),
     ].whereType<Widget>().toList();
 
-    List<Widget> actions = [];
+    if (actions.isEmpty) return Container();
 
-    if (vm.state.pickupPointAccess) actions.addAll(pickupPointActions);
-    if (vm.state.storageAccess) actions.addAll(storageActions);
-    if (actions.isNotEmpty) actions.addAll(sharedActions);
-
-    if (!vm.state.scanned && actions.isNotEmpty) {
-      return [
-        TextButton(
-          onPressed: vm.startScan,
-          child: const Icon(Icons.qr_code_scanner),
-          style: style
-        )
-      ];
-    }
-
-    return actions;
+    return ExpansionTile(
+      title: const Text('ПВЗ', style: TextStyle(fontSize: 14)),
+      initiallyExpanded: false,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+      children: [Row(children: actions, mainAxisAlignment: MainAxisAlignment.spaceAround)]
+    );
   }
 
   Widget _buildOrderLineTile(BuildContext context, OrderLine orderLine) {
@@ -336,7 +351,7 @@ class _OrderViewState extends State<_OrderView> {
           Row(
             children: <Widget>[
               Text(Format.numberStr(orderLine.price) + ' x ', style: style),
-              !vm.state.deliverable || !vm.state.scanned ? Text(amountStr, style: style) :
+              !vm.state.deliverable ? Text(amountStr, style: style) :
                 SizedBox(
                   width: 40,
                   height: 36,
@@ -362,7 +377,7 @@ class _OrderViewState extends State<_OrderView> {
   Widget build(BuildContext context) {
     return BlocConsumer<OrderViewModel, OrderState>(
       builder: (context, state) {
-        List<Widget> actions = orderActions(context);
+        OrderViewModel vm = context.read<OrderViewModel>();
 
         return Scaffold(
           appBar: AppBar(
@@ -374,9 +389,9 @@ class _OrderViewState extends State<_OrderView> {
               ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(top: 24, bottom: 24),
-                children: orderInfoRows(context)..add(const SizedBox(height: 72))
+                children: orderInfoRows(context)..add(SizedBox(height: !vm.state.scannable ? 0 : 72))
               ),
-              actions.isEmpty ? Container() : SizedBox(
+              !vm.state.scannable ? Container() : SizedBox(
                 height: 72,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
@@ -386,7 +401,11 @@ class _OrderViewState extends State<_OrderView> {
                   ),
                   padding: const EdgeInsets.only(bottom: 4, right: 8, left: 8),
                   child: Center(
-                    child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: actions))
+                    child: TextButton(
+                      onPressed: vm.startScan,
+                      child: const Icon(Icons.qr_code_scanner, color: Colors.black),
+                      style: _buttonStyle
+                    )
                   )
                 )
               )

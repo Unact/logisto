@@ -21,22 +21,22 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(
       status: InfoStateStatus.dataLoaded,
       newVersionAvailable: await app.newVersionAvailable,
-      ordersWithLines: await app.storage.ordersDao.getOrdersWithLines(),
+      ordersWithLines: await app.storage.ordersDao.getOrdersWithLines()
     ));
   }
 
   Future<void> getData() async {
     if (state.status == InfoStateStatus.inProgress) return;
 
-    emit(state.copyWith(status: InfoStateStatus.inProgress));
+    emit(state.copyWith(status: InfoStateStatus.inProgress, loading: true));
 
     try {
       await app.loadUserData();
       await _getData();
 
-      emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены'));
+      emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены', loading: false));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message, loading: false));
     }
   }
 

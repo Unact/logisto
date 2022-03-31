@@ -32,7 +32,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
   Future<void> cancelPayment() async {
     await iboxpro.cancelPayment();
 
-    emit(state.copyWith(message: 'Платеж отменен', canceled: true));
+    emit(state.copyWith(message: 'Платеж отменен', canceled: true, status: AcceptPaymentStateStatus.failure));
   }
 
   Future<void> _connectToDevice() async {
@@ -124,7 +124,11 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
   }
 
   Future<void> _savePayment([Map<dynamic, dynamic>? transaction]) async {
-    emit(state.copyWith(message: 'Сохранение информации об оплате', status: AcceptPaymentStateStatus.savingPayment));
+    emit(state.copyWith(
+      message: 'Сохранение информации об оплате',
+      status: AcceptPaymentStateStatus.savingPayment,
+      isCancelable: false
+    ));
 
     try {
       await _acceptPayment(transaction);

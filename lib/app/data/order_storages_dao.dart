@@ -7,7 +7,7 @@ class OrderStoragesDao extends DatabaseAccessor<AppStorage> with _$OrderStorages
   OrderStoragesDao(AppStorage db) : super(db);
 
   Future<List<OrderStorage>> getOrderStorages() async {
-    return (select(orderStorages)..orderBy([(u) => OrderingTerm(expression: u.name)])).get();
+    return (select(orderStorages)..orderBy([(u) => OrderingTerm(expression: u.sequenceNumber)])).get();
   }
 
   Future<void> loadOrderStorages(List<OrderStorage> orderStorageList) async {

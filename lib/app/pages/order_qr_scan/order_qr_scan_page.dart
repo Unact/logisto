@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -9,6 +8,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '/app/data/database.dart';
 import '/app/constants/strings.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'order_qr_scan_state.dart';

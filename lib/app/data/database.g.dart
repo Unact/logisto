@@ -1564,7 +1564,9 @@ class $OrderLinesTable extends OrderLines
 class OrderStorage extends DataClass implements Insertable<OrderStorage> {
   final int id;
   final String name;
-  OrderStorage({required this.id, required this.name});
+  final int sequenceNumber;
+  OrderStorage(
+      {required this.id, required this.name, required this.sequenceNumber});
   factory OrderStorage.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return OrderStorage(
@@ -1572,6 +1574,8 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      sequenceNumber: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}sequence_number'])!,
     );
   }
   @override
@@ -1579,6 +1583,7 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['sequence_number'] = Variable<int>(sequenceNumber);
     return map;
   }
 
@@ -1586,6 +1591,7 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     return OrderStoragesCompanion(
       id: Value(id),
       name: Value(name),
+      sequenceNumber: Value(sequenceNumber),
     );
   }
 
@@ -1595,6 +1601,7 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     return OrderStorage(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      sequenceNumber: serializer.fromJson<int>(json['sequenceNumber']),
     );
   }
   @override
@@ -1603,55 +1610,70 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'sequenceNumber': serializer.toJson<int>(sequenceNumber),
     };
   }
 
-  OrderStorage copyWith({int? id, String? name}) => OrderStorage(
+  OrderStorage copyWith({int? id, String? name, int? sequenceNumber}) =>
+      OrderStorage(
         id: id ?? this.id,
         name: name ?? this.name,
+        sequenceNumber: sequenceNumber ?? this.sequenceNumber,
       );
   @override
   String toString() {
     return (StringBuffer('OrderStorage(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('sequenceNumber: $sequenceNumber')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name);
+  int get hashCode => Object.hash(id, name, sequenceNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OrderStorage && other.id == this.id && other.name == this.name);
+      (other is OrderStorage &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.sequenceNumber == this.sequenceNumber);
 }
 
 class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
   final Value<int> id;
   final Value<String> name;
+  final Value<int> sequenceNumber;
   const OrderStoragesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.sequenceNumber = const Value.absent(),
   });
   OrderStoragesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-  }) : name = Value(name);
+    required int sequenceNumber,
+  })  : name = Value(name),
+        sequenceNumber = Value(sequenceNumber);
   static Insertable<OrderStorage> custom({
     Expression<int>? id,
     Expression<String>? name,
+    Expression<int>? sequenceNumber,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (sequenceNumber != null) 'sequence_number': sequenceNumber,
     });
   }
 
-  OrderStoragesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+  OrderStoragesCompanion copyWith(
+      {Value<int>? id, Value<String>? name, Value<int>? sequenceNumber}) {
     return OrderStoragesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
     );
   }
 
@@ -1664,6 +1686,9 @@ class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (sequenceNumber.present) {
+      map['sequence_number'] = Variable<int>(sequenceNumber.value);
+    }
     return map;
   }
 
@@ -1671,7 +1696,8 @@ class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
   String toString() {
     return (StringBuffer('OrderStoragesCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('sequenceNumber: $sequenceNumber')
           ..write(')'))
         .toString();
   }
@@ -1695,8 +1721,14 @@ class $OrderStoragesTable extends OrderStorages
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _sequenceNumberMeta =
+      const VerificationMeta('sequenceNumber');
   @override
-  List<GeneratedColumn> get $columns => [id, name];
+  late final GeneratedColumn<int?> sequenceNumber = GeneratedColumn<int?>(
+      'sequence_number', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, sequenceNumber];
   @override
   String get aliasedName => _alias ?? 'order_storages';
   @override
@@ -1714,6 +1746,14 @@ class $OrderStoragesTable extends OrderStorages
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('sequence_number')) {
+      context.handle(
+          _sequenceNumberMeta,
+          sequenceNumber.isAcceptableOrUnknown(
+              data['sequence_number']!, _sequenceNumberMeta));
+    } else if (isInserting) {
+      context.missing(_sequenceNumberMeta);
     }
     return context;
   }

@@ -37,7 +37,7 @@ class _LoginViewState extends State<_LoginView> {
   final TextEditingController _urlController = TextEditingController();
 
   Future<void> openDialog() async {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (_) => const Center(child: CircularProgressIndicator()),
       barrierDismissible: false

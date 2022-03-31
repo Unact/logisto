@@ -16,11 +16,9 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
 
   @override
   Future<void> loadData() async {
-    List<CameraDescription> cameras = await availableCameras();
-
     emit(state.copyWith(
       status: OrderQRScanStateStatus.dataLoaded,
-      cameras: cameras
+      cameraEnabled: await Misc.hasCamera()
     ));
   }
 

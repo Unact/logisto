@@ -21,7 +21,7 @@ class OrderQRScanState {
     this.orderPackageScanned = const [],
     this.message = '',
     required this.mode,
-    this.cameras = const []
+    this.cameraEnabled = false
   });
 
   final OrderQRScanStateStatus status;
@@ -29,10 +29,9 @@ class OrderQRScanState {
   final Order order;
   final List<bool> orderPackageScanned;
   final ScanMode mode;
-  List<CameraDescription> cameras;
+  final bool cameraEnabled;
 
   bool get scannerEnabled => Platform.isAndroid;
-  bool get cameraEnabled => cameras.isNotEmpty;
 
   OrderQRScanState copyWith({
     OrderQRScanStateStatus? status,
@@ -40,7 +39,7 @@ class OrderQRScanState {
     List<bool>? orderPackageScanned,
     String? message,
     ScanMode? mode,
-    List<CameraDescription>? cameras
+    bool? cameraEnabled
   }) {
     return OrderQRScanState(
       status: status ?? this.status,
@@ -48,7 +47,7 @@ class OrderQRScanState {
       orderPackageScanned: orderPackageScanned ?? this.orderPackageScanned,
       message: message ?? this.message,
       mode: mode ?? this.mode,
-      cameras: cameras ?? this.cameras
+      cameraEnabled: cameraEnabled ?? this.cameraEnabled
     );
   }
 }

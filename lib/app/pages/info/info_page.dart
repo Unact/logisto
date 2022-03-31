@@ -128,6 +128,8 @@ class _InfoViewState extends State<_InfoView> {
     return Card(
       child: ListTile(
         onTap: () {
+          if (vm.state.loading) return;
+
           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => OrdersPage()));
         },
         isThreeLine: true,

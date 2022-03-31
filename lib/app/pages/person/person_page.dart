@@ -39,7 +39,7 @@ class _PersonViewState extends State<_PersonView> {
   Completer<void> _dialogCompleter = Completer();
 
   Future<void> openDialog() async {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (_) => const Center(child: CircularProgressIndicator()),
       barrierDismissible: false

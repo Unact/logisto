@@ -52,6 +52,7 @@ class OrderLines extends Table {
 class OrderStorages extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
+  IntColumn get sequenceNumber => integer()();
 }
 
 class JsonConverter extends TypeConverter<List<String>, String> {

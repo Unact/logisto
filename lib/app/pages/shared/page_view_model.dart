@@ -13,8 +13,6 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
   late final App app;
   final BuildContext context;
 
-  bool closed = false;
-
   PageViewModel(this.context, T state) : super(state) {
     initViewModel();
   }
@@ -26,7 +24,10 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
   @mustCallSuper
   Future<void> initViewModel() async {
     app = await App.init();
-    _subscription = app.storage.tableUpdates(listenForTables).listen((event) => loadData());
+    _subscription = app.storage.tableUpdates(listenForTables).listen((event) async {
+      await Future.delayed(Duration.zero);
+      await loadData();
+    });
     await loadData();
   }
 
@@ -42,13 +43,12 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
       text: status.runtimeType.toString()
     );
 
-    if (!closed) super.emit(state);
+    if (!isClosed) super.emit(state);
   }
 
   @override
   Future<void> close() async {
     _subscription.cancel();
-    closed = true;
 
     super.close();
   }

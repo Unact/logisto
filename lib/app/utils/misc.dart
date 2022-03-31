@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 class Misc {
@@ -17,5 +18,11 @@ class Misc {
       'className': '',
       'methodName': '',
     };
+  }
+
+  static Future<bool> hasCamera() async {
+    List<CameraDescription> cameras = await availableCameras();
+
+    return cameras.isNotEmpty;
   }
 }
