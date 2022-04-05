@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class InfoRow extends StatelessWidget {
+  final EdgeInsets padding;
   final Widget? title;
   final Widget? trailing;
 
   const InfoRow({
     Key? key,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8),
     this.title,
     this.trailing
   }) : super(key: key);
@@ -13,7 +15,7 @@ class InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: padding,
       child: Row(
         children: [
           Flexible(

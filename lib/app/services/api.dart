@@ -99,6 +99,17 @@ class Api {
     return ApiOrder.fromJson(orderData);
   }
 
+  Future<ApiOrder> acceptStorageTransferOrder({
+    required int id
+  }) async {
+    final orderData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/accept_storage_transfer_order',
+      data: { 'id': id }
+    ));
+
+    return ApiOrder.fromJson(orderData);
+  }
+
   Future<ApiOrder> acceptTransferOrder({
     required int id
   }) async {

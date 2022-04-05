@@ -35,7 +35,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> updateWeight(String value) async {
-    double? parsedWeight  = double.tryParse(value.replaceAll(',', '.'));
+    double? parsedWeight = double.tryParse(value.replaceAll(',', '.'));
 
     if (parsedWeight == null) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
@@ -43,16 +43,14 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
 
     try {
-      int newWeight = (parsedWeight * 1000).toInt();
-
-      await _updateOrder({'weight': newWeight});
+      await _updateOrder({'weight': (parsedWeight * 1000).toInt()});
     } on AppError catch(e) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: e.message));
     }
   }
 
   Future<void> updateVolume(String value) async {
-    double? parsedVolume  = double.tryParse(value.replaceAll(',', '.'));
+    double? parsedVolume = double.tryParse(value.replaceAll(',', '.'));
 
     if (parsedVolume == null) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
@@ -60,9 +58,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
 
     try {
-      int newVolume = (parsedVolume * 1000000).toInt();
-
-      await _updateOrder({'volume': newVolume});
+      await _updateOrder({'volume': (parsedVolume * 1000000).toInt()});
     } on AppError catch(e) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: e.message));
     }
@@ -80,7 +76,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> acceptOrder(bool confirmed) async {
+  Future<void> acceptOrder(bool confirmed, String weightStr, String volumeStr) async {
     if (!confirmed) {
       if (state.order.documentsReturn) {
         emit(state.copyWith(
@@ -92,10 +88,31 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       return;
     }
 
+    double? parsedWeight = double.tryParse(weightStr.replaceAll(',', '.'));
+    double? parsedVolume = double.tryParse(volumeStr.replaceAll(',', '.'));
+
+    if (parsedVolume == null || parsedWeight == null) {
+      emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
+      return;
+    }
+
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
+      await _updateOrder({'volume': (parsedVolume * 1000000).toInt(), 'weight': (parsedWeight * 1000).toInt()});
       await _acceptOrder();
+
+      emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: OrderStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> acceptStorageTransferOrder() async {
+    emit(state.copyWith(status: OrderStateStatus.inProgress));
+
+    try {
+      await _acceptStorageTransferOrder();
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
     } on AppError catch(e) {
@@ -153,20 +170,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       scanned: result,
       message: result ? 'Позиции успешно отсканированы' : 'Сканирование было прервано'
     ));
-  }
-
-  void tryAcceptOrder() {
-    if (state.order.documentsReturn) {
-      emit(state.copyWith(
-        status: OrderStateStatus.needUserConfirmation,
-        confirmationCallback: acceptOrder,
-        message: 'Есть ли документы к заказу?',
-      ));
-
-      return;
-    }
-
-    acceptOrder(true);
   }
 
   void tryConfirmOrder() {
@@ -265,6 +268,19 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> _acceptOrder() async {
     try {
       ApiOrder newOrder = await Api(storage: app.storage).acceptOrder(id: state.order.id);
+
+      await _saveApiOrder(newOrder);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await app.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> _acceptStorageTransferOrder() async {
+    try {
+      ApiOrder newOrder = await Api(storage: app.storage).acceptStorageTransferOrder(id: state.order.id);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {

@@ -159,6 +159,91 @@ class _OrderViewState extends State<_OrderView> {
     if (result != null) vm.transferOrder(result);
   }
 
+  Future<void> showAcceptOrderDialog() async {
+    OrderViewModel vm = context.read<OrderViewModel>();
+    List<dynamic>? result = await showDialog<List<dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        Order order = vm.state.order;
+        String weight = order.weight != null ? Format.numberStr(order.weight! / 1000) : '';
+        String volume = order.volume != null ? Format.numberStr(order.volume! / 1000000) : '';
+        TextEditingController _weightDialogController = TextEditingController(text: weight);
+        TextEditingController _volumeDialogController = TextEditingController(text: volume);
+        bool? hasDocuments = !order.documentsReturn;
+        TextStyle textStyle = const TextStyle(fontSize: 14);
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Подтвердите заказ'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    InfoRow(
+                      padding: EdgeInsets.zero,
+                      title: Text('Вес, кг', style: textStyle),
+                      trailing: TextFormField(
+                        maxLines: 1,
+                        autocorrect: false,
+                        controller: _weightDialogController,
+                        style: textStyle,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
+                      ),
+                    ),
+                    InfoRow(
+                      padding: EdgeInsets.zero,
+                      title: Text('Объем, м3', style: textStyle),
+                      trailing: TextFormField(
+                        maxLines: 1,
+                        autocorrect: false,
+                        controller: _volumeDialogController,
+                        style: textStyle,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
+                      )
+                    ),
+                    !order.documentsReturn ?
+                      Container() :
+                      InfoRow(
+                        padding: EdgeInsets.zero,
+                        title: Text('Документы', style: textStyle),
+                        trailing: DropdownButton(
+                          isExpanded: true,
+                          menuMaxHeight: 200,
+                          value: hasDocuments,
+                          items: [true, false].map((e) => DropdownMenuItem<bool>(
+                            value: e,
+                            child: Text(e ? 'Да' : 'Нет', style: textStyle)
+                          )).toList(),
+                          onChanged: (bool? newVal) => setState(() => hasDocuments = newVal)
+                        )
+                      )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text(Strings.ok),
+                  onPressed: () {
+                    Navigator.of(context).pop(
+                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text]
+                    );
+                  }
+                ),
+                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
+              ],
+            );
+          }
+        );
+      });
+
+    if (result != null) {
+      vm.acceptOrder(result[0], result[1], result[2]);
+    }
+  }
+
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message),));
   }
@@ -202,7 +287,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('Вес, кг'),
-        trailing: !vm.state.deliverable ? Text(weight) : TextFormField(
+        trailing: !vm.state.scanned ? Text(weight) : TextFormField(
           maxLines: 1,
           autocorrect: false,
           controller: _weightController,
@@ -214,7 +299,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('Объем, м3'),
-        trailing: !vm.state.deliverable ? Text(volume) : TextFormField(
+        trailing: !vm.state.scanned ? Text(volume) : TextFormField(
           maxLines: 1,
           autocorrect: false,
           controller: _volumeController,
@@ -269,7 +354,7 @@ class _OrderViewState extends State<_OrderView> {
         children: vm.state.lines.map<Widget>((e) => _buildOrderLineTile(context, e)).toList()
       ),
       orderActions(context),
-      orderDeliveryActions(context)
+      orderPickupActions(context)
     ];
   }
 
@@ -277,13 +362,14 @@ class _OrderViewState extends State<_OrderView> {
     OrderViewModel vm = context.read<OrderViewModel>();
 
     List<Widget> actions = [
-      !(vm.state.transferAcceptable) ? null : TextButton(
-        onPressed: vm.acceptTransferOrder,
+      !(vm.state.storageTransferAcceptable) ? null : TextButton(
+        onPressed: vm.acceptStorageTransferOrder,
         child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
         style: _buttonStyle
       ),
       !vm.state.acceptable ? null : TextButton(
-        onPressed: vm.tryAcceptOrder,
+        onPressed: showAcceptOrderDialog,
+        //onPressed: vm.tryAcceptOrder,
         child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')]),
         style: _buttonStyle
       ),
@@ -304,10 +390,15 @@ class _OrderViewState extends State<_OrderView> {
     );
   }
 
-  Widget orderDeliveryActions(BuildContext context) {
+  Widget orderPickupActions(BuildContext context) {
     OrderViewModel vm = context.read<OrderViewModel>();
 
     List<Widget> actions = [
+      !(vm.state.transferAcceptable) ? null : TextButton(
+        onPressed: vm.acceptTransferOrder,
+        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
+        style: _buttonStyle
+      ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryConfirmOrder,
         child: Column(children: const [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')]),

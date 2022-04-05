@@ -36,7 +36,8 @@ class OrderState {
 
   List<OrderLine> get lines => orderWithLines.lines;
   Order get order => orderWithLines.order;
-  bool get transferAcceptable => scanned && (storageAccess || pickupPointAccess);
+  bool get transferAcceptable => scanned && pickupPointAccess;
+  bool get storageTransferAcceptable => scanned && storageAccess;
   bool get transferable => scanned && storageAccess;
   bool get acceptable => scanned && storageAccess && order.firstMovementDate == null;
   bool get deliverable => scanned && pickupPointAccess && order.delivered == null;
