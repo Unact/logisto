@@ -1,5 +1,9 @@
 part of 'database.dart';
 
+class Prefs extends Table {
+  DateTimeColumn get lastLogin => dateTime().nullable()();
+}
+
 class Users extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get username => text()();
@@ -8,10 +12,10 @@ class Users extends Table {
   TextColumn get storageName => text()();
   TextColumn get roles => text().map(const JsonConverter())();
   TextColumn get version => text()();
+  RealColumn get total => real()();
 }
 
 class ApiCredentials extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get accessToken => text()();
   TextColumn get refreshToken => text()();
   TextColumn get url => text()();
@@ -32,6 +36,7 @@ class Orders extends Table {
   TextColumn get deliveryAddressName => text()();
   TextColumn get pickupAddressName => text()();
   TextColumn get storageName => text().nullable()();
+  DateTimeColumn get storageAccepted => dateTime().nullable()();
   DateTimeColumn get firstMovementDate => dateTime().nullable()();
   DateTimeColumn get delivered => dateTime().nullable()();
   BoolColumn get documentsReturn => boolean()();

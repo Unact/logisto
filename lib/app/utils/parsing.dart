@@ -1,4 +1,4 @@
-class Nullify {
+class Parsing {
   static DateTime? parseDate(value) {
     return value != null ? (value is DateTime ? value : DateTime.parse(value).toLocal()) : null;
   }
@@ -10,5 +10,9 @@ class Nullify {
     if (value is int) return value.toDouble();
 
     return double.parse(value);
+  }
+
+  static double? parseFormattedDouble(String value) {
+    return double.tryParse(value.replaceAll(RegExp(r'\s+'), '').replaceAll(',', '.'));
   }
 }

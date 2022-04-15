@@ -10,7 +10,6 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
 
 part 'person_state.dart';

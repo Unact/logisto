@@ -35,7 +35,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> updateWeight(String value) async {
-    double? parsedWeight = double.tryParse(value.replaceAll(',', '.'));
+    double? parsedWeight = Parsing.parseFormattedDouble(value);
 
     if (parsedWeight == null) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
@@ -50,7 +50,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> updateVolume(String value) async {
-    double? parsedVolume = double.tryParse(value.replaceAll(',', '.'));
+    double? parsedVolume = Parsing.parseFormattedDouble(value);
 
     if (parsedVolume == null) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
@@ -77,29 +77,12 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> acceptOrder(bool confirmed, String weightStr, String volumeStr) async {
-    if (!confirmed) {
-      if (state.order.documentsReturn) {
-        emit(state.copyWith(
-          status: OrderStateStatus.failure,
-          message: 'Нельзя принять заказ без документов'
-        ));
-      }
-
-      return;
-    }
-
-    double? parsedWeight = double.tryParse(weightStr.replaceAll(',', '.'));
-    double? parsedVolume = double.tryParse(volumeStr.replaceAll(',', '.'));
-
-    if (parsedVolume == null || parsedWeight == null) {
-      emit(state.copyWith(status: OrderStateStatus.failure, message: 'Указано не корректное число'));
-      return;
-    }
+    if (!confirmed) return;
 
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _updateOrder({'volume': (parsedVolume * 1000000).toInt(), 'weight': (parsedWeight * 1000).toInt()});
+      await _acceptAndUpdateOrder(weightStr, volumeStr);
       await _acceptOrder();
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
@@ -108,10 +91,13 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> acceptStorageTransferOrder() async {
+  Future<void> acceptStorageTransferOrder(bool confirmed, String weightStr, String volumeStr) async {
+    if (!confirmed) return;
+
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
+      await _acceptAndUpdateOrder(weightStr, volumeStr);
       await _acceptStorageTransferOrder();
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
@@ -314,5 +300,16 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
         (e) => app.storage.ordersDao.updateOrderLine(state.order.id, e.toCompanion(false))
       );
     });
+  }
+
+  Future<void> _acceptAndUpdateOrder(String weightStr, String volumeStr) async {
+    if (state.order.documentsReturn) throw AppError('Нельзя принять заказ без документов');
+
+    double? parsedWeight = Parsing.parseFormattedDouble(weightStr);
+    double? parsedVolume = Parsing.parseFormattedDouble(volumeStr);
+
+    if (parsedVolume == null || parsedWeight == null) throw AppError('Указано не корректное число');
+
+    await _updateOrder({'volume': (parsedVolume * 1000000).toInt(), 'weight': (parsedWeight * 1000).toInt()});
   }
 }

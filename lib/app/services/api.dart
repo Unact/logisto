@@ -32,13 +32,13 @@ class Api {
       );
     });
 
-    ApiCredential apiCredential = (await _getApiCredentials()).copyWith(
+    ApiCredential apiCredential = ApiCredential(
       accessToken: result['access_token'],
       refreshToken: result['refresh_token'],
       url: url
     );
 
-    await storage.apiCredentialsDao.updateApiCredential(apiCredential);
+    await storage.apiCredentialsDao.updateApiCredential(apiCredential.toCompanion(true));
   }
 
   Future<void> refresh() async {
@@ -54,11 +54,17 @@ class Api {
       refreshToken: result['refresh_token']
     );
 
-    await storage.apiCredentialsDao.updateApiCredential(newApiCredential);
+    await storage.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
   }
 
   Future<void> logout() async {
-    await storage.apiCredentialsDao.deleteApiCredential();
+    ApiCredential newApiCredential = ApiCredential(
+      accessToken: '',
+      refreshToken: '',
+      url: ''
+    );
+
+    await storage.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
   }
 
   Future<ApiData> loadOrders() async {

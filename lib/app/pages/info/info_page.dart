@@ -11,6 +11,7 @@ import '/app/pages/orders/orders_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
+import '/app/utils/format.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -119,6 +120,7 @@ class _InfoViewState extends State<_InfoView> {
     return <Widget>[
       _buildOrdersCard(context),
       _buildInfoCard(context),
+      _buildUserCard(context)
     ];
   }
 
@@ -160,5 +162,27 @@ class _InfoViewState extends State<_InfoView> {
     } else {
       return Container();
     }
+  }
+
+  Widget _buildUserCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    return Card(
+      child: ListTile(
+        isThreeLine: true,
+        title: const Text('Касса'),
+        subtitle: RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.grey),
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Остаток в кассе: ${Format.numberStr(vm.state.total)}',
+                style: const TextStyle(fontSize: 12.0)
+              ),
+            ]
+          )
+        ),
+      ),
+    );
   }
 }

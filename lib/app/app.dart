@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +31,8 @@ class App {
   }
 
   static App? _instance;
+
+  static App? get instance => _instance;
 
   static Future<App> init() async {
     if (_instance != null) return _instance!;
@@ -90,6 +93,33 @@ class App {
       await reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+  }
+
+  Future<void> login(String url, String login, String password) async {
+    try {
+      await Api(storage: storage).login(url: url, login: login, password: password);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+
+    await loadUserData();
+    await storage.updatePref(PrefsCompanion(lastLogin: Value(DateTime.now())));
+  }
+
+  Future<void> logout() async {
+    try {
+      await Api(storage: storage).logout();
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+
+    await storage.clearData();
   }
 
   static void _intFlogs({

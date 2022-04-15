@@ -10,7 +10,7 @@ import '/app/utils/misc.dart';
 
 abstract class PageViewModel<T, P> extends Cubit<T> {
   late final StreamSubscription _subscription;
-  late final App app;
+  late final App app = App.instance!;
   final BuildContext context;
 
   PageViewModel(this.context, T state) : super(state) {
@@ -23,7 +23,6 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
 
   @mustCallSuper
   Future<void> initViewModel() async {
-    app = await App.init();
     _subscription = app.storage.tableUpdates(listenForTables).listen((event) async {
       await Future.delayed(Duration.zero);
       await loadData();

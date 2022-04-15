@@ -5,19 +5,10 @@ class ApiCredentialsDao extends DatabaseAccessor<AppStorage> with _$ApiCredentia
   ApiCredentialsDao(AppStorage db) : super(db);
 
   Future<ApiCredential> getApiCredential() async {
-    return await (select(apiCredentials).getSingleOrNull()) ?? ApiCredential(
-      id: AppStorage.kSingleRecordId,
-      refreshToken: '',
-      url: '',
-      accessToken: ''
-    );
+    return select(apiCredentials).getSingle();
   }
 
-  Future<int> updateApiCredential(ApiCredential apiCredential) {
-    return into(apiCredentials).insertOnConflictUpdate(apiCredential);
-  }
-
-  Future<int> deleteApiCredential() {
-    return delete(apiCredentials).go();
+  Future<int> updateApiCredential(ApiCredentialsCompanion apiCredential) {
+    return update(apiCredentials).write(apiCredential);
   }
 }

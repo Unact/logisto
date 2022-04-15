@@ -15,6 +15,7 @@ class User extends DataClass implements Insertable<User> {
   final String storageName;
   final List<String> roles;
   final String version;
+  final double total;
   User(
       {required this.id,
       required this.username,
@@ -22,7 +23,8 @@ class User extends DataClass implements Insertable<User> {
       required this.email,
       required this.storageName,
       required this.roles,
-      required this.version});
+      required this.version,
+      required this.total});
   factory User.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return User(
@@ -40,6 +42,8 @@ class User extends DataClass implements Insertable<User> {
           .mapFromDatabaseResponse(data['${effectivePrefix}roles']))!,
       version: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}version'])!,
+      total: const RealType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}total'])!,
     );
   }
   @override
@@ -55,6 +59,7 @@ class User extends DataClass implements Insertable<User> {
       map['roles'] = Variable<String>(converter.mapToSql(roles)!);
     }
     map['version'] = Variable<String>(version);
+    map['total'] = Variable<double>(total);
     return map;
   }
 
@@ -67,6 +72,7 @@ class User extends DataClass implements Insertable<User> {
       storageName: Value(storageName),
       roles: Value(roles),
       version: Value(version),
+      total: Value(total),
     );
   }
 
@@ -81,6 +87,7 @@ class User extends DataClass implements Insertable<User> {
       storageName: serializer.fromJson<String>(json['storageName']),
       roles: serializer.fromJson<List<String>>(json['roles']),
       version: serializer.fromJson<String>(json['version']),
+      total: serializer.fromJson<double>(json['total']),
     );
   }
   @override
@@ -94,6 +101,7 @@ class User extends DataClass implements Insertable<User> {
       'storageName': serializer.toJson<String>(storageName),
       'roles': serializer.toJson<List<String>>(roles),
       'version': serializer.toJson<String>(version),
+      'total': serializer.toJson<double>(total),
     };
   }
 
@@ -104,7 +112,8 @@ class User extends DataClass implements Insertable<User> {
           String? email,
           String? storageName,
           List<String>? roles,
-          String? version}) =>
+          String? version,
+          double? total}) =>
       User(
         id: id ?? this.id,
         username: username ?? this.username,
@@ -113,6 +122,7 @@ class User extends DataClass implements Insertable<User> {
         storageName: storageName ?? this.storageName,
         roles: roles ?? this.roles,
         version: version ?? this.version,
+        total: total ?? this.total,
       );
   @override
   String toString() {
@@ -123,14 +133,15 @@ class User extends DataClass implements Insertable<User> {
           ..write('email: $email, ')
           ..write('storageName: $storageName, ')
           ..write('roles: $roles, ')
-          ..write('version: $version')
+          ..write('version: $version, ')
+          ..write('total: $total')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, username, name, email, storageName, roles, version);
+  int get hashCode => Object.hash(
+      id, username, name, email, storageName, roles, version, total);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -141,7 +152,8 @@ class User extends DataClass implements Insertable<User> {
           other.email == this.email &&
           other.storageName == this.storageName &&
           other.roles == this.roles &&
-          other.version == this.version);
+          other.version == this.version &&
+          other.total == this.total);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -152,6 +164,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> storageName;
   final Value<List<String>> roles;
   final Value<String> version;
+  final Value<double> total;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.username = const Value.absent(),
@@ -160,6 +173,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.storageName = const Value.absent(),
     this.roles = const Value.absent(),
     this.version = const Value.absent(),
+    this.total = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -169,12 +183,14 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String storageName,
     required List<String> roles,
     required String version,
+    required double total,
   })  : username = Value(username),
         name = Value(name),
         email = Value(email),
         storageName = Value(storageName),
         roles = Value(roles),
-        version = Value(version);
+        version = Value(version),
+        total = Value(total);
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? username,
@@ -183,6 +199,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? storageName,
     Expression<List<String>>? roles,
     Expression<String>? version,
+    Expression<double>? total,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -192,6 +209,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (storageName != null) 'storage_name': storageName,
       if (roles != null) 'roles': roles,
       if (version != null) 'version': version,
+      if (total != null) 'total': total,
     });
   }
 
@@ -202,7 +220,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? email,
       Value<String>? storageName,
       Value<List<String>>? roles,
-      Value<String>? version}) {
+      Value<String>? version,
+      Value<double>? total}) {
     return UsersCompanion(
       id: id ?? this.id,
       username: username ?? this.username,
@@ -211,6 +230,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       storageName: storageName ?? this.storageName,
       roles: roles ?? this.roles,
       version: version ?? this.version,
+      total: total ?? this.total,
     );
   }
 
@@ -239,6 +259,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (version.present) {
       map['version'] = Variable<String>(version.value);
     }
+    if (total.present) {
+      map['total'] = Variable<double>(total.value);
+    }
     return map;
   }
 
@@ -251,7 +274,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('email: $email, ')
           ..write('storageName: $storageName, ')
           ..write('roles: $roles, ')
-          ..write('version: $version')
+          ..write('version: $version, ')
+          ..write('total: $total')
           ..write(')'))
         .toString();
   }
@@ -301,9 +325,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   late final GeneratedColumn<String?> version = GeneratedColumn<String?>(
       'version', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _totalMeta = const VerificationMeta('total');
+  @override
+  late final GeneratedColumn<double?> total = GeneratedColumn<double?>(
+      'total', aliasedName, false,
+      type: const RealType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, username, name, email, storageName, roles, version];
+      [id, username, name, email, storageName, roles, version, total];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -349,6 +378,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_versionMeta);
     }
+    if (data.containsKey('total')) {
+      context.handle(
+          _totalMeta, total.isAcceptableOrUnknown(data['total']!, _totalMeta));
+    } else if (isInserting) {
+      context.missing(_totalMeta);
+    }
     return context;
   }
 
@@ -384,6 +419,7 @@ class Order extends DataClass implements Insertable<Order> {
   final String deliveryAddressName;
   final String pickupAddressName;
   final String? storageName;
+  final DateTime? storageAccepted;
   final DateTime? firstMovementDate;
   final DateTime? delivered;
   final bool documentsReturn;
@@ -404,6 +440,7 @@ class Order extends DataClass implements Insertable<Order> {
       required this.deliveryAddressName,
       required this.pickupAddressName,
       this.storageName,
+      this.storageAccepted,
       this.firstMovementDate,
       this.delivered,
       required this.documentsReturn,
@@ -440,6 +477,8 @@ class Order extends DataClass implements Insertable<Order> {
           data['${effectivePrefix}pickup_address_name'])!,
       storageName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}storage_name']),
+      storageAccepted: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}storage_accepted']),
       firstMovementDate: const DateTimeType().mapFromDatabaseResponse(
           data['${effectivePrefix}first_movement_date']),
       delivered: const DateTimeType()
@@ -482,6 +521,9 @@ class Order extends DataClass implements Insertable<Order> {
     if (!nullToAbsent || storageName != null) {
       map['storage_name'] = Variable<String?>(storageName);
     }
+    if (!nullToAbsent || storageAccepted != null) {
+      map['storage_accepted'] = Variable<DateTime?>(storageAccepted);
+    }
     if (!nullToAbsent || firstMovementDate != null) {
       map['first_movement_date'] = Variable<DateTime?>(firstMovementDate);
     }
@@ -520,6 +562,9 @@ class Order extends DataClass implements Insertable<Order> {
       storageName: storageName == null && nullToAbsent
           ? const Value.absent()
           : Value(storageName),
+      storageAccepted: storageAccepted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageAccepted),
       firstMovementDate: firstMovementDate == null && nullToAbsent
           ? const Value.absent()
           : Value(firstMovementDate),
@@ -553,6 +598,7 @@ class Order extends DataClass implements Insertable<Order> {
           serializer.fromJson<String>(json['deliveryAddressName']),
       pickupAddressName: serializer.fromJson<String>(json['pickupAddressName']),
       storageName: serializer.fromJson<String?>(json['storageName']),
+      storageAccepted: serializer.fromJson<DateTime?>(json['storageAccepted']),
       firstMovementDate:
           serializer.fromJson<DateTime?>(json['firstMovementDate']),
       delivered: serializer.fromJson<DateTime?>(json['delivered']),
@@ -580,6 +626,7 @@ class Order extends DataClass implements Insertable<Order> {
       'deliveryAddressName': serializer.toJson<String>(deliveryAddressName),
       'pickupAddressName': serializer.toJson<String>(pickupAddressName),
       'storageName': serializer.toJson<String?>(storageName),
+      'storageAccepted': serializer.toJson<DateTime?>(storageAccepted),
       'firstMovementDate': serializer.toJson<DateTime?>(firstMovementDate),
       'delivered': serializer.toJson<DateTime?>(delivered),
       'documentsReturn': serializer.toJson<bool>(documentsReturn),
@@ -603,6 +650,7 @@ class Order extends DataClass implements Insertable<Order> {
           String? deliveryAddressName,
           String? pickupAddressName,
           String? storageName,
+          DateTime? storageAccepted,
           DateTime? firstMovementDate,
           DateTime? delivered,
           bool? documentsReturn,
@@ -623,6 +671,7 @@ class Order extends DataClass implements Insertable<Order> {
         deliveryAddressName: deliveryAddressName ?? this.deliveryAddressName,
         pickupAddressName: pickupAddressName ?? this.pickupAddressName,
         storageName: storageName ?? this.storageName,
+        storageAccepted: storageAccepted ?? this.storageAccepted,
         firstMovementDate: firstMovementDate ?? this.firstMovementDate,
         delivered: delivered ?? this.delivered,
         documentsReturn: documentsReturn ?? this.documentsReturn,
@@ -646,6 +695,7 @@ class Order extends DataClass implements Insertable<Order> {
           ..write('deliveryAddressName: $deliveryAddressName, ')
           ..write('pickupAddressName: $pickupAddressName, ')
           ..write('storageName: $storageName, ')
+          ..write('storageAccepted: $storageAccepted, ')
           ..write('firstMovementDate: $firstMovementDate, ')
           ..write('delivered: $delivered, ')
           ..write('documentsReturn: $documentsReturn, ')
@@ -671,6 +721,7 @@ class Order extends DataClass implements Insertable<Order> {
       deliveryAddressName,
       pickupAddressName,
       storageName,
+      storageAccepted,
       firstMovementDate,
       delivered,
       documentsReturn,
@@ -694,6 +745,7 @@ class Order extends DataClass implements Insertable<Order> {
           other.deliveryAddressName == this.deliveryAddressName &&
           other.pickupAddressName == this.pickupAddressName &&
           other.storageName == this.storageName &&
+          other.storageAccepted == this.storageAccepted &&
           other.firstMovementDate == this.firstMovementDate &&
           other.delivered == this.delivered &&
           other.documentsReturn == this.documentsReturn &&
@@ -716,6 +768,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<String> deliveryAddressName;
   final Value<String> pickupAddressName;
   final Value<String?> storageName;
+  final Value<DateTime?> storageAccepted;
   final Value<DateTime?> firstMovementDate;
   final Value<DateTime?> delivered;
   final Value<bool> documentsReturn;
@@ -736,6 +789,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.deliveryAddressName = const Value.absent(),
     this.pickupAddressName = const Value.absent(),
     this.storageName = const Value.absent(),
+    this.storageAccepted = const Value.absent(),
     this.firstMovementDate = const Value.absent(),
     this.delivered = const Value.absent(),
     this.documentsReturn = const Value.absent(),
@@ -757,6 +811,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     required String deliveryAddressName,
     required String pickupAddressName,
     this.storageName = const Value.absent(),
+    this.storageAccepted = const Value.absent(),
     this.firstMovementDate = const Value.absent(),
     this.delivered = const Value.absent(),
     required bool documentsReturn,
@@ -788,6 +843,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     Expression<String>? deliveryAddressName,
     Expression<String>? pickupAddressName,
     Expression<String?>? storageName,
+    Expression<DateTime?>? storageAccepted,
     Expression<DateTime?>? firstMovementDate,
     Expression<DateTime?>? delivered,
     Expression<bool>? documentsReturn,
@@ -812,6 +868,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
         'delivery_address_name': deliveryAddressName,
       if (pickupAddressName != null) 'pickup_address_name': pickupAddressName,
       if (storageName != null) 'storage_name': storageName,
+      if (storageAccepted != null) 'storage_accepted': storageAccepted,
       if (firstMovementDate != null) 'first_movement_date': firstMovementDate,
       if (delivered != null) 'delivered': delivered,
       if (documentsReturn != null) 'documents_return': documentsReturn,
@@ -835,6 +892,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<String>? deliveryAddressName,
       Value<String>? pickupAddressName,
       Value<String?>? storageName,
+      Value<DateTime?>? storageAccepted,
       Value<DateTime?>? firstMovementDate,
       Value<DateTime?>? delivered,
       Value<bool>? documentsReturn,
@@ -855,6 +913,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       deliveryAddressName: deliveryAddressName ?? this.deliveryAddressName,
       pickupAddressName: pickupAddressName ?? this.pickupAddressName,
       storageName: storageName ?? this.storageName,
+      storageAccepted: storageAccepted ?? this.storageAccepted,
       firstMovementDate: firstMovementDate ?? this.firstMovementDate,
       delivered: delivered ?? this.delivered,
       documentsReturn: documentsReturn ?? this.documentsReturn,
@@ -911,6 +970,9 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     if (storageName.present) {
       map['storage_name'] = Variable<String?>(storageName.value);
     }
+    if (storageAccepted.present) {
+      map['storage_accepted'] = Variable<DateTime?>(storageAccepted.value);
+    }
     if (firstMovementDate.present) {
       map['first_movement_date'] = Variable<DateTime?>(firstMovementDate.value);
     }
@@ -946,6 +1008,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
           ..write('deliveryAddressName: $deliveryAddressName, ')
           ..write('pickupAddressName: $pickupAddressName, ')
           ..write('storageName: $storageName, ')
+          ..write('storageAccepted: $storageAccepted, ')
           ..write('firstMovementDate: $firstMovementDate, ')
           ..write('delivered: $delivered, ')
           ..write('documentsReturn: $documentsReturn, ')
@@ -1039,6 +1102,12 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   late final GeneratedColumn<String?> storageName = GeneratedColumn<String?>(
       'storage_name', aliasedName, true,
       type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _storageAcceptedMeta =
+      const VerificationMeta('storageAccepted');
+  @override
+  late final GeneratedColumn<DateTime?> storageAccepted =
+      GeneratedColumn<DateTime?>('storage_accepted', aliasedName, true,
+          type: const IntType(), requiredDuringInsert: false);
   final VerificationMeta _firstMovementDateMeta =
       const VerificationMeta('firstMovementDate');
   @override
@@ -1084,6 +1153,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         deliveryAddressName,
         pickupAddressName,
         storageName,
+        storageAccepted,
         firstMovementDate,
         delivered,
         documentsReturn,
@@ -1187,6 +1257,12 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
           _storageNameMeta,
           storageName.isAcceptableOrUnknown(
               data['storage_name']!, _storageNameMeta));
+    }
+    if (data.containsKey('storage_accepted')) {
+      context.handle(
+          _storageAcceptedMeta,
+          storageAccepted.isAcceptableOrUnknown(
+              data['storage_accepted']!, _storageAcceptedMeta));
     }
     if (data.containsKey('first_movement_date')) {
       context.handle(
@@ -1773,20 +1849,16 @@ class $OrderStoragesTable extends OrderStorages
 }
 
 class ApiCredential extends DataClass implements Insertable<ApiCredential> {
-  final int id;
   final String accessToken;
   final String refreshToken;
   final String url;
   ApiCredential(
-      {required this.id,
-      required this.accessToken,
+      {required this.accessToken,
       required this.refreshToken,
       required this.url});
   factory ApiCredential.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return ApiCredential(
-      id: const IntType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       accessToken: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}access_token'])!,
       refreshToken: const StringType()
@@ -1798,7 +1870,6 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['access_token'] = Variable<String>(accessToken);
     map['refresh_token'] = Variable<String>(refreshToken);
     map['url'] = Variable<String>(url);
@@ -1807,7 +1878,6 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
 
   ApiCredentialsCompanion toCompanion(bool nullToAbsent) {
     return ApiCredentialsCompanion(
-      id: Value(id),
       accessToken: Value(accessToken),
       refreshToken: Value(refreshToken),
       url: Value(url),
@@ -1818,7 +1888,6 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ApiCredential(
-      id: serializer.fromJson<int>(json['id']),
       accessToken: serializer.fromJson<String>(json['accessToken']),
       refreshToken: serializer.fromJson<String>(json['refreshToken']),
       url: serializer.fromJson<String>(json['url']),
@@ -1828,7 +1897,6 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'accessToken': serializer.toJson<String>(accessToken),
       'refreshToken': serializer.toJson<String>(refreshToken),
       'url': serializer.toJson<String>(url),
@@ -1836,9 +1904,8 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
   }
 
   ApiCredential copyWith(
-          {int? id, String? accessToken, String? refreshToken, String? url}) =>
+          {String? accessToken, String? refreshToken, String? url}) =>
       ApiCredential(
-        id: id ?? this.id,
         accessToken: accessToken ?? this.accessToken,
         refreshToken: refreshToken ?? this.refreshToken,
         url: url ?? this.url,
@@ -1846,7 +1913,6 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
   @override
   String toString() {
     return (StringBuffer('ApiCredential(')
-          ..write('id: $id, ')
           ..write('accessToken: $accessToken, ')
           ..write('refreshToken: $refreshToken, ')
           ..write('url: $url')
@@ -1855,30 +1921,26 @@ class ApiCredential extends DataClass implements Insertable<ApiCredential> {
   }
 
   @override
-  int get hashCode => Object.hash(id, accessToken, refreshToken, url);
+  int get hashCode => Object.hash(accessToken, refreshToken, url);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ApiCredential &&
-          other.id == this.id &&
           other.accessToken == this.accessToken &&
           other.refreshToken == this.refreshToken &&
           other.url == this.url);
 }
 
 class ApiCredentialsCompanion extends UpdateCompanion<ApiCredential> {
-  final Value<int> id;
   final Value<String> accessToken;
   final Value<String> refreshToken;
   final Value<String> url;
   const ApiCredentialsCompanion({
-    this.id = const Value.absent(),
     this.accessToken = const Value.absent(),
     this.refreshToken = const Value.absent(),
     this.url = const Value.absent(),
   });
   ApiCredentialsCompanion.insert({
-    this.id = const Value.absent(),
     required String accessToken,
     required String refreshToken,
     required String url,
@@ -1886,13 +1948,11 @@ class ApiCredentialsCompanion extends UpdateCompanion<ApiCredential> {
         refreshToken = Value(refreshToken),
         url = Value(url);
   static Insertable<ApiCredential> custom({
-    Expression<int>? id,
     Expression<String>? accessToken,
     Expression<String>? refreshToken,
     Expression<String>? url,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (accessToken != null) 'access_token': accessToken,
       if (refreshToken != null) 'refresh_token': refreshToken,
       if (url != null) 'url': url,
@@ -1900,12 +1960,10 @@ class ApiCredentialsCompanion extends UpdateCompanion<ApiCredential> {
   }
 
   ApiCredentialsCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? accessToken,
+      {Value<String>? accessToken,
       Value<String>? refreshToken,
       Value<String>? url}) {
     return ApiCredentialsCompanion(
-      id: id ?? this.id,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       url: url ?? this.url,
@@ -1915,9 +1973,6 @@ class ApiCredentialsCompanion extends UpdateCompanion<ApiCredential> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (accessToken.present) {
       map['access_token'] = Variable<String>(accessToken.value);
     }
@@ -1933,7 +1988,6 @@ class ApiCredentialsCompanion extends UpdateCompanion<ApiCredential> {
   @override
   String toString() {
     return (StringBuffer('ApiCredentialsCompanion(')
-          ..write('id: $id, ')
           ..write('accessToken: $accessToken, ')
           ..write('refreshToken: $refreshToken, ')
           ..write('url: $url')
@@ -1948,13 +2002,6 @@ class $ApiCredentialsTable extends ApiCredentials
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ApiCredentialsTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
-      'id', aliasedName, false,
-      type: const IntType(),
-      requiredDuringInsert: false,
-      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _accessTokenMeta =
       const VerificationMeta('accessToken');
   @override
@@ -1973,7 +2020,7 @@ class $ApiCredentialsTable extends ApiCredentials
       'url', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, accessToken, refreshToken, url];
+  List<GeneratedColumn> get $columns => [accessToken, refreshToken, url];
   @override
   String get aliasedName => _alias ?? 'api_credentials';
   @override
@@ -1983,9 +2030,6 @@ class $ApiCredentialsTable extends ApiCredentials
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('access_token')) {
       context.handle(
           _accessTokenMeta,
@@ -2012,7 +2056,7 @@ class $ApiCredentialsTable extends ApiCredentials
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   ApiCredential map(Map<String, dynamic> data, {String? tablePrefix}) {
     return ApiCredential.fromData(data,
@@ -2025,6 +2069,149 @@ class $ApiCredentialsTable extends ApiCredentials
   }
 }
 
+class Pref extends DataClass implements Insertable<Pref> {
+  final DateTime? lastLogin;
+  Pref({this.lastLogin});
+  factory Pref.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return Pref(
+      lastLogin: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_login']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || lastLogin != null) {
+      map['last_login'] = Variable<DateTime?>(lastLogin);
+    }
+    return map;
+  }
+
+  PrefsCompanion toCompanion(bool nullToAbsent) {
+    return PrefsCompanion(
+      lastLogin: lastLogin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastLogin),
+    );
+  }
+
+  factory Pref.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Pref(
+      lastLogin: serializer.fromJson<DateTime?>(json['lastLogin']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'lastLogin': serializer.toJson<DateTime?>(lastLogin),
+    };
+  }
+
+  Pref copyWith({DateTime? lastLogin}) => Pref(
+        lastLogin: lastLogin ?? this.lastLogin,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Pref(')
+          ..write('lastLogin: $lastLogin')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => lastLogin.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Pref && other.lastLogin == this.lastLogin);
+}
+
+class PrefsCompanion extends UpdateCompanion<Pref> {
+  final Value<DateTime?> lastLogin;
+  const PrefsCompanion({
+    this.lastLogin = const Value.absent(),
+  });
+  PrefsCompanion.insert({
+    this.lastLogin = const Value.absent(),
+  });
+  static Insertable<Pref> custom({
+    Expression<DateTime?>? lastLogin,
+  }) {
+    return RawValuesInsertable({
+      if (lastLogin != null) 'last_login': lastLogin,
+    });
+  }
+
+  PrefsCompanion copyWith({Value<DateTime?>? lastLogin}) {
+    return PrefsCompanion(
+      lastLogin: lastLogin ?? this.lastLogin,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (lastLogin.present) {
+      map['last_login'] = Variable<DateTime?>(lastLogin.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PrefsCompanion(')
+          ..write('lastLogin: $lastLogin')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PrefsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _lastLoginMeta = const VerificationMeta('lastLogin');
+  @override
+  late final GeneratedColumn<DateTime?> lastLogin = GeneratedColumn<DateTime?>(
+      'last_login', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [lastLogin];
+  @override
+  String get aliasedName => _alias ?? 'prefs';
+  @override
+  String get actualTableName => 'prefs';
+  @override
+  VerificationContext validateIntegrity(Insertable<Pref> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('last_login')) {
+      context.handle(_lastLoginMeta,
+          lastLogin.isAcceptableOrUnknown(data['last_login']!, _lastLoginMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  Pref map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return Pref.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $PrefsTable createAlias(String alias) {
+    return $PrefsTable(attachedDatabase, alias);
+  }
+}
+
 abstract class _$AppStorage extends GeneratedDatabase {
   _$AppStorage(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final $UsersTable users = $UsersTable(this);
@@ -2032,6 +2219,7 @@ abstract class _$AppStorage extends GeneratedDatabase {
   late final $OrderLinesTable orderLines = $OrderLinesTable(this);
   late final $OrderStoragesTable orderStorages = $OrderStoragesTable(this);
   late final $ApiCredentialsTable apiCredentials = $ApiCredentialsTable(this);
+  late final $PrefsTable prefs = $PrefsTable(this);
   late final ApiCredentialsDao apiCredentialsDao =
       ApiCredentialsDao(this as AppStorage);
   late final OrderStoragesDao orderStoragesDao =
@@ -2042,7 +2230,7 @@ abstract class _$AppStorage extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, orders, orderLines, orderStorages, apiCredentials];
+      [users, orders, orderLines, orderStorages, apiCredentials, prefs];
 }
 
 // **************************************************************************

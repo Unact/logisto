@@ -41,7 +41,8 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     ));
 
     try {
-      await _login(url, login, password);
+      await app.login(url, login, password);
+
       emit(state.copyWith(status: LoginStateStatus.loggedIn));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));
@@ -67,19 +68,6 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));
     }
-  }
-
-  Future<void> _login(String url, String login, String password) async {
-    try {
-      await Api(storage: app.storage).login(url: url, login: login, password: password);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-
-    await app.loadUserData();
   }
 
   Future<void> _resetPassword(String url, String login) async {

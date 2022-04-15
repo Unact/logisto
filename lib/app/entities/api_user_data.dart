@@ -8,6 +8,7 @@ class ApiUserData {
   final String storageName;
   final List<String> roles;
   final String version;
+  final double total;
 
   const ApiUserData({
     required this.id,
@@ -16,7 +17,8 @@ class ApiUserData {
     required this.name,
     required this.storageName,
     required this.roles,
-    required this.version
+    required this.version,
+    required this.total
   });
 
   factory ApiUserData.fromJson(dynamic json) {
@@ -27,7 +29,8 @@ class ApiUserData {
       name: json['name'],
       storageName: json['storageName'],
       roles: (json['roles'] as List).cast<String>(),
-      version: json['app']['version']
+      version: json['app']['version'],
+      total: Parsing.parseDouble(json['total'])!
     );
   }
 
@@ -39,7 +42,8 @@ class ApiUserData {
       email: email,
       storageName: storageName,
       roles: roles,
-      version: version
+      version: version,
+      total: total
     );
   }
 }

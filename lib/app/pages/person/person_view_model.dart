@@ -27,9 +27,8 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
     emit(state.copyWith(status: PersonStateStatus.inProgress));
 
     try {
-      await _apiLogout();
+      await app.logout();
 
-      await app.storage.clearData();
       emit(state.copyWith(status: PersonStateStatus.loggedOut));
     } on AppError catch(e) {
       emit(state.copyWith(status: PersonStateStatus.failure, message: e.message));
@@ -46,17 +45,6 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
       await launch(url);
     } else {
       emit(state.copyWith(status: PersonStateStatus.failure, message: Strings.genericErrorMsg));
-    }
-  }
-
-  Future<void> _apiLogout() async {
-    try {
-      await Api(storage: app.storage).logout();
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
     }
   }
 }

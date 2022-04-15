@@ -21,7 +21,8 @@ part 'users_dao.dart';
     Orders,
     OrderLines,
     OrderStorages,
-    ApiCredentials
+    ApiCredentials,
+    Prefs
   ],
   daos: [
     ApiCredentialsDao,
@@ -31,11 +32,18 @@ part 'users_dao.dart';
   ]
 )
 class AppStorage extends _$AppStorage {
-  static const int kSingleRecordId = 0;
-
   AppStorage({
     required bool logStatements
   }) : super(_openConnection(logStatements));
+
+
+  Future<Pref> getPref() async {
+    return select(prefs).getSingle();
+  }
+
+  Future<int> updatePref(PrefsCompanion pref) {
+    return update(prefs).write(pref);
+  }
 
   Future<void> clearData() async {
     await transaction(() async {
@@ -51,6 +59,7 @@ class AppStorage extends _$AppStorage {
       batch.deleteWhere(orderLines, (row) => const Constant(true));
       batch.deleteWhere(orderStorages, (row) => const Constant(true));
       batch.deleteWhere(apiCredentials, (row) => const Constant(true));
+      batch.deleteWhere(prefs, (row) => const Constant(true));
     });
   }
 
@@ -63,13 +72,20 @@ class AppStorage extends _$AppStorage {
         name: '',
         storageName: '',
         roles: [],
-        version: '0.0.0'
+        version: '0.0.0',
+        total: 0
       ));
+      batch.insert(apiCredentials, ApiCredential(
+        refreshToken: '',
+        url: '',
+        accessToken: ''
+      ));
+      batch.insert(prefs, Pref());
     });
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

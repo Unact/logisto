@@ -15,6 +15,7 @@ class ApiOrder {
   final String deliveryAddressName;
   final String pickupAddressName;
   final String? storageName;
+  final DateTime? storageAccepted;
   final DateTime? firstMovementDate;
   final DateTime? delivered;
   final double paidSum;
@@ -37,6 +38,7 @@ class ApiOrder {
     required this.deliveryAddressName,
     required this.pickupAddressName,
     required this.storageName,
+    required this.storageAccepted,
     this.firstMovementDate,
     this.delivered,
     required this.paidSum,
@@ -51,9 +53,9 @@ class ApiOrder {
       courierName: json['courierName'],
       trackingNumber: json['trackingNumber'],
       number: json['number'],
-      deliveryDate: Nullify.parseDate(json['deliveryDate'])!,
-      deliveryDateTimeFrom: Nullify.parseDate(json['deliveryDateTimeFrom']),
-      deliveryDateTimeTo: Nullify.parseDate(json['deliveryDateTimeTo']),
+      deliveryDate: Parsing.parseDate(json['deliveryDate'])!,
+      deliveryDateTimeFrom: Parsing.parseDate(json['deliveryDateTimeFrom']),
+      deliveryDateTimeTo: Parsing.parseDate(json['deliveryDateTimeTo']),
       statusName: json['statusName'],
       packages: json['packages'],
       weight: json['weight'],
@@ -61,10 +63,11 @@ class ApiOrder {
       deliveryAddressName: json['deliveryAddressName'],
       pickupAddressName: json['pickupAddressName'],
       storageName: json['storageName'],
-      firstMovementDate: Nullify.parseDate(json['firstMovementDate']),
-      delivered: Nullify.parseDate(json['delivered']),
-      paidSum: Nullify.parseDouble(json['paidSum'])!,
-      paySum: Nullify.parseDouble(json['paySum'])!,
+      storageAccepted: Parsing.parseDate(json['storageAccepted']),
+      firstMovementDate: Parsing.parseDate(json['firstMovementDate']),
+      delivered: Parsing.parseDate(json['delivered']),
+      paidSum: Parsing.parseDouble(json['paidSum'])!,
+      paySum: Parsing.parseDouble(json['paySum'])!,
       documentsReturn: json['documentsReturn'],
       lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList()
     );
@@ -86,6 +89,7 @@ class ApiOrder {
       deliveryAddressName: deliveryAddressName,
       pickupAddressName: pickupAddressName,
       storageName: storageName,
+      storageAccepted: storageAccepted,
       firstMovementDate: firstMovementDate,
       delivered: delivered,
       paidSum: paidSum,

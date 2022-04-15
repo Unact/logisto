@@ -12,6 +12,7 @@ import '/app/pages/order_qr_scan/order_qr_scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/utils/format.dart';
+import '/app/utils/parsing.dart';
 import '/app/widgets/widgets.dart';
 
 part 'order_state.dart';
@@ -44,6 +45,89 @@ class _OrderViewState extends State<_OrderView> {
   final TextEditingController _volumeController = TextEditingController();
   Completer<void> _dialogCompleter = Completer();
   final ButtonStyle _buttonStyle = TextButton.styleFrom(primary: Colors.blue);
+
+  Future<List<dynamic>?> _showAcceptDialog() async {
+    OrderViewModel vm = context.read<OrderViewModel>();
+
+    return await showDialog<List<dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        Order order = vm.state.order;
+        String weight = order.weight != null ? Format.numberStr(order.weight! / 1000) : '';
+        String volume = order.volume != null ? Format.numberStr(order.volume! / 1000000) : '';
+        TextEditingController _weightDialogController = TextEditingController(text: weight);
+        TextEditingController _volumeDialogController = TextEditingController(text: volume);
+        bool? hasDocuments = !order.documentsReturn;
+        TextStyle textStyle = const TextStyle(fontSize: 14);
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Подтвердите заказ'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    InfoRow(
+                      padding: EdgeInsets.zero,
+                      title: Text('Вес, кг', style: textStyle),
+                      trailing: TextFormField(
+                        maxLines: 1,
+                        autocorrect: false,
+                        controller: _weightDialogController,
+                        style: textStyle,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
+                      ),
+                    ),
+                    InfoRow(
+                      padding: EdgeInsets.zero,
+                      title: Text('Объем, м3', style: textStyle),
+                      trailing: TextFormField(
+                        maxLines: 1,
+                        autocorrect: false,
+                        controller: _volumeDialogController,
+                        style: textStyle,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
+                      )
+                    ),
+                    !order.documentsReturn ?
+                      Container() :
+                      InfoRow(
+                        padding: EdgeInsets.zero,
+                        title: Text('Документы', style: textStyle),
+                        trailing: DropdownButton(
+                          isExpanded: true,
+                          menuMaxHeight: 200,
+                          value: hasDocuments,
+                          items: [true, false].map((e) => DropdownMenuItem<bool>(
+                            value: e,
+                            child: Text(e ? 'Да' : 'Нет', style: textStyle)
+                          )).toList(),
+                          onChanged: (bool? newVal) => setState(() => hasDocuments = newVal)
+                        )
+                      )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text(Strings.ok),
+                  onPressed: () {
+                    Navigator.of(context).pop(
+                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text]
+                    );
+                  }
+                ),
+                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
+              ],
+            );
+          }
+        );
+      }
+    );
+  }
 
   Future<void> openDialog() async {
     showDialog<void>(
@@ -161,86 +245,19 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showAcceptOrderDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    List<dynamic>? result = await showDialog<List<dynamic>>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        Order order = vm.state.order;
-        String weight = order.weight != null ? Format.numberStr(order.weight! / 1000) : '';
-        String volume = order.volume != null ? Format.numberStr(order.volume! / 1000000) : '';
-        TextEditingController _weightDialogController = TextEditingController(text: weight);
-        TextEditingController _volumeDialogController = TextEditingController(text: volume);
-        bool? hasDocuments = !order.documentsReturn;
-        TextStyle textStyle = const TextStyle(fontSize: 14);
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Подтвердите заказ'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    InfoRow(
-                      padding: EdgeInsets.zero,
-                      title: Text('Вес, кг', style: textStyle),
-                      trailing: TextFormField(
-                        maxLines: 1,
-                        autocorrect: false,
-                        controller: _weightDialogController,
-                        style: textStyle,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
-                      ),
-                    ),
-                    InfoRow(
-                      padding: EdgeInsets.zero,
-                      title: Text('Объем, м3', style: textStyle),
-                      trailing: TextFormField(
-                        maxLines: 1,
-                        autocorrect: false,
-                        controller: _volumeDialogController,
-                        style: textStyle,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
-                      )
-                    ),
-                    !order.documentsReturn ?
-                      Container() :
-                      InfoRow(
-                        padding: EdgeInsets.zero,
-                        title: Text('Документы', style: textStyle),
-                        trailing: DropdownButton(
-                          isExpanded: true,
-                          menuMaxHeight: 200,
-                          value: hasDocuments,
-                          items: [true, false].map((e) => DropdownMenuItem<bool>(
-                            value: e,
-                            child: Text(e ? 'Да' : 'Нет', style: textStyle)
-                          )).toList(),
-                          onChanged: (bool? newVal) => setState(() => hasDocuments = newVal)
-                        )
-                      )
-                  ]
-                )
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text(Strings.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text]
-                    );
-                  }
-                ),
-                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
-              ],
-            );
-          }
-        );
-      });
+    List<dynamic>? result = await _showAcceptDialog();
 
     if (result != null) {
       vm.acceptOrder(result[0], result[1], result[2]);
+    }
+  }
+
+  Future<void> showAcceptStorageTransferDialog() async {
+    OrderViewModel vm = context.read<OrderViewModel>();
+    List<dynamic>? result = await _showAcceptDialog();
+
+    if (result != null) {
+      vm.acceptStorageTransferOrder(result[0], result[1], result[2]);
     }
   }
 
@@ -315,7 +332,18 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         title: const Text('Текущий склад'),
-        trailing: Text(order.storageName ?? '')
+        trailing: RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black),
+            children: <TextSpan>[
+              TextSpan(
+                text: order.storageAccepted == null ? 'Заказ в пути\n' : '',
+                style: const TextStyle(fontSize: 12)
+              ),
+              TextSpan(text: order.storageName ?? '', style: const TextStyle(fontSize: 14)),
+            ]
+          )
+        )
       ),
       InfoRow(
         title: const Text('Дата приемки'),
@@ -363,7 +391,7 @@ class _OrderViewState extends State<_OrderView> {
 
     List<Widget> actions = [
       !(vm.state.storageTransferAcceptable) ? null : TextButton(
-        onPressed: vm.acceptStorageTransferOrder,
+        onPressed: showAcceptStorageTransferDialog,
         child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
         style: _buttonStyle
       ),
