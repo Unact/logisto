@@ -76,13 +76,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> acceptOrder(bool confirmed, String weightStr, String volumeStr) async {
-    if (!confirmed) return;
-
+  Future<void> acceptOrder(bool docConfirmed, String weightStr, String volumeStr) async {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _acceptAndUpdateOrder(weightStr, volumeStr);
+      await _acceptAndUpdateOrder(docConfirmed, weightStr, volumeStr);
       await _acceptOrder();
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
@@ -91,13 +89,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> acceptStorageTransferOrder(bool confirmed, String weightStr, String volumeStr) async {
-    if (!confirmed) return;
-
+  Future<void> acceptStorageTransferOrder(bool docConfirmed, String weightStr, String volumeStr) async {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _acceptAndUpdateOrder(weightStr, volumeStr);
+      await _acceptAndUpdateOrder(docConfirmed, weightStr, volumeStr);
       await _acceptStorageTransferOrder();
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
@@ -302,8 +298,8 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     });
   }
 
-  Future<void> _acceptAndUpdateOrder(String weightStr, String volumeStr) async {
-    if (state.order.documentsReturn) throw AppError('Нельзя принять заказ без документов');
+  Future<void> _acceptAndUpdateOrder(bool docConfirmed, String weightStr, String volumeStr) async {
+    if (state.order.documentsReturn && !docConfirmed) throw AppError('Нельзя принять заказ без документов');
 
     double? parsedWeight = Parsing.parseFormattedDouble(weightStr);
     double? parsedVolume = Parsing.parseFormattedDouble(volumeStr);
