@@ -19,7 +19,7 @@ class OrderStorageQrScanViewModel extends PageViewModel<StorageQrScanState, Orde
     int? storageId = int.tryParse(qr);
 
     if (storageId == null) {
-      emit(state.copyWith(status: OrderStorageQrScanStateStatus.failure, message: 'Не удалость считать'));
+      emit(state.copyWith(status: OrderStorageQrScanStateStatus.failure, message: 'Не удалось считать'));
       return;
     }
 
