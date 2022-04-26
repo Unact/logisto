@@ -1,7 +1,11 @@
-import 'package:camera/camera.dart';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 class Misc {
+  static final List<String> _kScannerBrands = ['Zebra'];
+
   static Map<String, String> stackFrame(int frame) {
     String? member = Trace.current().frames[frame + 1].member;
 
@@ -20,9 +24,9 @@ class Misc {
     };
   }
 
-  static Future<bool> hasCamera() async {
-    List<CameraDescription> cameras = await availableCameras();
+  static Future<bool> hasScanner() async {
+    if (Platform.isAndroid) return _kScannerBrands.contains((await DeviceInfoPlugin().androidInfo).brand);
 
-    return cameras.isNotEmpty;
+    return false;
   }
 }

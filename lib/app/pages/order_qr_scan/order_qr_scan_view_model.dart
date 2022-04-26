@@ -7,7 +7,6 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
       OrderQRScanState(
         order: order,
         orderPackageScanned: List.filled(order.packages, false),
-        mode: Platform.isIOS ? ScanMode.camera : ScanMode.scanner
       )
     );
 
@@ -18,12 +17,8 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
   Future<void> loadData() async {
     emit(state.copyWith(
       status: OrderQRScanStateStatus.dataLoaded,
-      cameraEnabled: await Misc.hasCamera()
+      hasScanner: await Misc.hasScanner()
     ));
-  }
-
-  void toggleMode(ScanMode mode) {
-    emit(state.copyWith(status: OrderQRScanStateStatus.modeChanged, mode: mode));
   }
 
   Future<void> readQRCode(String? qrCode) async {

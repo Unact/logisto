@@ -9,6 +9,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/accept_payment/accept_payment_page.dart';
 import '/app/pages/order_qr_scan/order_qr_scan_page.dart';
+import '/app/pages/order_storage_qr_scan/order_storage_qr_scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/utils/format.dart';
@@ -203,27 +204,46 @@ class _OrderViewState extends State<_OrderView> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 8, 24.0),
               title: const Text('Внимание'),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
                     const Text('Выберите склад для переноса'),
-                    ButtonTheme(
-                      alignedDropdown: true,
-                      child: DropdownButton(
-                        isExpanded: true,
-                        menuMaxHeight: 200,
-                        value: newOrderStorage,
-                        items: vm.state.storages.map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(
-                            e.name,
-                            style: const TextStyle(overflow: TextOverflow.clip, fontSize: 14),
-                            softWrap: false
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: DropdownButton(
+                            isExpanded: true,
+                            menuMaxHeight: 200,
+                            value: newOrderStorage,
+                            items: vm.state.storages.map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e.name,
+                                style: const TextStyle(overflow: TextOverflow.clip, fontSize: 14),
+                                softWrap: false
+                              )
+                            )).toList(),
+                            onChanged: (OrderStorage? orderStorage) => setState(() => newOrderStorage = orderStorage)
                           )
-                        )).toList(),
-                        onChanged: (OrderStorage? orderStorage) => setState(() => newOrderStorage = orderStorage)
-                      )
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            OrderStorage? orderStorage = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => OrderStorageQrScanPage(),
+                                fullscreenDialog: true
+                              )
+                            );
+                            setState(() => newOrderStorage = orderStorage);
+                            Navigator.of(context).pop(newOrderStorage);
+                          },
+                          icon: const Icon(Icons.qr_code_scanner)
+                        ),
+                      ]
                     )
                   ]
                 )

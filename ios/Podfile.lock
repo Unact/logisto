@@ -30,6 +30,8 @@ PODS:
     - Flutter
     - FlutterMacOS
     - Sentry (~> 7.10.1)
+  - soundpool (0.0.1):
+    - Flutter
   - sqlite3 (3.38.1):
     - sqlite3/common (= 3.38.1)
   - sqlite3/common (3.38.1)
@@ -62,6 +64,7 @@ DEPENDENCIES:
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
+  - soundpool (from `.symlinks/plugins/soundpool/ios`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
@@ -93,6 +96,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
+  soundpool:
+    :path: ".symlinks/plugins/soundpool/ios"
   sqlite3_flutter_libs:
     :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
   url_launcher_ios:
@@ -112,6 +117,7 @@ SPEC CHECKSUMS:
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   Sentry: 7bf9bfe713692cf87812e55f0999260494ba7982
   sentry_flutter: 77ccdac346608b8ce7e428e7284e7a3e4e7f4a02
+  soundpool: c7f4422ca206e77f8900ed3c4ee6a6ff5a0e38a9
   sqlite3: cd8b3380fcf65663ed84d17aab294db7626a314e
   sqlite3_flutter_libs: 14a93fdcff62c6a346356df0b8e1b3f35fbab8f2
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de

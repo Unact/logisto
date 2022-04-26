@@ -18,7 +18,7 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     emit(state.copyWith(
       status: OrdersStateStatus.dataLoaded,
       ordersWithLines: await app.storage.ordersDao.getOrdersWithLines(),
-      cameraEnabled: await Misc.hasCamera()
+      hasScanner: await Misc.hasScanner()
     ));
   }
 

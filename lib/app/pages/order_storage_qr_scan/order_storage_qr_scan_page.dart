@@ -6,47 +6,43 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '/app/data/database.dart';
-import '/app/constants/strings.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/utils/audio.dart';
 import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
-part 'order_qr_scan_state.dart';
-part 'order_qr_scan_view_model.dart';
+part 'order_storage_qr_scan_state.dart';
+part 'order_storage_qr_scan_view_model.dart';
 
-class OrderQRScanPage extends StatelessWidget {
-  final Order order;
-
-  OrderQRScanPage({
-    required this.order,
+class OrderStorageQrScanPage extends StatelessWidget {
+  OrderStorageQrScanPage({
     Key? key
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrderQRScanViewModel>(
-      create: (context) => OrderQRScanViewModel(context, order: order),
-      child: _OrderQRScanView(),
+    return BlocProvider<OrderStorageQrScanViewModel>(
+      create: (context) => OrderStorageQrScanViewModel(context),
+      child: _OrderStorageQrScanView(),
     );
   }
 }
 
-class _OrderQRScanView extends StatefulWidget {
+class _OrderStorageQrScanView extends StatefulWidget {
   @override
-  _OrderQRScanViewState createState() => _OrderQRScanViewState();
+  _OrderStorageQrScanViewState createState() => _OrderStorageQrScanViewState();
 }
 
-class _OrderQRScanViewState extends State<_OrderQRScanView> {
+class _OrderStorageQrScanViewState extends State<_OrderStorageQrScanView> {
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrderQRScanViewModel, OrderQRScanState>(
+    return BlocConsumer<OrderStorageQrScanViewModel, StorageQrScanState>(
       builder: (context, state) {
-        OrderQRScanViewModel vm = context.read<OrderQRScanViewModel>();
+        OrderStorageQrScanViewModel vm = context.read<OrderStorageQrScanViewModel>();
 
         if (vm.state.hasScanner == null) return Container();
 
@@ -54,13 +50,13 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case OrderQRScanStateStatus.scanReadFinished:
+          case OrderStorageQrScanStateStatus.scanReadFinished:
             break;
-          case OrderQRScanStateStatus.failure:
+          case OrderStorageQrScanStateStatus.failure:
             showMessage(state.message);
             break;
-          case OrderQRScanStateStatus.finished:
-            Navigator.of(context).pop(true);
+          case OrderStorageQrScanStateStatus.finished:
+            Navigator.of(context).pop(state.orderStorage);
             break;
           default:
         }
@@ -77,7 +73,7 @@ class _ScannerView extends StatefulWidget {
 class _ScannerViewState extends State<_ScannerView> {
   @override
   Widget build(BuildContext context) {
-    OrderQRScanViewModel vm = context.read<OrderQRScanViewModel>();
+    OrderStorageQrScanViewModel vm = context.read<OrderStorageQrScanViewModel>();
 
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.black),
@@ -85,7 +81,7 @@ class _ScannerViewState extends State<_ScannerView> {
       body: Stack(
         children: [
           Center(
-            child: BarcodeScannerField(onChanged: vm.readQRCode),
+            child: BarcodeScannerField(onChanged: vm.readQr),
           ),
           Container(
             color: const Color.fromRGBO(0, 0, 0, 0.5),
@@ -95,17 +91,7 @@ class _ScannerViewState extends State<_ScannerView> {
               child: Column(children: [
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    'Заказ ${vm.state.order.trackingNumber}',
-                    style: const TextStyle(color: Colors.white, fontSize: 20)
-                  )
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    'Мест ${vm.state.orderPackageScanned.where((el) => el).length}/${vm.state.order.packages}',
-                    style: const TextStyle(color: Colors.white, fontSize: 20)
-                  )
+                  child: const Text('Отсканируйте склад', style: TextStyle(color: Colors.white, fontSize: 20))
                 )
               ])
             )
@@ -145,7 +131,7 @@ class _CameraViewState extends State<_CameraView> {
 
   @override
   Widget build(BuildContext context) {
-    OrderQRScanViewModel vm = context.read<OrderQRScanViewModel>();
+    OrderStorageQrScanViewModel vm = context.read<OrderStorageQrScanViewModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -193,7 +179,7 @@ class _CameraViewState extends State<_CameraView> {
                     lastScan = currentScan;
 
                     await Audio.beep();
-                    await vm.readQRCode(scanData.code);
+                    await vm.readQr(scanData.code);
                   }
                 });
               },
@@ -209,17 +195,7 @@ class _CameraViewState extends State<_CameraView> {
               child: Column(children: [
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    'Заказ ${vm.state.order.trackingNumber}',
-                    style: const TextStyle(color: Colors.white, fontSize: 20)
-                  )
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    'Мест ${vm.state.orderPackageScanned.where((el) => el).length}/${vm.state.order.packages}',
-                    style: const TextStyle(color: Colors.white, fontSize: 20)
-                  )
+                  child: const Text('Отсканируйте склад', style: TextStyle(color: Colors.white, fontSize: 20))
                 )
               ])
             )

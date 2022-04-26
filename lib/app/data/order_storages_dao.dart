@@ -16,4 +16,8 @@ class OrderStoragesDao extends DatabaseAccessor<AppStorage> with _$OrderStorages
       batch.insertAll(orderStorages, orderStorageList);
     });
   }
+
+  Future<OrderStorage?> getOrderStorageById(int id) async {
+    return await (select(orderStorages)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+  }
 }

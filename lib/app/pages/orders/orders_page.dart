@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logisto/app/utils/audio.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:quiver/core.dart';
 
@@ -138,8 +139,8 @@ class _OrdersViewState extends State<_OrdersView> {
           appBar: AppBar(
             title: const Text('Заказы'),
             actions: <Widget>[
-              !vm.state.cameraEnabled ? Container() : IconButton(
-                icon: const Icon(Icons.qr_code),
+              vm.state.hasScanner != true ? Container() : IconButton(
+                icon: const Icon(Icons.qr_code_scanner),
                 onPressed: showQrScan,
                 tooltip: 'Сканировать QR код'
               ),
@@ -269,6 +270,7 @@ class _OrderQRFindDialogState extends State<_OrderQRFindDialog> {
 
               if (lastScan == null || currentScan.difference(lastScan!) > const Duration(seconds: 2)) {
                 lastScan = currentScan;
+                await Audio.beep();
 
                 List<String> qrCodeData = scanData.code.split(' ');
 
