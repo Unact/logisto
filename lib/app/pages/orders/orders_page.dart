@@ -139,7 +139,7 @@ class _OrdersViewState extends State<_OrdersView> {
           appBar: AppBar(
             title: const Text('Заказы'),
             actions: <Widget>[
-              vm.state.hasScanner != true ? Container() : IconButton(
+              vm.state.hasScanner == true ? Container() : IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: showQrScan,
                 tooltip: 'Сканировать QR код'
