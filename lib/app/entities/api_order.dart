@@ -14,7 +14,7 @@ class ApiOrder {
   final int? volume;
   final String deliveryAddressName;
   final String pickupAddressName;
-  final String? storageName;
+  final DateTime? storageIssued;
   final DateTime? storageAccepted;
   final DateTime? firstMovementDate;
   final DateTime? delivered;
@@ -22,6 +22,8 @@ class ApiOrder {
   final double paySum;
   final int documentsReturn;
   final List<ApiOrderLine> lines;
+  final ApiOrderStorage? storageFrom;
+  final ApiOrderStorage? storageTo;
 
   const ApiOrder({
     required this.id,
@@ -37,14 +39,16 @@ class ApiOrder {
     required this.volume,
     required this.deliveryAddressName,
     required this.pickupAddressName,
-    required this.storageName,
-    required this.storageAccepted,
+    this.storageIssued,
+    this.storageAccepted,
     this.firstMovementDate,
     this.delivered,
     required this.paidSum,
     required this.paySum,
     required this.documentsReturn,
-    required this.lines
+    required this.lines,
+    this.storageFrom,
+    this.storageTo
   });
 
   factory ApiOrder.fromJson(dynamic json) {
@@ -62,18 +66,20 @@ class ApiOrder {
       volume: json['volume'],
       deliveryAddressName: json['deliveryAddressName'],
       pickupAddressName: json['pickupAddressName'],
-      storageName: json['storageName'],
+      storageIssued: Parsing.parseDate(json['storageIssued']),
       storageAccepted: Parsing.parseDate(json['storageAccepted']),
       firstMovementDate: Parsing.parseDate(json['firstMovementDate']),
       delivered: Parsing.parseDate(json['delivered']),
       paidSum: Parsing.parseDouble(json['paidSum'])!,
       paySum: Parsing.parseDouble(json['paySum'])!,
       documentsReturn: json['documentsReturn'],
-      lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList()
+      lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList(),
+      storageFrom: json['storageFrom'] != null ? ApiOrderStorage.fromJson(json['storageFrom']) : null,
+      storageTo: json['storageTo'] != null ? ApiOrderStorage.fromJson(json['storageTo']) : null,
     );
   }
 
-  OrderWithLines toDatabaseEnt() {
+  OrderExtended toDatabaseEnt() {
     Order order = Order(
       id: id,
       courierName: courierName,
@@ -88,8 +94,10 @@ class ApiOrder {
       volume: volume,
       deliveryAddressName: deliveryAddressName,
       pickupAddressName: pickupAddressName,
-      storageName: storageName,
+      storageIssued: storageIssued,
       storageAccepted: storageAccepted,
+      storageFromId: storageFrom?.id,
+      storageToId: storageTo?.id,
       firstMovementDate: firstMovementDate,
       delivered: delivered,
       paidSum: paidSum,
@@ -104,7 +112,17 @@ class ApiOrder {
       price: e.price,
       factAmount: e.factAmount
     )).toList();
+    OrderStorage? storageFromOrder = storageFrom == null ? null : OrderStorage(
+      id: storageFrom!.id,
+      name: storageFrom!.name,
+      sequenceNumber: storageFrom!.sequenceNumber
+    );
+    OrderStorage? storageToOrder = storageTo == null ? null : OrderStorage(
+      id: storageTo!.id,
+      name: storageTo!.name,
+      sequenceNumber: storageTo!.sequenceNumber
+    );
 
-    return OrderWithLines(order, orderLines);
+    return OrderExtended(order, orderLines, storageFromOrder, storageToOrder);
   }
 }

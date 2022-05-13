@@ -95,11 +95,12 @@ class Api {
   }
 
   Future<ApiOrder> acceptOrder({
-    required int id
+    required int id,
+    required int storageId
   }) async {
     final orderData = await _sendRequest((dio) => dio.post(
       'v1/logisto/accept_order',
-      data: { 'id': id }
+      data: { 'id': id, 'storageId': storageId }
     ));
 
     return ApiOrder.fromJson(orderData);

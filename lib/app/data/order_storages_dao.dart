@@ -10,6 +10,10 @@ class OrderStoragesDao extends DatabaseAccessor<AppStorage> with _$OrderStorages
     return (select(orderStorages)..orderBy([(u) => OrderingTerm(expression: u.sequenceNumber)])).get();
   }
 
+  Future<void> addOrderStorage(OrderStorage orderStorage) async {
+    await into(orderStorages).insert(orderStorage, mode: InsertMode.insertOrReplace);
+  }
+
   Future<void> loadOrderStorages(List<OrderStorage> orderStorageList) async {
     await batch((batch) {
       batch.deleteWhere(orderStorages, (row) => const Constant(true));

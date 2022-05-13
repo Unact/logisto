@@ -17,7 +17,7 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
   Future<void> loadData() async {
     emit(state.copyWith(
       status: OrdersStateStatus.dataLoaded,
-      ordersWithLines: await app.storage.ordersDao.getOrdersWithLines(),
+      orderExtendedList: await app.storage.ordersDao.getOrderExtendedList(),
       hasScanner: await Misc.hasScanner()
     ));
   }
@@ -33,12 +33,12 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     emit(state.copyWith(status: OrdersStateStatus.inProgress));
 
     try {
-      OrderWithLines? orderWithLines = await _findOrder(trackingNumber);
+      OrderExtended? orderExtended = await _findOrder(trackingNumber);
 
       emit(state.copyWith(
-        status: orderWithLines != null ? OrdersStateStatus.success : OrdersStateStatus.failure,
-        foundOrderWithLine: Optional.fromNullable(orderWithLines),
-        message: orderWithLines != null ? '' : 'Заказ не найден'
+        status: orderExtended != null ? OrdersStateStatus.success : OrdersStateStatus.failure,
+        foundOrderExtended: Optional.fromNullable(orderExtended),
+        message: orderExtended != null ? '' : 'Заказ не найден'
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: OrdersStateStatus.failure, message: e.message));
@@ -47,21 +47,29 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     return null;
   }
 
-  Future<OrderWithLines?> _findOrder(String trackingNumber) async {
+  Future<OrderExtended?> _findOrder(String trackingNumber) async {
     try {
-      OrderWithLines? orderWithLines = await app.storage.ordersDao.getOrderWithLinesByTrackingNumber(trackingNumber);
-      if (orderWithLines != null) return orderWithLines;
+      OrderExtended? orderExtended = await app.storage.ordersDao.getOrderExtendedByTrackingNumber(trackingNumber);
+      if (orderExtended != null) return orderExtended;
 
       ApiOrder? apiOrder = await Api(storage: app.storage).findOrder(trackingNumber: trackingNumber);
-      orderWithLines = apiOrder?.toDatabaseEnt();
+      orderExtended = apiOrder?.toDatabaseEnt();
 
-      if (orderWithLines != null) {
+      if (orderExtended != null) {
         await app.storage.transaction(() async {
-          await app.storage.ordersDao.addOrder(orderWithLines!.order);
-          await Future.forEach<OrderLine>(orderWithLines.lines, (e) => app.storage.ordersDao.addOrderLine(e));
+          await app.storage.ordersDao.addOrder(orderExtended!.order);
+          await Future.forEach<OrderLine>(orderExtended.lines, (e) => app.storage.ordersDao.addOrderLine(e));
+
+          if (orderExtended.storageFrom != null) {
+            await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageFrom!);
+          }
+
+          if (orderExtended.storageTo != null) {
+            await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageTo!);
+          }
         });
 
-        return orderWithLines;
+        return orderExtended;
       }
 
       return null;

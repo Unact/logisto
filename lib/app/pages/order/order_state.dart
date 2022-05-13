@@ -16,7 +16,7 @@ enum OrderStateStatus {
 class OrderState {
   OrderState({
     this.status = OrderStateStatus.initial,
-    required this.orderWithLines,
+    required this.orderExtended,
     this.storages = const [],
     this.message = '',
     required this.confirmationCallback,
@@ -26,7 +26,7 @@ class OrderState {
   });
 
   final OrderStateStatus status;
-  final OrderWithLines orderWithLines;
+  final OrderExtended orderExtended;
   final List<OrderStorage> storages;
   final String message;
   final Function confirmationCallback;
@@ -34,8 +34,16 @@ class OrderState {
   final bool scanned;
   final User? user;
 
-  List<OrderLine> get lines => orderWithLines.lines;
-  Order get order => orderWithLines.order;
+  List<OrderStorage> get acceptableStorages => storages
+    .where((e) => user == null ? false : user!.storageIds.contains(e.id))
+    .toList();
+  List<OrderStorage> get transferableStorages => storages
+    .where((e) => e.id != toStorage?.id && e.id != fromStorage?.id)
+    .toList();
+  List<OrderLine> get lines => orderExtended.lines;
+  Order get order => orderExtended.order;
+  OrderStorage? get fromStorage => orderExtended.storageFrom;
+  OrderStorage? get toStorage => orderExtended.storageTo;
   bool get transferAcceptable => scanned && pickupPointAccess;
   bool get storageTransferAcceptable => scanned && storageAccess;
   bool get transferable => scanned && storageAccess;
@@ -43,12 +51,12 @@ class OrderState {
   bool get deliverable => scanned && pickupPointAccess && order.delivered == null;
   bool get scannable => !scanned && (storageAccess || pickupPointAccess);
   bool get payable => scanned && pickupPointAccess && !deliverable && order.paySum != 0 && order.paidSum == 0;
-  bool get storageAccess => user?.roles.contains('storage') ?? false;
-  bool get pickupPointAccess => user?.roles.contains('pickup') ?? false;
+  bool get storageAccess => user?.storageIds.isNotEmpty ?? false;
+  bool get pickupPointAccess => user?.pickupStorageId != null;
 
   OrderState copyWith({
     OrderStateStatus? status,
-    OrderWithLines? orderWithLines,
+    OrderExtended? orderExtended,
     List<OrderStorage>? storages,
     Function? confirmationCallback,
     String? message,
@@ -58,7 +66,7 @@ class OrderState {
   }) {
     return OrderState(
       status: status ?? this.status,
-      orderWithLines: orderWithLines ?? this.orderWithLines,
+      orderExtended: orderExtended ?? this.orderExtended,
       storages: storages ?? this.storages,
       message: message ?? this.message,
       confirmationCallback: confirmationCallback ?? this.confirmationCallback,

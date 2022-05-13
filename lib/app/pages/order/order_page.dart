@@ -18,19 +18,20 @@ import '/app/widgets/widgets.dart';
 
 part 'order_state.dart';
 part 'order_view_model.dart';
+part 'order_storage_picker.dart';
 
 class OrderPage extends StatelessWidget {
-  final OrderWithLines orderWithLines;
+  final OrderExtended orderExtended;
 
   OrderPage({
     Key? key,
-    required this.orderWithLines
+    required this.orderExtended
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderViewModel>(
-      create: (context) => OrderViewModel(context, orderWithLines: orderWithLines),
+      create: (context) => OrderViewModel(context, orderExtended: orderExtended),
       child: _OrderView(),
     );
   }
@@ -47,7 +48,7 @@ class _OrderViewState extends State<_OrderView> {
   Completer<void> _dialogCompleter = Completer();
   final ButtonStyle _buttonStyle = TextButton.styleFrom(primary: Colors.blue);
 
-  Future<List<dynamic>?> _showAcceptDialog() async {
+  Future<List<dynamic>?> _showAcceptDialog(bool showOrderStoragePicker) async {
     OrderViewModel vm = context.read<OrderViewModel>();
 
     return await showDialog<List<dynamic>>(
@@ -61,6 +62,7 @@ class _OrderViewState extends State<_OrderView> {
         TextEditingController _volumeDialogController = TextEditingController(text: volume);
         bool? hasDocuments = !order.documentsReturn;
         TextStyle textStyle = const TextStyle(fontSize: 14);
+        OrderStorage? newOrderStorage = vm.state.toStorage;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -69,45 +71,39 @@ class _OrderViewState extends State<_OrderView> {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    InfoRow(
-                      padding: EdgeInsets.zero,
-                      title: Text('Вес, кг', style: textStyle),
-                      trailing: TextFormField(
-                        maxLines: 1,
-                        autocorrect: false,
-                        controller: _weightDialogController,
-                        style: textStyle,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
-                      ),
+                    !showOrderStoragePicker ? Container() : OrderStoragePicker(
+                      orderStorages: vm.state.acceptableStorages,
+                      value: newOrderStorage,
+                      onChanged: (orderStorage, _) => setState(() => newOrderStorage = orderStorage)
                     ),
-                    InfoRow(
-                      padding: EdgeInsets.zero,
-                      title: Text('Объем, м3', style: textStyle),
-                      trailing: TextFormField(
-                        maxLines: 1,
-                        autocorrect: false,
-                        controller: _volumeDialogController,
-                        style: textStyle,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(contentPadding: EdgeInsets.only())
-                      )
+                    TextFormField(
+                      maxLines: 1,
+                      autocorrect: false,
+                      controller: _weightDialogController,
+                      style: textStyle,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'Вес, кг')
+                    ),
+                    TextFormField(
+                      maxLines: 1,
+                      autocorrect: false,
+                      controller: _volumeDialogController,
+                      style: textStyle,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'Объем, м3')
                     ),
                     !order.documentsReturn ?
                       Container() :
-                      InfoRow(
-                        padding: EdgeInsets.zero,
-                        title: Text('Документы', style: textStyle),
-                        trailing: DropdownButton(
-                          isExpanded: true,
-                          menuMaxHeight: 200,
-                          value: hasDocuments,
-                          items: [true, false].map((e) => DropdownMenuItem<bool>(
-                            value: e,
-                            child: Text(e ? 'Да' : 'Нет', style: textStyle)
-                          )).toList(),
-                          onChanged: (bool? newVal) => setState(() => hasDocuments = newVal)
-                        )
+                      DropdownButtonFormField(
+                        isExpanded: true,
+                        menuMaxHeight: 200,
+                        decoration: const InputDecoration(labelText: 'Документы'),
+                        value: hasDocuments,
+                        items: [true, false].map((e) => DropdownMenuItem<bool>(
+                          value: e,
+                          child: Text(e ? 'Да' : 'Нет', style: textStyle)
+                        )).toList(),
+                        onChanged: (bool? newVal) => setState(() => hasDocuments = newVal)
                       )
                   ]
                 )
@@ -115,9 +111,9 @@ class _OrderViewState extends State<_OrderView> {
               actions: <Widget>[
                 TextButton(
                   child: const Text(Strings.ok),
-                  onPressed: () {
+                  onPressed: showOrderStoragePicker && newOrderStorage == null ? null : () {
                     Navigator.of(context).pop(
-                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text]
+                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text, newOrderStorage]
                     );
                   }
                 ),
@@ -205,45 +201,18 @@ class _OrderViewState extends State<_OrderView> {
           builder: (context, setState) {
             return AlertDialog(
               contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 8, 24.0),
-              title: const Text('Внимание'),
+              title: const Text('Выберите склад'),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    const Text('Выберите склад для переноса'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: DropdownButton(
-                            isExpanded: true,
-                            menuMaxHeight: 200,
-                            value: newOrderStorage,
-                            items: vm.state.storages.map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(
-                                e.name,
-                                style: const TextStyle(overflow: TextOverflow.clip, fontSize: 14),
-                                softWrap: false
-                              )
-                            )).toList(),
-                            onChanged: (OrderStorage? orderStorage) => setState(() => newOrderStorage = orderStorage)
-                          )
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            OrderStorage? orderStorage = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => OrderStorageQrScanPage(),
-                                fullscreenDialog: true
-                              )
-                            );
-                            setState(() => newOrderStorage = orderStorage);
-                            Navigator.of(context).pop(newOrderStorage);
-                          },
-                          icon: const Icon(Icons.qr_code_scanner)
-                        ),
-                      ]
+                    OrderStoragePicker(
+                      orderStorages: vm.state.transferableStorages,
+                      value: newOrderStorage,
+                      onChanged: (orderStorage, isScanned) {
+                        setState(() => newOrderStorage = orderStorage)
+
+                        if (isScanned) Navigator.of(context).pop(newOrderStorage);
+                      }
                     )
                   ]
                 )
@@ -265,16 +234,16 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showAcceptOrderDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    List<dynamic>? result = await _showAcceptDialog();
+    List<dynamic>? result = await _showAcceptDialog(true);
 
     if (result != null) {
-      vm.acceptOrder(result[0], result[1], result[2]);
+      vm.acceptOrder(result[0], result[1], result[2], result[3]);
     }
   }
 
   Future<void> showAcceptStorageTransferDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    List<dynamic>? result = await _showAcceptDialog();
+    List<dynamic>? result = await _showAcceptDialog(false);
 
     if (result != null) {
       vm.acceptStorageTransferOrder(result[0], result[1], result[2]);
@@ -357,10 +326,10 @@ class _OrderViewState extends State<_OrderView> {
             style: const TextStyle(color: Colors.black),
             children: <TextSpan>[
               TextSpan(
-                text: order.storageAccepted == null ? 'Заказ в пути\n' : '',
-                style: const TextStyle(fontSize: 12)
+                text: order.storageAccepted == null && vm.state.fromStorage != null ? 'Заказ в пути\n' : '',
+                style: const TextStyle(fontSize: 10)
               ),
-              TextSpan(text: order.storageName ?? '', style: const TextStyle(fontSize: 14)),
+              TextSpan(text: vm.state.toStorage?.name ?? '', style: const TextStyle(fontSize: 14)),
             ]
           )
         )

@@ -140,7 +140,7 @@ class _InfoViewState extends State<_InfoView> {
           text: TextSpan(
             style: const TextStyle(color: Colors.grey),
             children: <TextSpan>[
-              TextSpan(text: 'Кол-во: ${vm.state.ordersWithLines.length}\n', style: const TextStyle(fontSize: 12.0)),
+              TextSpan(text: 'Кол-во: ${vm.state.orderExtendedList.length}\n', style: const TextStyle(fontSize: 12.0)),
             ]
           )
         ),

@@ -9,8 +9,8 @@ class Users extends Table {
   TextColumn get username => text()();
   TextColumn get name => text()();
   TextColumn get email => text()();
-  TextColumn get storageName => text()();
-  TextColumn get roles => text().map(const JsonConverter())();
+  IntColumn get pickupStorageId => integer().nullable()();
+  TextColumn get storageIds => text().map(const JsonIntListConverter())();
   TextColumn get version => text()();
   RealColumn get total => real()();
 }
@@ -35,7 +35,9 @@ class Orders extends Table {
   IntColumn get volume => integer().nullable()();
   TextColumn get deliveryAddressName => text()();
   TextColumn get pickupAddressName => text()();
-  TextColumn get storageName => text().nullable()();
+  IntColumn get storageFromId => integer().nullable().references(OrderStorages, #id)();
+  IntColumn get storageToId => integer().nullable().references(OrderStorages, #id)();
+  DateTimeColumn get storageIssued => dateTime().nullable()();
   DateTimeColumn get storageAccepted => dateTime().nullable()();
   DateTimeColumn get firstMovementDate => dateTime().nullable()();
   DateTimeColumn get delivered => dateTime().nullable()();
@@ -60,16 +62,16 @@ class OrderStorages extends Table {
   IntColumn get sequenceNumber => integer()();
 }
 
-class JsonConverter extends TypeConverter<List<String>, String> {
-  const JsonConverter();
+class JsonIntListConverter extends TypeConverter<List<int>, String> {
+  const JsonIntListConverter();
 
   @override
-  List<String> mapToDart(String? fromDb) {
-    return (json.decode(fromDb!) as List).cast<String>();
+  List<int> mapToDart(String? fromDb) {
+    return (json.decode(fromDb!) as List).cast<int>();
   }
 
   @override
-  String mapToSql(List<String>? value) {
+  String mapToSql(List<int>? value) {
     return json.encode(value!);
   }
 }

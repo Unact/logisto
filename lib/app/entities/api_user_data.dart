@@ -5,8 +5,8 @@ class ApiUserData {
   final String username;
   final String email;
   final String name;
-  final String storageName;
-  final List<String> roles;
+  final int? pickupStorageId;
+  final List<int> storageIds;
   final String version;
   final double total;
 
@@ -15,8 +15,8 @@ class ApiUserData {
     required this.username,
     required this.email,
     required this.name,
-    required this.storageName,
-    required this.roles,
+    this.pickupStorageId,
+    required this.storageIds,
     required this.version,
     required this.total
   });
@@ -27,8 +27,8 @@ class ApiUserData {
       username: json['username'],
       email: json['email'],
       name: json['name'],
-      storageName: json['storageName'],
-      roles: (json['roles'] as List).cast<String>(),
+      pickupStorageId: json['pickupStorageId'],
+      storageIds: (json['storageIds'] as List).cast<int>(),
       version: json['app']['version'],
       total: Parsing.parseDouble(json['total'])!
     );
@@ -40,8 +40,8 @@ class ApiUserData {
       username: username,
       name: name,
       email: email,
-      storageName: storageName,
-      roles: roles,
+      pickupStorageId: pickupStorageId,
+      storageIds: storageIds,
       version: version,
       total: total
     );

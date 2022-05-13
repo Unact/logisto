@@ -70,10 +70,9 @@ class AppStorage extends _$AppStorage {
         username: UsersDao.kGuestUsername,
         email: '',
         name: '',
-        storageName: '',
-        roles: [],
         version: '0.0.0',
-        total: 0
+        total: 0,
+        storageIds: []
       ));
       batch.insert(apiCredentials, ApiCredential(
         refreshToken: '',
@@ -85,7 +84,7 @@ class AppStorage extends _$AppStorage {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -21,7 +21,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(
       status: InfoStateStatus.dataLoaded,
       newVersionAvailable: await app.newVersionAvailable,
-      ordersWithLines: await app.storage.ordersDao.getOrdersWithLines()
+      orderExtendedList: await app.storage.ordersDao.getOrderExtendedList()
     ));
   }
 
@@ -46,10 +46,14 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       AppStorage storage = app.storage;
 
       await storage.transaction(() async {
-        List<OrderWithLines> orderWithLines = data.orders.map((e) => e.toDatabaseEnt()).toList();
-        List<Order> orders = orderWithLines.map((e) => e.order).toList();
-        List<OrderLine> orderLines = orderWithLines.map((e) => e.lines).expand<OrderLine>((e) => e).toList();
-        List<OrderStorage> orderStorages = data.orderStorages.map((e) => e.toDatabaseEnt()).toList();
+        List<OrderExtended> orderExtended = data.orders.map((e) => e.toDatabaseEnt()).toList();
+        List<Order> orders = orderExtended.map((e) => e.order).toList();
+        List<OrderLine> orderLines = orderExtended.map((e) => e.lines).expand<OrderLine>((e) => e).toList();
+        List<OrderStorage> orderStorages = (
+          orderExtended.map((e) => e.storageTo).whereType<OrderStorage>().toList() +
+          orderExtended.map((e) => e.storageFrom).whereType<OrderStorage>().toList() +
+          data.orderStorages.map((e) => e.toDatabaseEnt()).toList()
+        ).toSet().toList();
 
         await storage.ordersDao.loadOrders(orders);
         await storage.ordersDao.loadOrderLines(orderLines);

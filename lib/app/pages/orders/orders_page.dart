@@ -151,11 +151,7 @@ class _OrdersViewState extends State<_OrdersView> {
               ),
             ],
           ),
-          body: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
-            children: state.ordersWithLines.map((e) => _orderTile(context, e)).toList()
-          )
+          body: _orderList(context)
         );
       },
       listener: (context, state) {
@@ -173,7 +169,7 @@ class _OrdersViewState extends State<_OrdersView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => OrderPage(orderWithLines: state.foundOrderWithLine!)
+                  builder: (BuildContext context) => OrderPage(orderExtended: state.foundOrderExtended!)
                 )
               );
             });
@@ -185,14 +181,55 @@ class _OrdersViewState extends State<_OrdersView> {
     );
   }
 
-  Widget _orderTile(BuildContext context, OrderWithLines orderWithLines) {
+  Widget _orderList(BuildContext context) {
+    OrdersViewModel vm = context.read<OrdersViewModel>();
+    List<Widget> storageWidgets = vm.state.orderStorages.map(((orderStorage) {
+      List<OrderExtended> orders = vm.state.orderExtendedList
+        .where((e) => e.storageTo == orderStorage || e.storageFrom == orderStorage).toList();
+
+      return ExpansionTile(
+        title: Text(orderStorage.name, style: const TextStyle(fontSize: 14)),
+        initiallyExpanded: false,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+        children: orders.map((e) => _orderTile(context, e, orderStorage)).toList()
+      );
+    })).toList();
+
+    if (vm.state.ordersWithoutStorage.isNotEmpty) {
+      storageWidgets.add(
+        ExpansionTile(
+          title: const Text('Не на складе', style: TextStyle(fontSize: 14)),
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+          children: vm.state.ordersWithoutStorage.map((e) => _orderTile(context, e, null)).toList()
+        )
+      );
+    }
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
+      children: storageWidgets
+    );
+  }
+
+  Widget _orderTile(BuildContext context, OrderExtended orderExtended, OrderStorage? orderStorage) {
+    Icon? fromIcon = orderExtended.storageFrom == orderStorage && orderExtended.order.storageAccepted == null ?
+      const Icon(Icons.arrow_circle_right_outlined, color: Colors.greenAccent) :
+      null;
+    Icon? toIcon = orderExtended.storageTo == orderStorage && orderExtended.order.storageAccepted == null ?
+      const Icon(Icons.arrow_circle_left_outlined, color: Colors.redAccent) :
+      null;
+    Icon defaultIcon = const Icon(Icons.check_circle_outlined, color: Colors.transparent);
+
     return ListTile(
       dense: true,
-      leading: Text('Заказ ${orderWithLines.order.trackingNumber}'),
+      leading: orderStorage != null ? fromIcon ?? toIcon ?? defaultIcon : defaultIcon,
+      title: Text('Заказ ${orderExtended.order.trackingNumber}'),
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (BuildContext context) => OrderPage(orderWithLines: orderWithLines))
+          MaterialPageRoute(builder: (BuildContext context) => OrderPage(orderExtended: orderExtended))
         );
       },
     );

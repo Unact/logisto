@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -15,14 +16,17 @@ part 'order_storage_qr_scan_state.dart';
 part 'order_storage_qr_scan_view_model.dart';
 
 class OrderStorageQrScanPage extends StatelessWidget {
+  final List<OrderStorage> orderStorages;
+
   OrderStorageQrScanPage({
-    Key? key
+    Key? key,
+    required this.orderStorages
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderStorageQrScanViewModel>(
-      create: (context) => OrderStorageQrScanViewModel(context),
+      create: (context) => OrderStorageQrScanViewModel(context, orderStorages: orderStorages),
       child: _OrderStorageQrScanView(),
     );
   }

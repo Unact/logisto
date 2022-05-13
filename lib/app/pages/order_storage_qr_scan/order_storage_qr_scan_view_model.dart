@@ -1,7 +1,8 @@
 part of 'order_storage_qr_scan_page.dart';
 
 class OrderStorageQrScanViewModel extends PageViewModel<StorageQrScanState, OrderStorageQrScanStateStatus> {
-  OrderStorageQrScanViewModel(BuildContext context) : super(context, StorageQrScanState());
+  OrderStorageQrScanViewModel(BuildContext context, { required List<OrderStorage> orderStorages }) :
+    super(context, StorageQrScanState(orderStorages: orderStorages));
 
   @override
   OrderStorageQrScanStateStatus get status => state.status;
@@ -27,6 +28,11 @@ class OrderStorageQrScanViewModel extends PageViewModel<StorageQrScanState, Orde
 
     if (orderStorage == null) {
       emit(state.copyWith(status: OrderStorageQrScanStateStatus.failure, message: 'Склад не найден'));
+      return;
+    }
+
+    if (state.orderStorages.none((e) => e.id == storageId)) {
+      emit(state.copyWith(status: OrderStorageQrScanStateStatus.failure, message: 'Нет прав на склад'));
       return;
     }
 

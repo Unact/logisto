@@ -97,7 +97,6 @@ class _PersonViewState extends State<_PersonView> {
       children: [
         InfoRow(title: const Text('Логин'), trailing: Text(state.user?.username ?? '')),
         InfoRow(title: const Text('Сотрудник'), trailing: Text(state.user?.name ?? '')),
-        InfoRow(title: const Text('Склад'), trailing: Text(state.user?.storageName ?? '')),
         InfoRow(title: const Text('Версия'), trailing: Text(state.fullVersion)),
         !state.newVersionAvailable ?
           Container() :
