@@ -184,14 +184,16 @@ class _OrdersViewState extends State<_OrdersView> {
   Widget _orderList(BuildContext context) {
     OrdersViewModel vm = context.read<OrdersViewModel>();
     List<Widget> storageWidgets = vm.state.orderStorages.map(((orderStorage) {
-      List<OrderExtended> orders = vm.state.orderExtendedList
-        .where((e) => e.storageTo == orderStorage || e.storageFrom == orderStorage).toList();
+      List<OrderExtended> toOrders = vm.state.orderExtendedList
+        .where((e) => e.storageTo == orderStorage).toList();
+      List<OrderExtended> fromOrders = vm.state.orderExtendedList
+        .where((e) => e.storageFrom == orderStorage && e.order.storageAccepted == null).toList();
 
       return ExpansionTile(
         title: Text(orderStorage.name, style: const TextStyle(fontSize: 14)),
         initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-        children: orders.map((e) => _orderTile(context, e, orderStorage)).toList()
+        children: (toOrders + fromOrders).map((e) => _orderTile(context, e, orderStorage)).toList()
       );
     })).toList();
 

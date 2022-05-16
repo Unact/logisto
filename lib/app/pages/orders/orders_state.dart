@@ -15,7 +15,8 @@ class OrdersState {
     this.orderExtendedList = const [],
     this.foundOrderExtended,
     this.message = '',
-    this.hasScanner
+    this.hasScanner,
+    this.user
   });
 
   final OrdersStateStatus status;
@@ -23,11 +24,14 @@ class OrdersState {
   final OrderExtended? foundOrderExtended;
   final String message;
   final bool? hasScanner;
+  final User? user;
 
   List<OrderStorage> get orderStorages => (
     orderExtendedList.map((e) => e.storageTo).whereType<OrderStorage>().toList() +
     orderExtendedList.map((e) => e.storageFrom).whereType<OrderStorage>().toList()
-  ).toSet().toList()..sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
+  )
+    .where((e) => (user?.storageIds.contains(e.id) ?? false) || user?.pickupStorageId == e.id).toSet()
+    .toList()..sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
 
   List<OrderExtended> get ordersWithoutStorage => orderExtendedList
     .where((e) => e.storageTo == null && e.storageFrom == null).toList();
@@ -37,14 +41,16 @@ class OrdersState {
     List<OrderExtended>? orderExtendedList,
     Optional<OrderExtended>? foundOrderExtended,
     String? message,
-    bool? hasScanner
+    bool? hasScanner,
+    User? user
   }) {
     return OrdersState(
       status: status ?? this.status,
       orderExtendedList: orderExtendedList ?? this.orderExtendedList,
       foundOrderExtended: foundOrderExtended != null ? foundOrderExtended.orNull : this.foundOrderExtended,
       message: message ?? this.message,
-      hasScanner: hasScanner ?? this.hasScanner
+      hasScanner: hasScanner ?? this.hasScanner,
+      user: user ?? this.user
     );
   }
 }
