@@ -38,7 +38,7 @@ class OrderState {
     .where((e) => user == null ? false : user!.storageIds.contains(e.id))
     .toList();
   List<OrderStorage> get transferableStorages => storages
-    .where((e) => e.id != toStorage?.id && e.id != fromStorage?.id)
+    .where((e) => e.id != toStorage?.id)
     .toList();
   List<OrderLine> get lines => orderExtended.lines;
   Order get order => orderExtended.order;
