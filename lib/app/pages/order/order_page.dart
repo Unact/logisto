@@ -386,7 +386,6 @@ class _OrderViewState extends State<_OrderView> {
       ),
       !vm.state.acceptable ? null : TextButton(
         onPressed: showAcceptOrderDialog,
-        //onPressed: vm.tryAcceptOrder,
         child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')]),
         style: _buttonStyle
       ),

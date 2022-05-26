@@ -10,11 +10,10 @@ class OrderStorageQrScanViewModel extends PageViewModel<StorageQrScanState, Orde
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
-      status: OrderStorageQrScanStateStatus.dataLoaded,
-      hasScanner: await Misc.hasScanner()
+      status: OrderStorageQrScanStateStatus.dataLoaded
     ));
   }
-  Future<void> readQr(String? qr) async {
+  Future<void> readQRCode(String? qr) async {
     if (qr == null) return;
 
     int? storageId = int.tryParse(qr);

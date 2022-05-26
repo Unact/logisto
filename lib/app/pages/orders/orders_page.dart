@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logisto/app/utils/audio.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/strings.dart';
@@ -14,7 +11,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/order/order_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
-import '/app/utils/misc.dart';
+import '/app/widgets/widgets.dart';
 
 part 'orders_state.dart';
 part 'orders_view_model.dart';
@@ -120,7 +117,16 @@ class _OrdersViewState extends State<_OrdersView> {
       context: context,
       useSafeArea: false,
       builder: (context) {
-        return _OrderQRFindDialog();
+        return QRScanView(
+          child: Container(),
+          onRead: (String code) {
+            List<String> qrCodeData = code.split(' ');
+
+            if (qrCodeData.length < 3 || qrCodeData[0] != Strings.qrCodeVersion) return;
+
+            Navigator.of(context).pop(qrCodeData[1]);
+          }
+        );
       }
     );
 
@@ -133,13 +139,11 @@ class _OrdersViewState extends State<_OrdersView> {
   Widget build(BuildContext context) {
     return BlocConsumer<OrdersViewModel, OrdersState>(
       builder: (context, state) {
-        OrdersViewModel vm = context.read<OrdersViewModel>();
-
         return Scaffold(
           appBar: AppBar(
             title: const Text('Заказы'),
             actions: <Widget>[
-              vm.state.hasScanner == true ? Container() : IconButton(
+              IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: showQrScan,
                 tooltip: 'Сканировать QR код'
@@ -234,96 +238,6 @@ class _OrdersViewState extends State<_OrdersView> {
           MaterialPageRoute(builder: (BuildContext context) => OrderPage(orderExtended: orderExtended))
         );
       },
-    );
-  }
-}
-
-class _OrderQRFindDialog extends StatefulWidget {
-  @override
-  _OrderQRFindDialogState createState() => _OrderQRFindDialogState();
-}
-
-class _OrderQRFindDialogState extends State<_OrderQRFindDialog> {
-  final GlobalKey _qrKey = GlobalKey();
-  QRViewController? _controller;
-  StreamSubscription? _subscription;
-
-  @override
-  void reassemble() {
-    super.reassemble();
-    if (Platform.isAndroid) {
-      _controller!.pauseCamera();
-    } else if (Platform.isIOS) {
-      _controller!.resumeCamera();
-    }
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        actions: <Widget>[
-          IconButton(
-            color: Colors.white,
-            icon: const Icon(Icons.flash_on),
-            onPressed: () async {
-              _controller!.toggleFlash();
-            }
-          ),
-          IconButton(
-            color: Colors.white,
-            icon: const Icon(Icons.switch_camera),
-            onPressed: () async {
-              _controller!.flipCamera();
-            }
-          ),
-        ],
-      ),
-      extendBodyBehindAppBar: false,
-      body: Center(
-        child: QRView(
-          key: _qrKey,
-          formatsAllowed: const [
-            BarcodeFormat.qrcode
-          ],
-          overlay: QrScannerOverlayShape(
-            borderColor: Colors.white,
-            borderRadius: 10,
-            borderLength: 30,
-            borderWidth: 10,
-            cutOutSize: 200
-          ),
-          onPermissionSet: (QRViewController controller, bool permission) {
-            DateTime? lastScan;
-
-            _subscription = _controller!.scannedDataStream.listen((scanData) async {
-              final currentScan = DateTime.now();
-
-              if (lastScan == null || currentScan.difference(lastScan!) > const Duration(seconds: 2)) {
-                lastScan = currentScan;
-                await Audio.beep();
-
-                List<String> qrCodeData = scanData.code.split(' ');
-
-                if (qrCodeData.length < 3 || qrCodeData[0] != Strings.qrCodeVersion) return;
-
-                Navigator.of(context).pop(qrCodeData[1]);
-              }
-            });
-          },
-          onQRViewCreated: (QRViewController controller) {
-            _controller = controller;
-          },
-        )
-      )
     );
   }
 }

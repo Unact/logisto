@@ -16,8 +16,7 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
-      status: OrderQRScanStateStatus.dataLoaded,
-      hasScanner: await Misc.hasScanner()
+      status: OrderQRScanStateStatus.dataLoaded
     ));
   }
 

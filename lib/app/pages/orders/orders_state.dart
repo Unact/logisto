@@ -15,7 +15,6 @@ class OrdersState {
     this.orderExtendedList = const [],
     this.foundOrderExtended,
     this.message = '',
-    this.hasScanner,
     this.user
   });
 
@@ -23,7 +22,6 @@ class OrdersState {
   final List<OrderExtended> orderExtendedList;
   final OrderExtended? foundOrderExtended;
   final String message;
-  final bool? hasScanner;
   final User? user;
 
   List<OrderStorage> get orderStorages => (
@@ -41,7 +39,6 @@ class OrdersState {
     List<OrderExtended>? orderExtendedList,
     Optional<OrderExtended>? foundOrderExtended,
     String? message,
-    bool? hasScanner,
     User? user
   }) {
     return OrdersState(
@@ -49,7 +46,6 @@ class OrdersState {
       orderExtendedList: orderExtendedList ?? this.orderExtendedList,
       foundOrderExtended: foundOrderExtended != null ? foundOrderExtended.orNull : this.foundOrderExtended,
       message: message ?? this.message,
-      hasScanner: hasScanner ?? this.hasScanner,
       user: user ?? this.user
     );
   }

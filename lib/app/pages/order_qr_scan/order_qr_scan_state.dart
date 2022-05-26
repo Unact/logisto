@@ -14,29 +14,25 @@ class OrderQRScanState {
     this.status = OrderQRScanStateStatus.initial,
     required this.order,
     this.orderPackageScanned = const [],
-    this.message = '',
-    this.hasScanner
+    this.message = ''
   });
 
   final OrderQRScanStateStatus status;
   final String message;
   final Order order;
   final List<bool> orderPackageScanned;
-  final bool? hasScanner;
 
   OrderQRScanState copyWith({
     OrderQRScanStateStatus? status,
     Order? order,
     List<bool>? orderPackageScanned,
-    String? message,
-    bool? hasScanner
+    String? message
   }) {
     return OrderQRScanState(
       status: status ?? this.status,
       order: order ?? this.order,
       orderPackageScanned: orderPackageScanned ?? this.orderPackageScanned,
-      message: message ?? this.message,
-      hasScanner: hasScanner ?? this.hasScanner
+      message: message ?? this.message
     );
   }
 }
