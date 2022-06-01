@@ -72,17 +72,6 @@ class _OrdersViewState extends State<_OrdersView> {
                 autofocus: true,
                 enableInteractiveSelection: false,
                 controller: trackingNumberController,
-                onChanged: (String value) {
-                  List<String> qrCodeData = value.split(' ');
-
-                  if (qrCodeData.length < 3 || qrCodeData[0] != Strings.qrCodeVersion) return;
-
-                  final tracking = qrCodeData[1];
-                  final selection = TextSelection.fromPosition(TextPosition(offset: tracking.length));
-
-                  trackingNumberController.text = tracking;
-                  trackingNumberController.selection = selection;
-                },
                 decoration: const InputDecoration(labelText: 'Трекинг'),
               )
             ],

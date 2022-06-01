@@ -209,7 +209,7 @@ class _OrderViewState extends State<_OrderView> {
                       orderStorages: vm.state.transferableStorages,
                       value: newOrderStorage,
                       onChanged: (orderStorage, isScanned) {
-                        setState(() => newOrderStorage = orderStorage)
+                        setState(() => newOrderStorage = orderStorage);
 
                         if (isScanned) Navigator.of(context).pop(newOrderStorage);
                       }
