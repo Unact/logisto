@@ -36,6 +36,11 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
   }
 
   Future<void> _connectToDevice() async {
+    if (!await _checkBluetoothPermissions()) {
+      emit(state.copyWith(message: 'Не разрешено соединение по Bluetooth', status: AcceptPaymentStateStatus.failure));
+      return;
+    }
+
     emit(state.copyWith(
       message: 'Установление связи с терминалом',
       status: AcceptPaymentStateStatus.searchingForDevice
@@ -168,5 +173,26 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
       await app.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+  }
+
+  Future<bool> _checkBluetoothPermissions() async {
+    if (Platform.isIOS) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetooth,
+      ].request();
+
+      return statuses.values.every((element) => element.isGranted);
+    }
+
+    if (Platform.isAndroid) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetoothConnect,
+        Permission.bluetoothScan
+      ].request();
+
+      return statuses.values.every((element) => element.isGranted);
+    }
+
+    return false;
   }
 }
