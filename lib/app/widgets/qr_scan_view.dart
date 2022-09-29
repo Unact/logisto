@@ -247,7 +247,7 @@ class _QRScanViewState extends State<QRScanView> {
 
                     setState(() => _paused = true);
                     await _beep();
-                    await widget.onRead(scanData.code);
+                    await widget.onRead(scanData.code ?? '');
                     setState(() => _paused = false);
                   }
                 });
