@@ -12,39 +12,39 @@ enum OrdersStateStatus {
 class OrdersState {
   OrdersState({
     this.status = OrdersStateStatus.initial,
-    this.orderExtendedList = const [],
-    this.foundOrderExtended,
+    this.orderExList = const [],
+    this.foundOrderEx,
     this.message = '',
     this.user
   });
 
   final OrdersStateStatus status;
-  final List<OrderExtended> orderExtendedList;
-  final OrderExtended? foundOrderExtended;
+  final List<OrderEx> orderExList;
+  final OrderEx? foundOrderEx;
   final String message;
   final User? user;
 
-  List<OrderStorage> get orderStorages => (
-    orderExtendedList.map((e) => e.storageTo).whereType<OrderStorage>().toList() +
-    orderExtendedList.map((e) => e.storageFrom).whereType<OrderStorage>().toList()
+  List<Storage> get storages => (
+    orderExList.map((e) => e.storageTo).whereType<Storage>().toList() +
+    orderExList.map((e) => e.storageFrom).whereType<Storage>().toList()
   )
     .where((e) => (user?.storageIds.contains(e.id) ?? false) || user?.pickupStorageId == e.id).toSet()
     .toList()..sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
 
-  List<OrderExtended> get ordersWithoutStorage => orderExtendedList
+  List<OrderEx> get ordersWithoutStorage => orderExList
     .where((e) => e.storageTo == null && e.storageFrom == null).toList();
 
   OrdersState copyWith({
     OrdersStateStatus? status,
-    List<OrderExtended>? orderExtendedList,
-    Optional<OrderExtended>? foundOrderExtended,
+    List<OrderEx>? orderExList,
+    Optional<OrderEx>? foundOrderEx,
     String? message,
     User? user
   }) {
     return OrdersState(
       status: status ?? this.status,
-      orderExtendedList: orderExtendedList ?? this.orderExtendedList,
-      foundOrderExtended: foundOrderExtended != null ? foundOrderExtended.orNull : this.foundOrderExtended,
+      orderExList: orderExList ?? this.orderExList,
+      foundOrderEx: foundOrderEx != null ? foundOrderEx.orNull : this.foundOrderEx,
       message: message ?? this.message,
       user: user ?? this.user
     );

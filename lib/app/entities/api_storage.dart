@@ -1,26 +1,26 @@
 part of 'entities.dart';
 
-class ApiOrderStorage {
+class ApiStorage {
   final int id;
   final String name;
   final int sequenceNumber;
 
-  const ApiOrderStorage({
+  const ApiStorage({
     required this.id,
     required this.name,
     required this.sequenceNumber
   });
 
-  factory ApiOrderStorage.fromJson(dynamic json) {
-    return ApiOrderStorage(
+  factory ApiStorage.fromJson(dynamic json) {
+    return ApiStorage(
       id: json['id'],
       name: json['name'],
       sequenceNumber: json['sequenceNumber']
     );
   }
 
-  OrderStorage toDatabaseEnt() {
-    return OrderStorage(
+  Storage toDatabaseEnt() {
+    return Storage(
       id: id,
       name: name,
       sequenceNumber: sequenceNumber

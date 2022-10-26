@@ -3,8 +3,8 @@ part of 'database.dart';
 @DriftAccessor(
   tables: [Orders, OrderLines],
 )
-class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
-  OrdersDao(AppStorage db) : super(db);
+class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
+  OrdersDao(AppDataStore db) : super(db);
 
   Future<void> loadOrders(List<Order> orderList) async {
     await batch((batch) {
@@ -20,9 +20,9 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
     });
   }
 
-  Future<List<OrderExtended>> getOrderExtendedList() async {
-    final storageFrom = alias(orderStorages, 'from_storage');
-    final storageTo = alias(orderStorages, 'to_storage');
+  Future<List<OrderEx>> getOrderExList() async {
+    final storageFrom = alias(storages, 'from_storage');
+    final storageTo = alias(storages, 'to_storage');
     final ordersQuery = select(orders)
       .join(
         [
@@ -34,21 +34,13 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
     final orderLinesRes = await (select(orderLines)..orderBy([(u) => OrderingTerm(expression: u.name)])).get();
 
     return (await ordersQuery.get()).map((orderRow) {
-      return OrderExtended(
+      return OrderEx(
         orderRow.readTable(orders),
         orderLinesRes.where((element) => element.orderId == orderRow.readTable(orders).id).toList(),
         orderRow.readTableOrNull(storageFrom),
         orderRow.readTableOrNull(storageTo)
       );
     }).toList();
-  }
-
-  Future<void> addOrder(Order order) async {
-    await into(orders).insert(order, mode: InsertMode.insertOrReplace);
-  }
-
-  Future<void> addOrderLine(OrderLine orderLine) async {
-    await into(orderLines).insert(orderLine);
   }
 
   Future<void> updateOrder(int id, OrdersCompanion order) {
@@ -59,9 +51,15 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
     return (update(orderLines)..where((t) => t.id.equals(id))).write(orderLine);
   }
 
-  Future<OrderExtended> getOrderExtended(int id) async {
-    final storageFrom = alias(orderStorages, 'from_storage');
-    final storageTo = alias(orderStorages, 'to_storage');
+  Future<void> updateOrderEx(OrderEx orderEx) async {
+    await (delete(orders)..where((tbl) => tbl.id.equals(orderEx.order.id))).go();
+    await updateOrder(orderEx.order.id, orderEx.order.toCompanion(false));
+    await Future.forEach<OrderLine>(orderEx.lines, (e) => updateOrderLine(orderEx.order.id, e.toCompanion(false)));
+  }
+
+  Future<OrderEx> getOrderEx(int id) async {
+    final storageFrom = alias(storages, 'from_storage');
+    final storageTo = alias(storages, 'to_storage');
     final orderQuery = select(orders)
       .join(
         [
@@ -75,7 +73,7 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
       ..orderBy([(u) => OrderingTerm(expression: u.name)]);
     final orderRow = await orderQuery.getSingle();
 
-    return OrderExtended(
+    return OrderEx(
       orderRow.readTable(orders),
       await orderLinesQuery.get(),
       orderRow.readTableOrNull(storageFrom),
@@ -83,9 +81,9 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
     );
   }
 
-  Future<OrderExtended?> getOrderExtendedByTrackingNumber(String trackingNumber) async {
-    final storageFrom = alias(orderStorages, 'from_storage');
-    final storageTo = alias(orderStorages, 'to_storage');
+  Future<OrderEx?> getOrderExByTrackingNumber(String trackingNumber) async {
+    final storageFrom = alias(storages, 'from_storage');
+    final storageTo = alias(storages, 'to_storage');
     final orderQuery = select(orders)
       .join(
         [
@@ -102,7 +100,7 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
       ..where((t) => t.orderId.equals(orderRow.readTable(orders).id))
       ..orderBy([(u) => OrderingTerm(expression: u.name)]);
 
-    return OrderExtended(
+    return OrderEx(
       orderRow.readTable(orders),
       await orderLinesQuery.get(),
       orderRow.readTableOrNull(storageFrom),
@@ -111,11 +109,11 @@ class OrdersDao extends DatabaseAccessor<AppStorage> with _$OrdersDaoMixin {
   }
 }
 
-class OrderExtended {
+class OrderEx {
   final Order order;
   final List<OrderLine> lines;
-  final OrderStorage? storageFrom;
-  final OrderStorage? storageTo;
+  final Storage? storageFrom;
+  final Storage? storageTo;
 
-  OrderExtended(this.order, this.lines, this.storageFrom, this.storageTo);
+  OrderEx(this.order, this.lines, this.storageFrom, this.storageTo);
 }

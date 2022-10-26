@@ -73,7 +73,7 @@ class _AcceptPaymentViewState extends State<_AcceptPaymentView> {
         switch (state.status) {
           case AcceptPaymentStateStatus.failure:
           case AcceptPaymentStateStatus.finished:
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pop(context, state.message);
             });
             break;
@@ -100,7 +100,7 @@ class _AcceptPaymentViewState extends State<_AcceptPaymentView> {
           child: const Text('Отмена', style: TextStyle(color: Colors.black)),
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-            primary: Colors.white
+            backgroundColor: Colors.white
           ),
           onPressed: vm.cancelPayment
         ) : Container()
@@ -134,7 +134,7 @@ class _AcceptPaymentViewState extends State<_AcceptPaymentView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                primary: Colors.white
+                backgroundColor: Colors.white
               ),
               child: const Text('Очистить', style: TextStyle(color: Colors.black)),
               onPressed: () => _sign.currentState!.clear()
@@ -143,7 +143,7 @@ class _AcceptPaymentViewState extends State<_AcceptPaymentView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                primary: Colors.white
+                backgroundColor: Colors.white
               ),
               child: const Text('Подтвердить', style: TextStyle(color: Colors.black)),
               onPressed: () async => vm.adjustPayment(await getSignatureData())

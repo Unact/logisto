@@ -16,7 +16,7 @@ enum OrderStateStatus {
 class OrderState {
   OrderState({
     this.status = OrderStateStatus.initial,
-    required this.orderExtended,
+    required this.orderEx,
     this.storages = const [],
     this.message = '',
     required this.confirmationCallback,
@@ -26,24 +26,24 @@ class OrderState {
   });
 
   final OrderStateStatus status;
-  final OrderExtended orderExtended;
-  final List<OrderStorage> storages;
+  final OrderEx orderEx;
+  final List<Storage> storages;
   final String message;
   final Function confirmationCallback;
   final bool cardPayment;
   final bool scanned;
   final User? user;
 
-  List<OrderStorage> get acceptableStorages => storages
+  List<Storage> get acceptableStorages => storages
     .where((e) => user == null ? false : user!.storageIds.contains(e.id))
     .toList();
-  List<OrderStorage> get transferableStorages => storages
+  List<Storage> get transferableStorages => storages
     .where((e) => e.id != toStorage?.id)
     .toList();
-  List<OrderLine> get lines => orderExtended.lines;
-  Order get order => orderExtended.order;
-  OrderStorage? get fromStorage => orderExtended.storageFrom;
-  OrderStorage? get toStorage => orderExtended.storageTo;
+  List<OrderLine> get lines => orderEx.lines;
+  Order get order => orderEx.order;
+  Storage? get fromStorage => orderEx.storageFrom;
+  Storage? get toStorage => orderEx.storageTo;
   bool get transferAcceptable => scanned && pickupPointAccess;
   bool get storageTransferAcceptable => scanned && storageAccess;
   bool get transferable => scanned && storageAccess;
@@ -56,8 +56,8 @@ class OrderState {
 
   OrderState copyWith({
     OrderStateStatus? status,
-    OrderExtended? orderExtended,
-    List<OrderStorage>? storages,
+    OrderEx? orderEx,
+    List<Storage>? storages,
     Function? confirmationCallback,
     String? message,
     bool? cardPayment,
@@ -66,7 +66,7 @@ class OrderState {
   }) {
     return OrderState(
       status: status ?? this.status,
-      orderExtended: orderExtended ?? this.orderExtended,
+      orderEx: orderEx ?? this.orderEx,
       storages: storages ?? this.storages,
       message: message ?? this.message,
       confirmationCallback: confirmationCallback ?? this.confirmationCallback,

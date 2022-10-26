@@ -8,18 +8,18 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.storage.users,
-    app.storage.orders,
-    app.storage.orderLines,
-    app.storage.orderStorages,
+    app.dataStore.users,
+    app.dataStore.orders,
+    app.dataStore.orderLines,
+    app.dataStore.storages,
   ]);
 
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
       status: OrdersStateStatus.dataLoaded,
-      orderExtendedList: await app.storage.ordersDao.getOrderExtendedList(),
-      user: await app.storage.usersDao.getUser()
+      orderExList: await app.dataStore.ordersDao.getOrderExList(),
+      user: await app.dataStore.usersDao.getUser()
     ));
   }
 
@@ -34,13 +34,9 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     emit(state.copyWith(status: OrdersStateStatus.inProgress));
 
     try {
-      OrderExtended? orderExtended = await _findOrder(trackingNumber);
+      OrderEx? orderEx = await _findOrder(trackingNumber);
 
-      emit(state.copyWith(
-        status: orderExtended != null ? OrdersStateStatus.success : OrdersStateStatus.failure,
-        foundOrderExtended: Optional.fromNullable(orderExtended),
-        message: orderExtended != null ? '' : 'Заказ не найден'
-      ));
+      emit(state.copyWith(status: OrdersStateStatus.success, foundOrderEx: Optional.fromNullable(orderEx)));
     } on AppError catch(e) {
       emit(state.copyWith(status: OrdersStateStatus.failure, message: e.message));
     }
@@ -48,32 +44,21 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     return null;
   }
 
-  Future<OrderExtended?> _findOrder(String trackingNumber) async {
+  Future<OrderEx> _findOrder(String trackingNumber) async {
     try {
-      OrderExtended? orderExtended = await app.storage.ordersDao.getOrderExtendedByTrackingNumber(trackingNumber);
-      if (orderExtended != null) return orderExtended;
+      OrderEx? orderEx = await app.dataStore.ordersDao.getOrderExByTrackingNumber(trackingNumber);
+      if (orderEx != null) return orderEx;
 
-      ApiOrder? apiOrder = await Api(storage: app.storage).findOrder(trackingNumber: trackingNumber);
-      orderExtended = apiOrder?.toDatabaseEnt();
+      ApiOrder apiOrder = await Api(dataStore: app.dataStore).findOrder(trackingNumber: trackingNumber);
+      orderEx = apiOrder.toDatabaseEnt();
 
-      if (orderExtended != null) {
-        await app.storage.transaction(() async {
-          await app.storage.ordersDao.addOrder(orderExtended!.order);
-          await Future.forEach<OrderLine>(orderExtended.lines, (e) => app.storage.ordersDao.addOrderLine(e));
+      await app.dataStore.transaction(() async {
+        await app.dataStore.ordersDao.updateOrderEx(orderEx!);
+        if (orderEx.storageFrom != null) await app.dataStore.storagesDao.addStorage(orderEx.storageFrom!);
+        if (orderEx.storageTo != null) await app.dataStore.storagesDao.addStorage(orderEx.storageTo!);
+      });
 
-          if (orderExtended.storageFrom != null) {
-            await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageFrom!);
-          }
-
-          if (orderExtended.storageTo != null) {
-            await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageTo!);
-          }
-        });
-
-        return orderExtended;
-      }
-
-      return null;
+      return orderEx;
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

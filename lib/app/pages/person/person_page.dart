@@ -35,22 +35,7 @@ class _PersonView extends StatefulWidget {
 }
 
 class _PersonViewState extends State<_PersonView> {
-  Completer<void> _dialogCompleter = Completer();
-
-  Future<void> openDialog() async {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false
-    );
-    await _dialogCompleter.future;
-    Navigator.of(context).pop();
-  }
-
-  void closeDialog() {
-    _dialogCompleter.complete();
-    _dialogCompleter = Completer();
-  }
+  late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -67,18 +52,18 @@ class _PersonViewState extends State<_PersonView> {
           body: _buildBody(context)
         );
       },
-      listener: (context, state) {
+      listener: (context, state) async {
         switch (state.status) {
           case PersonStateStatus.inProgress:
-            openDialog();
+            await _progressDialog.open();
             break;
           case PersonStateStatus.failure:
           case PersonStateStatus.logsSend:
             showMessage(state.message);
             break;
           case PersonStateStatus.loggedOut:
-            closeDialog();
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            _progressDialog.close();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
             });
             break;
@@ -109,7 +94,7 @@ class _PersonViewState extends State<_PersonView> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                    primary: Colors.blue,
+                    backgroundColor: Colors.blue,
                   ),
                   child: const Text('Обновить приложение'),
                   onPressed: vm.launchAppUpdate
@@ -126,7 +111,7 @@ class _PersonViewState extends State<_PersonView> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                  primary: Colors.blue,
+                  backgroundColor: Colors.blue,
                 ),
                 onPressed: vm.apiLogout,
                 child: const Text('Выйти'),

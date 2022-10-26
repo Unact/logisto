@@ -36,22 +36,7 @@ class _OrdersView extends StatefulWidget {
 }
 
 class _OrdersViewState extends State<_OrdersView> {
-  Completer<void> _dialogCompleter = Completer();
-
-  Future<void> openDialog() async {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false
-    );
-    await _dialogCompleter.future;
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  void closeDialog() {
-    _dialogCompleter.complete();
-    _dialogCompleter = Completer();
-  }
+  late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -106,7 +91,7 @@ class _OrdersViewState extends State<_OrdersView> {
       context: context,
       useSafeArea: false,
       builder: (context) {
-        return QRScanView(
+        return ScanView(
           child: Container(),
           onRead: (String code) {
             List<String> qrCodeData = code.split(' ');
@@ -147,22 +132,22 @@ class _OrdersViewState extends State<_OrdersView> {
           body: _orderList(context)
         );
       },
-      listener: (context, state) {
+      listener: (context, state) async {
         switch (state.status) {
           case OrdersStateStatus.inProgress:
-            openDialog();
+            await _progressDialog.open();
             break;
           case OrdersStateStatus.failure:
             showMessage(state.message);
-            closeDialog();
+            _progressDialog.close();
             break;
           case OrdersStateStatus.success:
-            closeDialog();
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            _progressDialog.close();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => OrderPage(orderExtended: state.foundOrderExtended!)
+                  builder: (BuildContext context) => OrderPage(orderEx: state.foundOrderEx!)
                 )
               );
             });
@@ -176,17 +161,17 @@ class _OrdersViewState extends State<_OrdersView> {
 
   Widget _orderList(BuildContext context) {
     OrdersViewModel vm = context.read<OrdersViewModel>();
-    List<Widget> storageWidgets = vm.state.orderStorages.map(((orderStorage) {
-      List<OrderExtended> toOrders = vm.state.orderExtendedList
-        .where((e) => e.storageTo == orderStorage).toList();
-      List<OrderExtended> fromOrders = vm.state.orderExtendedList
-        .where((e) => e.storageFrom == orderStorage && e.order.storageAccepted == null).toList();
+    List<Widget> storageWidgets = vm.state.storages.map(((storage) {
+      List<OrderEx> toOrders = vm.state.orderExList
+        .where((e) => e.storageTo == storage).toList();
+      List<OrderEx> fromOrders = vm.state.orderExList
+        .where((e) => e.storageFrom == storage && e.order.storageAccepted == null).toList();
 
       return ExpansionTile(
-        title: Text(orderStorage.name, style: const TextStyle(fontSize: 14)),
+        title: Text(storage.name, style: const TextStyle(fontSize: 14)),
         initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-        children: (toOrders + fromOrders).map((e) => _orderTile(context, e, orderStorage)).toList()
+        children: (toOrders + fromOrders).map((e) => _orderTile(context, e, storage)).toList()
       );
     })).toList();
 
@@ -208,23 +193,23 @@ class _OrdersViewState extends State<_OrdersView> {
     );
   }
 
-  Widget _orderTile(BuildContext context, OrderExtended orderExtended, OrderStorage? orderStorage) {
-    Icon? fromIcon = orderExtended.storageFrom == orderStorage && orderExtended.order.storageAccepted == null ?
+  Widget _orderTile(BuildContext context, OrderEx orderEx, Storage? storage) {
+    Icon? fromIcon = orderEx.storageFrom == storage && orderEx.order.storageAccepted == null ?
       const Icon(Icons.arrow_circle_right_outlined, color: Colors.greenAccent) :
       null;
-    Icon? toIcon = orderExtended.storageTo == orderStorage && orderExtended.order.storageAccepted == null ?
+    Icon? toIcon = orderEx.storageTo == storage && orderEx.order.storageAccepted == null ?
       const Icon(Icons.arrow_circle_left_outlined, color: Colors.redAccent) :
       null;
     Icon defaultIcon = const Icon(Icons.check_circle_outlined, color: Colors.transparent);
 
     return ListTile(
       dense: true,
-      leading: orderStorage != null ? fromIcon ?? toIcon ?? defaultIcon : defaultIcon,
-      title: Text('Заказ ${orderExtended.order.trackingNumber}'),
+      leading: storage != null ? fromIcon ?? toIcon ?? defaultIcon : defaultIcon,
+      title: Text('Заказ ${orderEx.order.trackingNumber}'),
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (BuildContext context) => OrderPage(orderExtended: orderExtended))
+          MaterialPageRoute(builder: (BuildContext context) => OrderPage(orderEx: orderEx))
         );
       },
     );

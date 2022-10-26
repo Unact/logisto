@@ -1,8 +1,8 @@
 part of 'database.dart';
 
 @DriftAccessor(tables: [ApiCredentials])
-class ApiCredentialsDao extends DatabaseAccessor<AppStorage> with _$ApiCredentialsDaoMixin {
-  ApiCredentialsDao(AppStorage db) : super(db);
+class ApiCredentialsDao extends DatabaseAccessor<AppDataStore> with _$ApiCredentialsDaoMixin {
+  ApiCredentialsDao(AppDataStore db) : super(db);
 
   Future<ApiCredential> getApiCredential() async {
     return select(apiCredentials).getSingle();

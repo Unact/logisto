@@ -149,13 +149,13 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
 
   Future<void> _acceptPayment(Map<dynamic, dynamic>? transaction) async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).acceptPayment(
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptPayment(
         id: state.order.id,
         summ: state.order.paySum,
         transaction: transaction
       );
 
-      await app.storage.ordersDao.updateOrder(state.order.id, newOrder.toDatabaseEnt().order.toCompanion(false));
+      await app.dataStore.ordersDao.updateOrder(state.order.id, newOrder.toDatabaseEnt().order.toCompanion(false));
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -166,7 +166,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
 
   Future<ApiPaymentCredentials> _getApiPaymentCredentials() async {
     try {
-      return await Api(storage: app.storage).getPaymentCredentials();
+      return await Api(dataStore: app.dataStore).getPaymentCredentials();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

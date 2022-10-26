@@ -1,24 +1,24 @@
 part of 'order_page.dart';
 
-class OrderStoragePicker extends StatefulWidget {
-  final List<OrderStorage> orderStorages;
-  final OrderStorage? value;
-  final Function(OrderStorage?, bool)? onChanged;
+class StoragePicker extends StatefulWidget {
+  final List<Storage> storages;
+  final Storage? value;
+  final Function(Storage?, bool)? onChanged;
 
-  const OrderStoragePicker(
+  const StoragePicker(
   {
-    required this.orderStorages,
+    required this.storages,
     this.value,
     this.onChanged,
     Key? key,
   }) : super(key: key);
 
   @override
-  _OrderStoragePickerState createState() => _OrderStoragePickerState();
+  _StoragePickerState createState() => _StoragePickerState();
 }
 
-class _OrderStoragePickerState extends State<OrderStoragePicker> {
-  late OrderStorage? newOrderStorage = widget.value;
+class _StoragePickerState extends State<StoragePicker> {
+  late Storage? newStorage = widget.value;
 
   @override
   Widget build(BuildContext context) {
@@ -29,26 +29,26 @@ class _OrderStoragePickerState extends State<OrderStoragePicker> {
           child: DropdownButtonFormField(
             isExpanded: true,
             menuMaxHeight: 200,
-            value: newOrderStorage,
+            value: newStorage,
             decoration: InputDecoration(
               labelText: 'Склад',
               suffixIcon: IconButton(
                 onPressed: () async {
-                  OrderStorage? orderStorage = await Navigator.push(
+                  Storage? storage = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => OrderStorageQrScanPage(orderStorages: widget.orderStorages),
+                      builder: (BuildContext context) => StorageQrScanPage(storages: widget.storages),
                       fullscreenDialog: true
                     )
                   );
-                  setState(() => newOrderStorage = orderStorage);
+                  setState(() => newStorage = storage);
 
-                  if (widget.onChanged != null) widget.onChanged!(orderStorage, true);
+                  if (widget.onChanged != null) widget.onChanged!(storage, true);
                 },
                 icon: const Icon(Icons.qr_code_scanner)
               )
             ),
-            items: widget.orderStorages.map((e) => DropdownMenuItem(
+            items: widget.storages.map((e) => DropdownMenuItem(
               value: e,
               child: Text(
                 e.name,
@@ -56,10 +56,10 @@ class _OrderStoragePickerState extends State<OrderStoragePicker> {
                 softWrap: false
               )
             )).toList(),
-            onChanged: (OrderStorage? orderStorage) {
-              setState(() => newOrderStorage = orderStorage);
+            onChanged: (Storage? storage) {
+              setState(() => newStorage = storage);
 
-              if (widget.onChanged != null) widget.onChanged!(orderStorage, false);
+              if (widget.onChanged != null) widget.onChanged!(storage, false);
             }
           )
         ),

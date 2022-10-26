@@ -21,8 +21,43 @@ class ApiCredentials extends Table {
   TextColumn get url => text()();
 }
 
+class ProductArrivals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get arrivalDate => dateTime()();
+  TextColumn get number => text()();
+  DateTimeColumn get unloadStart => dateTime().nullable()();
+  DateTimeColumn get unloadEnd => dateTime().nullable()();
+  IntColumn get storageId => integer().nullable().references(Storages, #id)();
+}
+
+class ProductArrivalPackages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalId => integer()
+    .references(ProductArrivals, #id, onDelete: KeyAction.cascade)();
+  TextColumn get number => text()();
+  DateTimeColumn get acceptStart => dateTime().nullable()();
+  DateTimeColumn get acceptEnd => dateTime().nullable()();
+}
+
+class ProductArrivalPackageLines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalPackageId => integer()
+    .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
+  TextColumn get productName => text()();
+  IntColumn get amount => integer()();
+}
+
+class ProductArrivalPackageNewLines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalPackageId => integer()
+    .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer()();
+  TextColumn get productName => text()();
+  IntColumn get amount => integer()();
+}
+
 class Orders extends Table {
-  IntColumn get id => integer()();
+  IntColumn get id => integer().autoIncrement()();
   TextColumn get courierName => text().nullable()();
   TextColumn get trackingNumber => text()();
   TextColumn get number => text()();
@@ -35,8 +70,8 @@ class Orders extends Table {
   IntColumn get volume => integer().nullable()();
   TextColumn get deliveryAddressName => text()();
   TextColumn get pickupAddressName => text()();
-  IntColumn get storageFromId => integer().nullable().references(OrderStorages, #id)();
-  IntColumn get storageToId => integer().nullable().references(OrderStorages, #id)();
+  IntColumn get storageFromId => integer().nullable().references(Storages, #id)();
+  IntColumn get storageToId => integer().nullable().references(Storages, #id)();
   DateTimeColumn get storageIssued => dateTime().nullable()();
   DateTimeColumn get storageAccepted => dateTime().nullable()();
   DateTimeColumn get firstMovementDate => dateTime().nullable()();
@@ -48,15 +83,15 @@ class Orders extends Table {
 
 class OrderLines extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get orderId => integer().references(Orders, #id)();
-
+  IntColumn get orderId => integer()
+    .references(Orders, #id, onDelete: KeyAction.cascade)();
   TextColumn get name => text()();
   IntColumn get amount => integer()();
   RealColumn get price => real()();
   IntColumn get factAmount => integer().nullable()();
 }
 
-class OrderStorages extends Table {
+class Storages extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   IntColumn get sequenceNumber => integer()();

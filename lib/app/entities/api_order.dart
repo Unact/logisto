@@ -22,8 +22,8 @@ class ApiOrder {
   final double paySum;
   final int documentsReturn;
   final List<ApiOrderLine> lines;
-  final ApiOrderStorage? storageFrom;
-  final ApiOrderStorage? storageTo;
+  final ApiStorage? storageFrom;
+  final ApiStorage? storageTo;
 
   const ApiOrder({
     required this.id,
@@ -74,12 +74,12 @@ class ApiOrder {
       paySum: Parsing.parseDouble(json['paySum'])!,
       documentsReturn: json['documentsReturn'],
       lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList(),
-      storageFrom: json['storageFrom'] != null ? ApiOrderStorage.fromJson(json['storageFrom']) : null,
-      storageTo: json['storageTo'] != null ? ApiOrderStorage.fromJson(json['storageTo']) : null,
+      storageFrom: json['storageFrom'] != null ? ApiStorage.fromJson(json['storageFrom']) : null,
+      storageTo: json['storageTo'] != null ? ApiStorage.fromJson(json['storageTo']) : null,
     );
   }
 
-  OrderExtended toDatabaseEnt() {
+  OrderEx toDatabaseEnt() {
     Order order = Order(
       id: id,
       courierName: courierName,
@@ -112,17 +112,17 @@ class ApiOrder {
       price: e.price,
       factAmount: e.factAmount
     )).toList();
-    OrderStorage? storageFromOrder = storageFrom == null ? null : OrderStorage(
+    Storage? storageFromOrder = storageFrom == null ? null : Storage(
       id: storageFrom!.id,
       name: storageFrom!.name,
       sequenceNumber: storageFrom!.sequenceNumber
     );
-    OrderStorage? storageToOrder = storageTo == null ? null : OrderStorage(
+    Storage? storageToOrder = storageTo == null ? null : Storage(
       id: storageTo!.id,
       name: storageTo!.name,
       sequenceNumber: storageTo!.sequenceNumber
     );
 
-    return OrderExtended(order, orderLines, storageFromOrder, storageToOrder);
+    return OrderEx(order, orderLines, storageFromOrder, storageToOrder);
   }
 }
