@@ -30,7 +30,7 @@ class ProductArrivalState {
     (e) => e.package.acceptStart != null && e.package.acceptEnd == null
   );
 
-  bool get allPackagesUnloded => productArrivalEx.packages.any((e) => e.package.acceptEnd != null);
+  bool get allPackagesUnloded => productArrivalEx.packages.every((e) => e.package.acceptEnd != null);
 
   ProductArrivalState copyWith({
     ProductArrivalStateStatus? status,

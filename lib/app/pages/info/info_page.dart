@@ -121,8 +121,8 @@ class _InfoViewState extends State<_InfoView> {
     return <Widget>[
       _buildOrdersCard(context),
       _buildProductArrivalsCard(context),
+      _buildUserCard(context),
       _buildInfoCard(context),
-      _buildUserCard(context)
     ];
   }
 
