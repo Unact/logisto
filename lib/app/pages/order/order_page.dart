@@ -46,7 +46,6 @@ class _OrderViewState extends State<_OrderView> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _volumeController = TextEditingController();
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-  final ButtonStyle _buttonStyle = TextButton.styleFrom(backgroundColor: Colors.blue);
 
   Future<List<dynamic>?> _showAcceptDialog(bool showStoragePicker) async {
     OrderViewModel vm = context.read<OrderViewModel>();
@@ -366,18 +365,15 @@ class _OrderViewState extends State<_OrderView> {
     List<Widget> actions = [
       !(vm.state.storageTransferAcceptable) ? null : TextButton(
         onPressed: showAcceptStorageTransferDialog,
-        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
       ),
       !vm.state.acceptable ? null : TextButton(
         onPressed: showAcceptOrderDialog,
-        child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')])
       ),
       !vm.state.transferable ? null : TextButton(
         onPressed: showOrderTransferDialog,
-        child: Column(children: const [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')])
       ),
     ].whereType<Widget>().toList();
 
@@ -397,18 +393,15 @@ class _OrderViewState extends State<_OrderView> {
     List<Widget> actions = [
       !(vm.state.transferAcceptable) ? null : TextButton(
         onPressed: vm.acceptTransferOrder,
-        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
       ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryConfirmOrder,
-        child: Column(children: const [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')])
       ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryCancelOrder,
-        child: Column(children: const [Icon(Icons.assignment_return, color: Colors.black), Text('Вернуть')]),
-        style: _buttonStyle
+        child: Column(children: const [Icon(Icons.assignment_return, color: Colors.black), Text('Вернуть')])
       ),
     ].whereType<Widget>().toList();
 
@@ -495,8 +488,7 @@ class _OrderViewState extends State<_OrderView> {
                   child: Center(
                     child: TextButton(
                       onPressed: vm.startScan,
-                      child: const Icon(Icons.qr_code_scanner, color: Colors.black),
-                      style: _buttonStyle
+                      child: const Icon(Icons.qr_code_scanner, color: Colors.black)
                     )
                   )
                 )

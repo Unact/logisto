@@ -31,15 +31,15 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await into(productArrivalPackageNewLines).insert(newLine);
   }
 
-  Future<void> upsertProductArrival(int id, ProductArrivalsCompanion productArrival) {
+  Future<int> upsertProductArrival(int id, ProductArrivalsCompanion productArrival) {
     return into(productArrivals).insertOnConflictUpdate(productArrival);
   }
 
-  Future<void> upsertProductArrivalPackage(int id, ProductArrivalPackagesCompanion productArrivalPackage) {
+  Future<int> upsertProductArrivalPackage(int id, ProductArrivalPackagesCompanion productArrivalPackage) {
     return into(productArrivalPackages).insertOnConflictUpdate(productArrivalPackage);
   }
 
-  Future<void> upsertProductArrivalPackageLine(int id, ProductArrivalPackageLinesCompanion productArrivalPackageLine) {
+  Future<int> upsertProductArrivalPackageLine(int id, ProductArrivalPackageLinesCompanion productArrivalPackageLine) {
     return into(productArrivalPackageLines).insertOnConflictUpdate(productArrivalPackageLine);
   }
 

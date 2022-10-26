@@ -43,18 +43,18 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     }).toList();
   }
 
-  Future<void> updateOrder(int id, OrdersCompanion order) {
-    return (update(orders)..where((t) => t.id.equals(id))).write(order);
+  Future<int> upsertOrder(int id, OrdersCompanion order) {
+    return into(orders).insertOnConflictUpdate(order);
   }
 
-  Future<void> updateOrderLine(int id, OrderLinesCompanion orderLine) {
-    return (update(orderLines)..where((t) => t.id.equals(id))).write(orderLine);
+  Future<int> upsertOrderLine(int id, OrderLinesCompanion orderLine) {
+    return into(orderLines).insertOnConflictUpdate(orderLine);
   }
 
   Future<void> updateOrderEx(OrderEx orderEx) async {
     await (delete(orders)..where((tbl) => tbl.id.equals(orderEx.order.id))).go();
-    await updateOrder(orderEx.order.id, orderEx.order.toCompanion(false));
-    await Future.forEach<OrderLine>(orderEx.lines, (e) => updateOrderLine(orderEx.order.id, e.toCompanion(false)));
+    await upsertOrder(orderEx.order.id, orderEx.order.toCompanion(false));
+    await Future.forEach<OrderLine>(orderEx.lines, (e) => upsertOrderLine(orderEx.order.id, e.toCompanion(false)));
   }
 
   Future<OrderEx> getOrderEx(int id) async {

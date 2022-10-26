@@ -28,7 +28,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateOrderLineAmount(OrderLine orderLine, String amount) async {
     int? intAmount = int.tryParse(amount);
 
-    await app.dataStore.ordersDao.updateOrderLine(
+    await app.dataStore.ordersDao.upsertOrderLine(
       orderLine.id,
       OrderLinesCompanion(factAmount: Value(intAmount))
     );

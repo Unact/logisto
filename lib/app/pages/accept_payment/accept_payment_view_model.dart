@@ -155,7 +155,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
         transaction: transaction
       );
 
-      await app.dataStore.ordersDao.updateOrder(state.order.id, newOrder.toDatabaseEnt().order.toCompanion(false));
+      await app.dataStore.ordersDao.upsertOrder(state.order.id, newOrder.toDatabaseEnt().order.toCompanion(false));
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
