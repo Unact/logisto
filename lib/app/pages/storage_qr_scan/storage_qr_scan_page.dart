@@ -8,43 +8,43 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
-part 'order_storage_qr_scan_state.dart';
-part 'order_storage_qr_scan_view_model.dart';
+part 'storage_qr_scan_state.dart';
+part 'storage_qr_scan_view_model.dart';
 
-class OrderStorageQrScanPage extends StatelessWidget {
-  final List<OrderStorage> orderStorages;
+class StorageQrScanPage extends StatelessWidget {
+  final List<Storage> storages;
 
-  OrderStorageQrScanPage({
+  StorageQrScanPage({
     Key? key,
-    required this.orderStorages
+    required this.storages
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrderStorageQrScanViewModel>(
-      create: (context) => OrderStorageQrScanViewModel(context, orderStorages: orderStorages),
-      child: _OrderStorageQrScanView(),
+    return BlocProvider<StorageQrScanViewModel>(
+      create: (context) => StorageQrScanViewModel(context, storages: storages),
+      child: _StorageQrScanView(),
     );
   }
 }
 
-class _OrderStorageQrScanView extends StatefulWidget {
+class _StorageQrScanView extends StatefulWidget {
   @override
-  _OrderStorageQrScanViewState createState() => _OrderStorageQrScanViewState();
+  _StorageQrScanViewState createState() => _StorageQrScanViewState();
 }
 
-class _OrderStorageQrScanViewState extends State<_OrderStorageQrScanView> {
+class _StorageQrScanViewState extends State<_StorageQrScanView> {
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrderStorageQrScanViewModel, StorageQrScanState>(
+    return BlocConsumer<StorageQrScanViewModel, StorageQrScanState>(
       builder: (context, state) {
-        OrderStorageQrScanViewModel vm = context.read<OrderStorageQrScanViewModel>();
+        StorageQrScanViewModel vm = context.read<StorageQrScanViewModel>();
 
-        return QRScanView(
+        return ScanView(
           child: Column(
             children: [
               Container(
@@ -58,13 +58,13 @@ class _OrderStorageQrScanViewState extends State<_OrderStorageQrScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case OrderStorageQrScanStateStatus.scanReadFinished:
+          case StorageQrScanStateStatus.scanReadFinished:
             break;
-          case OrderStorageQrScanStateStatus.failure:
+          case StorageQrScanStateStatus.failure:
             showMessage(state.message);
             break;
-          case OrderStorageQrScanStateStatus.finished:
-            Navigator.of(context).pop(state.orderStorage);
+          case StorageQrScanStateStatus.finished:
+            Navigator.of(context).pop(state.storage);
             break;
           default:
         }

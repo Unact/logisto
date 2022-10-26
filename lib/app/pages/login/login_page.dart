@@ -7,6 +7,7 @@ import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
+import '/app/widgets/widgets.dart';
 
 part 'login_state.dart';
 part 'login_view_model.dart';
@@ -31,25 +32,10 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  Completer<void> _dialogCompleter = Completer();
+  late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
-
-  Future<void> openDialog() async {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false
-    );
-    await _dialogCompleter.future;
-    Navigator.of(context).pop();
-  }
-
-  void closeDialog() {
-    _dialogCompleter.complete();
-    _dialogCompleter = Completer();
-  }
 
   void unfocus() {
     FocusScopeNode currentFocus = FocusScope.of(context);
@@ -93,18 +79,18 @@ class _LoginViewState extends State<_LoginView> {
             ]
           );
         },
-        listener: (context, state) {
+        listener: (context, state) async {
           switch (state.status) {
             case LoginStateStatus.passwordSent:
             case LoginStateStatus.failure:
               showMessage(state.message);
-              closeDialog();
+              _progressDialog.close();
               break;
             case LoginStateStatus.loggedIn:
-              closeDialog();
+              _progressDialog.close();
               break;
             case LoginStateStatus.inProgress:
-              openDialog();
+              await _progressDialog.open();
               break;
             default:
           }
@@ -153,7 +139,7 @@ class _LoginViewState extends State<_LoginView> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      primary: Colors.blue,
+                      backgroundColor: Colors.blue,
                     ),
                     onPressed: () {
                       unfocus();
@@ -170,7 +156,7 @@ class _LoginViewState extends State<_LoginView> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      primary: Colors.blue,
+                      backgroundColor: Colors.blue,
                     ),
                     onPressed: () {
                       unfocus();

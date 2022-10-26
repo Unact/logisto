@@ -1,5 +1,5 @@
 PODS:
-  - camera (0.0.1):
+  - camera_avfoundation (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
@@ -25,38 +25,35 @@ PODS:
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
-  - Sentry (7.26.0):
-    - Sentry/Core (= 7.26.0)
-  - Sentry/Core (7.26.0)
+  - Sentry (7.28.0):
+    - Sentry/Core (= 7.28.0)
+  - Sentry/Core (7.28.0)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.26.0)
+    - Sentry (~> 7.28.0)
   - soundpool (0.0.1):
     - Flutter
-  - sqlite3 (3.38.5):
-    - sqlite3/common (= 3.38.5)
-  - sqlite3/common (3.38.5)
-  - sqlite3/fts5 (3.38.5):
+  - sqlite3 (3.39.3):
+    - sqlite3/common (= 3.39.3)
+  - sqlite3/common (3.39.3)
+  - sqlite3/fts5 (3.39.3):
     - sqlite3/common
-  - sqlite3/json1 (3.38.5):
+  - sqlite3/perf-threadsafe (3.39.3):
     - sqlite3/common
-  - sqlite3/perf-threadsafe (3.38.5):
-    - sqlite3/common
-  - sqlite3/rtree (3.38.5):
+  - sqlite3/rtree (3.39.3):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
-    - sqlite3 (~> 3.38.0)
+    - sqlite3 (~> 3.39.3)
     - sqlite3/fts5
-    - sqlite3/json1
     - sqlite3/perf-threadsafe
     - sqlite3/rtree
   - url_launcher_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - camera (from `.symlinks/plugins/camera/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - fk_user_agent (from `.symlinks/plugins/fk_user_agent/ios`)
   - Flutter (from `Flutter`)
@@ -79,8 +76,8 @@ SPEC REPOS:
     - sqlite3
 
 EXTERNAL SOURCES:
-  camera:
-    :path: ".symlinks/plugins/camera/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   fk_user_agent:
@@ -109,7 +106,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  camera: 9993f92f2c793e87b65e35f3a23c70582afb05b1
+  camera_avfoundation: 07c77549ea54ad95d8581be86617c094a46280d9
   device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   fk_user_agent: 1f47ec39291e8372b1d692b50084b0d54103c545
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
@@ -121,11 +118,11 @@ SPEC CHECKSUMS:
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
-  Sentry: 6b8f4a4f93c2471b0d73819c52da0c0ce4f0323c
-  sentry_flutter: 6604b70e74bfb15522c23788295e1debdbc86676
+  Sentry: 2c6053e4cfe6dea6608135dea1928ffbb4ecfba5
+  sentry_flutter: fad3ef0917dc1afa7d242af0743696ed9a9a8864
   soundpool: c7f4422ca206e77f8900ed3c4ee6a6ff5a0e38a9
-  sqlite3: 93442daab2ab1825bc9c05faa85814a1996f5b65
-  sqlite3_flutter_libs: 14a93fdcff62c6a346356df0b8e1b3f35fbab8f2
+  sqlite3: 50117e9e063a9ef2b865f7bdf2f2601e5d368e9a
+  sqlite3_flutter_libs: c6ab7f23670a98fef45a137159452004bc552168
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
 PODFILE CHECKSUM: 7368163408c647b7eb699d0d788ba6718e18fb8d

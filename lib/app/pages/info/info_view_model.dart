@@ -21,7 +21,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(
       status: InfoStateStatus.dataLoaded,
       newVersionAvailable: await app.newVersionAvailable,
-      orderExtendedList: await app.storage.ordersDao.getOrderExtendedList()
+      orderExList: await app.dataStore.ordersDao.getOrderExList(),
+      productArrivalExList: await app.dataStore.productArrivalsDao.getProductPackageExList()
     ));
   }
 
@@ -42,22 +43,33 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   Future<void> _getData() async {
     try {
-      ApiData data = await Api(storage: app.storage).loadOrders();
-      AppStorage storage = app.storage;
+      ApiData data = await Api(dataStore: app.dataStore).loadOrders();
+      AppDataStore dataStore = app.dataStore;
 
-      await storage.transaction(() async {
-        List<OrderExtended> orderExtended = data.orders.map((e) => e.toDatabaseEnt()).toList();
-        List<Order> orders = orderExtended.map((e) => e.order).toList();
-        List<OrderLine> orderLines = orderExtended.map((e) => e.lines).expand<OrderLine>((e) => e).toList();
-        List<OrderStorage> orderStorages = (
-          orderExtended.map((e) => e.storageTo).whereType<OrderStorage>().toList() +
-          orderExtended.map((e) => e.storageFrom).whereType<OrderStorage>().toList() +
-          data.orderStorages.map((e) => e.toDatabaseEnt()).toList()
+      await dataStore.transaction(() async {
+        List<ProductArrivalEx> productArrivalEx = data.productArrivals.map((e) => e.toDatabaseEnt()).toList();
+        List<OrderEx> orderEx = data.orders.map((e) => e.toDatabaseEnt()).toList();
+        List<ProductArrival> productArrivals = productArrivalEx.map((e) => e.productArrival).toList();
+        List<ProductArrivalPackageEx> productArrivalPackageEx = productArrivalEx
+          .map((e) => e.packages).expand((e) => e).toList();
+        List<ProductArrivalPackage> productArrivalPackages = productArrivalPackageEx.map((e) => e.package).toList();
+        List<ProductArrivalPackageLine> productArrivalPackageLines = productArrivalPackageEx
+          .map((e) => e.packageLines).expand((e) => e).toList();
+        List<Order> orders = orderEx.map((e) => e.order).toList();
+        List<OrderLine> orderLines = orderEx.map((e) => e.lines).expand((e) => e).toList();
+        List<Storage> storages = (
+          orderEx.map((e) => e.storageTo).whereType<Storage>().toList() +
+          orderEx.map((e) => e.storageFrom).whereType<Storage>().toList() +
+          productArrivalEx.map((e) => e.storage).whereType<Storage>().toList() +
+          data.storages.map((e) => e.toDatabaseEnt()).toList()
         ).toSet().toList();
 
-        await storage.ordersDao.loadOrders(orders);
-        await storage.ordersDao.loadOrderLines(orderLines);
-        await storage.orderStoragesDao.loadOrderStorages(orderStorages);
+        await dataStore.ordersDao.loadOrders(orders);
+        await dataStore.ordersDao.loadOrderLines(orderLines);
+        await dataStore.storagesDao.loadStorages(storages);
+        await dataStore.productArrivalsDao.loadProductArrivals(productArrivals);
+        await dataStore.productArrivalsDao.loadProductArrivalPackages(productArrivalPackages);
+        await dataStore.productArrivalsDao.loadProductArrivalPackageLines(productArrivalPackageLines);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

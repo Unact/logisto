@@ -12,10 +12,10 @@ import '/app/data/database.dart';
 class Api {
   static const String authSchema = 'Renew';
 
-  final AppStorage storage;
+  final AppDataStore dataStore;
 
   Api({
-    required this.storage
+    required this.dataStore
   });
 
   Future<void> login({
@@ -38,7 +38,7 @@ class Api {
       url: url
     );
 
-    await storage.apiCredentialsDao.updateApiCredential(apiCredential.toCompanion(true));
+    await dataStore.apiCredentialsDao.updateApiCredential(apiCredential.toCompanion(true));
   }
 
   Future<void> refresh() async {
@@ -54,7 +54,7 @@ class Api {
       refreshToken: result['refresh_token']
     );
 
-    await storage.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
+    await dataStore.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
   }
 
   Future<void> logout() async {
@@ -64,14 +64,14 @@ class Api {
       url: ''
     );
 
-    await storage.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
+    await dataStore.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
   }
 
   Future<ApiData> loadOrders() async {
     return ApiData.fromJson(await _sendRequest((dio) => dio.get('v1/logisto')));
   }
 
-  Future<ApiOrder?> findOrder({
+  Future<ApiOrder> findOrder({
     required String trackingNumber
   }) async {
     final orderData = await _sendRequest((dio) => dio.get(
@@ -79,7 +79,7 @@ class Api {
       queryParameters: { 'trackingNumber': trackingNumber }
     ));
 
-    return orderData != null ? ApiOrder.fromJson(orderData) : null;
+    return ApiOrder.fromJson(orderData);
   }
 
   Future<ApiOrder> updateOrder({
@@ -180,6 +180,73 @@ class Api {
     return ApiOrder.fromJson(orderData);
   }
 
+  Future<ApiProductArrival> productArrivalsBeginUnload({
+    required int id
+  }) async {
+    final productArrivalData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_arrivals/begin_unload',
+      data: {
+        'id': id
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
+  Future<ApiProductArrival> productArrivalsFinishUnload({
+    required int id,
+    required int amount
+  }) async {
+    final productArrivalData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_arrivals/finish_unload',
+      data: {
+        'id': id,
+        'amount': amount
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
+  Future<ApiProductArrival> productArrivalsBeginPackageAccept({
+    required int id
+  }) async {
+    final productArrivalData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_arrivals/begin_package_accept',
+      data: {
+        'id': id
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
+  Future<ApiProductArrival> productArrivalsFinishPackageAccept({
+    required int id,
+    required List<Map<String, dynamic>> lines
+  }) async {
+    final productArrivalData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_arrivals/finish_package_accept',
+      data: {
+        'id': id,
+        'lines': lines
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
+  Future<ApiProduct> productArrivalFindProduct({
+    required String code
+  }) async {
+    final productData = await _sendRequest((dio) => dio.get(
+      'v1/logisto/product_arrivals/find_product',
+      queryParameters: { 'code': code }
+    ));
+
+    return ApiProduct.fromJson(productData);
+  }
+
   Future<void> resetPassword({
     required String url,
     required String login
@@ -231,7 +298,7 @@ class Api {
   }
 
   Future<ApiCredential> _getApiCredentials() async {
-    return await storage.apiCredentialsDao.getApiCredential();
+    return await dataStore.apiCredentialsDao.getApiCredential();
   }
 
   Future<Dio> _createDio(String url, String? token) async {

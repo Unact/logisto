@@ -9,7 +9,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/accept_payment/accept_payment_page.dart';
 import '/app/pages/order_qr_scan/order_qr_scan_page.dart';
-import '/app/pages/order_storage_qr_scan/order_storage_qr_scan_page.dart';
+import '/app/pages/storage_qr_scan/storage_qr_scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/utils/format.dart';
@@ -21,17 +21,17 @@ part 'order_view_model.dart';
 part 'order_storage_picker.dart';
 
 class OrderPage extends StatelessWidget {
-  final OrderExtended orderExtended;
+  final OrderEx orderEx;
 
   OrderPage({
     Key? key,
-    required this.orderExtended
+    required this.orderEx
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderViewModel>(
-      create: (context) => OrderViewModel(context, orderExtended: orderExtended),
+      create: (context) => OrderViewModel(context, orderEx: orderEx),
       child: _OrderView(),
     );
   }
@@ -45,10 +45,10 @@ class _OrderView extends StatefulWidget {
 class _OrderViewState extends State<_OrderView> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _volumeController = TextEditingController();
-  Completer<void> _dialogCompleter = Completer();
-  final ButtonStyle _buttonStyle = TextButton.styleFrom(primary: Colors.blue);
+  late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+  final ButtonStyle _buttonStyle = TextButton.styleFrom(backgroundColor: Colors.blue);
 
-  Future<List<dynamic>?> _showAcceptDialog(bool showOrderStoragePicker) async {
+  Future<List<dynamic>?> _showAcceptDialog(bool showStoragePicker) async {
     OrderViewModel vm = context.read<OrderViewModel>();
 
     return await showDialog<List<dynamic>>(
@@ -62,7 +62,7 @@ class _OrderViewState extends State<_OrderView> {
         TextEditingController _volumeDialogController = TextEditingController(text: volume);
         bool? hasDocuments = !order.documentsReturn;
         TextStyle textStyle = const TextStyle(fontSize: 14);
-        OrderStorage? newOrderStorage = vm.state.toStorage;
+        Storage? newStorage = vm.state.toStorage;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -71,10 +71,10 @@ class _OrderViewState extends State<_OrderView> {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    !showOrderStoragePicker ? Container() : OrderStoragePicker(
-                      orderStorages: vm.state.acceptableStorages,
-                      value: newOrderStorage,
-                      onChanged: (orderStorage, _) => setState(() => newOrderStorage = orderStorage)
+                    !showStoragePicker ? Container() : StoragePicker(
+                      storages: vm.state.acceptableStorages,
+                      value: newStorage,
+                      onChanged: (storage, _) => setState(() => newStorage = storage)
                     ),
                     TextFormField(
                       maxLines: 1,
@@ -111,9 +111,9 @@ class _OrderViewState extends State<_OrderView> {
               actions: <Widget>[
                 TextButton(
                   child: const Text(Strings.ok),
-                  onPressed: showOrderStoragePicker && newOrderStorage == null ? null : () {
+                  onPressed: showStoragePicker && newStorage == null ? null : () {
                     Navigator.of(context).pop(
-                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text, newOrderStorage]
+                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text, newStorage]
                     );
                   }
                 ),
@@ -126,24 +126,9 @@ class _OrderViewState extends State<_OrderView> {
     );
   }
 
-  Future<void> openDialog() async {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false
-    );
-    await _dialogCompleter.future;
-    Navigator.of(context).pop();
-  }
-
-  void closeDialog() {
-    _dialogCompleter.complete();
-    _dialogCompleter = Completer();
-  }
-
   void showMessageAndCloseDialog(String message) {
     showMessage(message);
-    closeDialog();
+    _progressDialog.close();
   }
 
   Future<void> showQRScanPage() async {
@@ -191,11 +176,11 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showOrderTransferDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    OrderStorage? result = await showDialog<OrderStorage>(
+    Storage? result = await showDialog<Storage>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        OrderStorage? newOrderStorage;
+        Storage? newStorage;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -205,13 +190,13 @@ class _OrderViewState extends State<_OrderView> {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    OrderStoragePicker(
-                      orderStorages: vm.state.transferableStorages,
-                      value: newOrderStorage,
-                      onChanged: (orderStorage, isScanned) {
-                        setState(() => newOrderStorage = orderStorage);
+                    StoragePicker(
+                      storages: vm.state.transferableStorages,
+                      value: newStorage,
+                      onChanged: (storage, isScanned) {
+                        setState(() => newStorage = storage);
 
-                        if (isScanned) Navigator.of(context).pop(newOrderStorage);
+                        if (isScanned) Navigator.of(context).pop(newStorage);
                       }
                     )
                   ]
@@ -220,7 +205,7 @@ class _OrderViewState extends State<_OrderView> {
               actions: <Widget>[
                 TextButton(
                   child: const Text(Strings.ok),
-                  onPressed: newOrderStorage == null ? null : () => Navigator.of(context).pop(newOrderStorage)
+                  onPressed: newStorage == null ? null : () => Navigator.of(context).pop(newStorage)
                 ),
                 TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
               ],
@@ -523,7 +508,7 @@ class _OrderViewState extends State<_OrderView> {
       listener: (context, state) async {
         switch (state.status) {
           case OrderStateStatus.inProgress:
-            await openDialog();
+            await _progressDialog.open();
             break;
           case OrderStateStatus.scanFinished:
           case OrderStateStatus.paymentFinished:
@@ -532,17 +517,17 @@ class _OrderViewState extends State<_OrderView> {
             showMessageAndCloseDialog(state.message);
             break;
           case OrderStateStatus.scanStarted:
-            WidgetsBinding.instance!.addPostFrameCallback((_) async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
               await showQRScanPage();
             });
             break;
           case OrderStateStatus.paymentStarted:
-            WidgetsBinding.instance!.addPostFrameCallback((_) async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
               await showAcceptPaymentDialog();
             });
             break;
           case OrderStateStatus.needUserConfirmation:
-            WidgetsBinding.instance!.addPostFrameCallback((_) async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
               await showConfirmationDialog(state.message, state.confirmationCallback);
             });
             break;

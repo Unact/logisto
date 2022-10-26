@@ -12,21 +12,23 @@ enum _ScanMode {
   camera
 }
 
-class QRScanView extends StatefulWidget {
+class ScanView extends StatefulWidget {
   final Widget child;
+  final bool barcodeMode;
   final Function(String) onRead;
 
-  QRScanView({
+  ScanView({
     required this.child,
+    this.barcodeMode = false,
     required this.onRead,
     Key? key
   }) : super(key: key);
 
   @override
-  _QRScanViewState createState() => _QRScanViewState();
+  _ScanViewState createState() => _ScanViewState();
 }
 
-class _QRScanViewState extends State<QRScanView> {
+class _ScanViewState extends State<ScanView> {
   final GlobalKey _qrKey = GlobalKey();
   QRViewController? _controller;
   StreamSubscription? _subscription;
@@ -225,15 +227,18 @@ class _QRScanViewState extends State<QRScanView> {
             child: QRView(
               key: _qrKey,
               formatsAllowed: const [
-                BarcodeFormat.qrcode
+                BarcodeFormat.qrcode,
+                BarcodeFormat.code128,
+                BarcodeFormat.ean13
               ],
               overlay: QrScannerOverlayShape(
-                borderColor: Colors.white,
-                borderRadius: 10,
-                borderLength: 30,
-                borderWidth: 10,
-                cutOutSize: 200
-              ),
+                  borderColor: Colors.white,
+                  borderRadius: 10,
+                  borderLength: 30,
+                  borderWidth: 10,
+                  cutOutWidth: widget.barcodeMode ? 300 : 200,
+                  cutOutHeight: widget.barcodeMode ? 150 : 200
+                ),
               onPermissionSet: (QRViewController controller, bool permission) {
                 DateTime? lastScan;
 

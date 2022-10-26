@@ -1,34 +1,34 @@
 part of 'order_page.dart';
 
 class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
-  OrderViewModel(BuildContext context, { required OrderExtended orderExtended }) :
-    super(context, OrderState(orderExtended: orderExtended, confirmationCallback: () {}));
+  OrderViewModel(BuildContext context, { required OrderEx orderEx }) :
+    super(context, OrderState(orderEx: orderEx, confirmationCallback: () {}));
 
   @override
   OrderStateStatus get status => state.status;
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.storage.orders,
-    app.storage.orderLines,
-    app.storage.orderStorages,
-    app.storage.users
+    app.dataStore.orders,
+    app.dataStore.orderLines,
+    app.dataStore.storages,
+    app.dataStore.users
   ]);
 
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
       status: OrderStateStatus.dataLoaded,
-      storages: await app.storage.orderStoragesDao.getOrderStorages(),
-      orderExtended: await app.storage.ordersDao.getOrderExtended(state.order.id),
-      user: await app.storage.usersDao.getUser()
+      storages: await app.dataStore.storagesDao.getStorages(),
+      orderEx: await app.dataStore.ordersDao.getOrderEx(state.order.id),
+      user: await app.dataStore.usersDao.getUser()
     ));
   }
 
   Future<void> updateOrderLineAmount(OrderLine orderLine, String amount) async {
     int? intAmount = int.tryParse(amount);
 
-    await app.storage.ordersDao.updateOrderLine(
+    await app.dataStore.ordersDao.updateOrderLine(
       orderLine.id,
       OrderLinesCompanion(factAmount: Value(intAmount))
     );
@@ -64,11 +64,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> transferOrder(OrderStorage orderStorage) async {
+  Future<void> transferOrder(Storage storage) async {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _transferOrder(orderStorage);
+      await _transferOrder(storage);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно передан'));
     } on AppError catch(e) {
@@ -80,13 +80,13 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     bool docConfirmed,
     String weightStr,
     String volumeStr,
-    OrderStorage newOrderStorage
+    Storage newStorage
   ) async {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
       await _acceptAndUpdateOrder(docConfirmed, weightStr, volumeStr);
-      await _acceptOrder(newOrderStorage);
+      await _acceptOrder(newStorage);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
     } on AppError catch(e) {
@@ -200,7 +200,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   Future<void> _updateOrder(Map<String, dynamic> data) async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).updateOrder(id: state.order.id, data: data);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).updateOrder(id: state.order.id, data: data);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -216,7 +216,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       List<Map<String, int>> lines = state.lines
         .map((e) => { 'id': e.id, 'factAmount': e.factAmount ?? e.amount })
         .toList();
-      ApiOrder newOrder = await Api(storage: app.storage).confirmOrder(id: state.order.id, lines: lines);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).confirmOrder(id: state.order.id, lines: lines);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -229,7 +229,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   Future<void> _cancelOrder() async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).cancelOrder(id: state.order.id);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).cancelOrder(id: state.order.id);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -240,11 +240,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> _transferOrder(OrderStorage orderStorage) async {
+  Future<void> _transferOrder(Storage storage) async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).transferOrder(
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).transferOrder(
         id: state.order.id,
-        storageId: orderStorage.id
+        storageId: storage.id
       );
 
       await _saveApiOrder(newOrder);
@@ -256,9 +256,9 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
   }
 
-  Future<void> _acceptOrder(OrderStorage orderStorage) async {
+  Future<void> _acceptOrder(Storage storage) async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).acceptOrder(id: state.order.id, storageId: orderStorage.id);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptOrder(id: state.order.id, storageId: storage.id);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -271,7 +271,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   Future<void> _acceptStorageTransferOrder() async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).acceptStorageTransferOrder(id: state.order.id);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptStorageTransferOrder(id: state.order.id);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -284,7 +284,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   Future<void> _acceptTransferOrder() async {
     try {
-      ApiOrder newOrder = await Api(storage: app.storage).acceptTransferOrder(id: state.order.id);
+      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptTransferOrder(id: state.order.id);
 
       await _saveApiOrder(newOrder);
     } on ApiException catch(e) {
@@ -296,22 +296,12 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> _saveApiOrder(ApiOrder apiOrder) async {
-    OrderExtended orderExtended = apiOrder.toDatabaseEnt();
+    OrderEx orderEx = apiOrder.toDatabaseEnt();
 
-    await app.storage.transaction(() async {
-      await app.storage.ordersDao.updateOrder(state.order.id, orderExtended.order.toCompanion(false));
-      await Future.forEach<OrderLine>(
-        orderExtended.lines,
-        (e) => app.storage.ordersDao.updateOrderLine(state.order.id, e.toCompanion(false))
-      );
-
-      if (orderExtended.storageFrom != null) {
-        await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageFrom!);
-      }
-
-      if (orderExtended.storageTo != null) {
-        await app.storage.orderStoragesDao.addOrderStorage(orderExtended.storageTo!);
-      }
+    await app.dataStore.transaction(() async {
+      await app.dataStore.ordersDao.updateOrderEx(orderEx);
+      if (orderEx.storageFrom != null) await app.dataStore.storagesDao.addStorage(orderEx.storageFrom!);
+      if (orderEx.storageTo != null) await app.dataStore.storagesDao.addStorage(orderEx.storageTo!);
     });
   }
 

@@ -23,7 +23,7 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
 
   @mustCallSuper
   Future<void> initViewModel() async {
-    _subscription = app.storage.tableUpdates(listenForTables).listen((event) async {
+    _subscription = app.dataStore.tableUpdates(listenForTables).listen((event) async {
       await Future.delayed(Duration.zero);
       await loadData();
     });

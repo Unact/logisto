@@ -19,13 +19,13 @@ class App {
   final bool isDebug;
   final String version;
   final String buildNumber;
-  final AppStorage storage;
+  final AppDataStore dataStore;
 
   App._({
     required this.isDebug,
     required this.version,
     required this.buildNumber,
-    required this.storage
+    required this.dataStore
   }) {
     _instance = this;
   }
@@ -45,8 +45,8 @@ class App {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await FkUserAgent.init();
 
-    AppStorage storage = AppStorage(logStatements: isDebug);
-    await _initSentry(dsn: const String.fromEnvironment('LOGISTO_SENTRY_DSN'), capture: !isDebug, storage: storage);
+    AppDataStore dataStore = AppDataStore(logStatements: isDebug);
+    await _initSentry(dsn: const String.fromEnvironment('LOGISTO_SENTRY_DSN'), capture: !isDebug, dataStore: dataStore);
     _intFlogs(isDebug: isDebug);
 
     FLog.info(text: 'App Initialized');
@@ -55,12 +55,12 @@ class App {
       isDebug: isDebug,
       version: packageInfo.version,
       buildNumber: packageInfo.buildNumber,
-      storage: storage
+      dataStore: dataStore
     );
   }
 
   Future<bool> get newVersionAvailable async {
-    String remoteVersion = (await storage.usersDao.getUser()).version;
+    String remoteVersion = (await dataStore.usersDao.getUser()).version;
 
     return Version.parse(remoteVersion) > Version.parse(version);
   }
@@ -84,9 +84,9 @@ class App {
 
   Future<void> loadUserData() async {
     try {
-      ApiUserData userData = await Api(storage: storage).getUserData();
+      ApiUserData userData = await Api(dataStore: dataStore).getUserData();
 
-      await storage.usersDao.loadUser(userData.toDatabaseEnt());
+      await dataStore.usersDao.loadUser(userData.toDatabaseEnt());
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -97,7 +97,7 @@ class App {
 
   Future<void> login(String url, String login, String password) async {
     try {
-      await Api(storage: storage).login(url: url, login: login, password: password);
+      await Api(dataStore: dataStore).login(url: url, login: login, password: password);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -106,12 +106,12 @@ class App {
     }
 
     await loadUserData();
-    await storage.updatePref(PrefsCompanion(lastLogin: Value(DateTime.now())));
+    await dataStore.updatePref(PrefsCompanion(lastLogin: Value(DateTime.now())));
   }
 
   Future<void> logout() async {
     try {
-      await Api(storage: storage).logout();
+      await Api(dataStore: dataStore).logout();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -119,7 +119,7 @@ class App {
       throw AppError(Strings.genericErrorMsg);
     }
 
-    await storage.clearData();
+    await dataStore.clearData();
   }
 
   static void _intFlogs({
@@ -138,7 +138,7 @@ class App {
   static Future<void> _initSentry({
     required String dsn,
     required bool capture,
-    required AppStorage storage
+    required AppDataStore dataStore
   }) async {
     if (!capture) return;
 
@@ -146,7 +146,7 @@ class App {
       (options) {
         options.dsn = dsn;
         options.beforeSend = (SentryEvent event, {dynamic hint}) async {
-          User user = await storage.usersDao.getUser();
+          User user = await dataStore.usersDao.getUser();
 
           return event.copyWith(user: SentryUser(
             id: user.id.toString(),

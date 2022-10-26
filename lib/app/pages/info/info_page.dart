@@ -8,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/orders/orders_page.dart';
+import '/app/pages/product_arrivals/product_arrivals_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
@@ -40,7 +41,7 @@ class _InfoViewState extends State<_InfoView> {
   Completer<void> _refresherCompleter = Completer();
 
   Future<void> openRefresher() async {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshIndicatorKey.currentState!.show();
     });
   }
@@ -119,9 +120,37 @@ class _InfoViewState extends State<_InfoView> {
   List<Widget> _buildInfoCards(BuildContext context) {
     return <Widget>[
       _buildOrdersCard(context),
+      _buildProductArrivalsCard(context),
+      _buildUserCard(context),
       _buildInfoCard(context),
-      _buildUserCard(context)
     ];
+  }
+
+  Widget _buildProductArrivalsCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    return Card(
+      child: ListTile(
+        onTap: () {
+          if (vm.state.loading) return;
+
+          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ProductArrivalsPage()));
+        },
+        isThreeLine: true,
+        title: const Text('Разгрузка'),
+        subtitle: RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.grey),
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Кол-во: ${vm.state.productArrivalExList.length}\n',
+                style: const TextStyle(fontSize: 12.0)
+              ),
+            ]
+          )
+        ),
+      ),
+    );
   }
 
   Widget _buildOrdersCard(BuildContext context) {
@@ -140,7 +169,7 @@ class _InfoViewState extends State<_InfoView> {
           text: TextSpan(
             style: const TextStyle(color: Colors.grey),
             children: <TextSpan>[
-              TextSpan(text: 'Кол-во: ${vm.state.orderExtendedList.length}\n', style: const TextStyle(fontSize: 12.0)),
+              TextSpan(text: 'Кол-во: ${vm.state.orderExList.length}\n', style: const TextStyle(fontSize: 12.0)),
             ]
           )
         ),

@@ -11,28 +11,34 @@ import '/app/constants/strings.dart';
 part 'schema.dart';
 part 'database.g.dart';
 part 'api_credentials_dao.dart';
-part 'order_storages_dao.dart';
+part 'product_arrivals_dao.dart';
+part 'storages_dao.dart';
 part 'orders_dao.dart';
 part 'users_dao.dart';
 
 @DriftDatabase(
   tables: [
     Users,
+    ProductArrivals,
+    ProductArrivalPackages,
+    ProductArrivalPackageLines,
+    ProductArrivalPackageNewLines,
     Orders,
     OrderLines,
-    OrderStorages,
+    Storages,
     ApiCredentials,
     Prefs
   ],
   daos: [
     ApiCredentialsDao,
-    OrderStoragesDao,
+    StoragesDao,
+    ProductArrivalsDao,
     OrdersDao,
     UsersDao,
   ]
 )
-class AppStorage extends _$AppStorage {
-  AppStorage({
+class AppDataStore extends _$AppDataStore {
+  AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
 
@@ -54,12 +60,9 @@ class AppStorage extends _$AppStorage {
 
   Future<void> _clearData() async {
     await batch((batch) {
-      batch.deleteWhere(users, (row) => const Constant(true));
-      batch.deleteWhere(orders, (row) => const Constant(true));
-      batch.deleteWhere(orderLines, (row) => const Constant(true));
-      batch.deleteWhere(orderStorages, (row) => const Constant(true));
-      batch.deleteWhere(apiCredentials, (row) => const Constant(true));
-      batch.deleteWhere(prefs, (row) => const Constant(true));
+      for (var table in allTables) {
+        batch.deleteWhere(table, (row) => const Constant(true));
+      }
     });
   }
 
@@ -84,7 +87,7 @@ class AppStorage extends _$AppStorage {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

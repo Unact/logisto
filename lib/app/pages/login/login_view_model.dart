@@ -72,7 +72,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
 
   Future<void> _resetPassword(String url, String login) async {
     try {
-      await Api(storage: app.storage).resetPassword(url: url, login: login);
+      await Api(dataStore: app.dataStore).resetPassword(url: url, login: login);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

@@ -6,7 +6,7 @@ part of 'database.dart';
 // MoorGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+// ignore_for_file: type=lint
 class User extends DataClass implements Insertable<User> {
   final int id;
   final String username;
@@ -406,15 +406,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       const JsonIntListConverter();
 }
 
-class OrderStorage extends DataClass implements Insertable<OrderStorage> {
+class Storage extends DataClass implements Insertable<Storage> {
   final int id;
   final String name;
   final int sequenceNumber;
-  OrderStorage(
-      {required this.id, required this.name, required this.sequenceNumber});
-  factory OrderStorage.fromData(Map<String, dynamic> data, {String? prefix}) {
+  Storage({required this.id, required this.name, required this.sequenceNumber});
+  factory Storage.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    return OrderStorage(
+    return Storage(
       id: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       name: const StringType()
@@ -432,18 +431,18 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     return map;
   }
 
-  OrderStoragesCompanion toCompanion(bool nullToAbsent) {
-    return OrderStoragesCompanion(
+  StoragesCompanion toCompanion(bool nullToAbsent) {
+    return StoragesCompanion(
       id: Value(id),
       name: Value(name),
       sequenceNumber: Value(sequenceNumber),
     );
   }
 
-  factory OrderStorage.fromJson(Map<String, dynamic> json,
+  factory Storage.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return OrderStorage(
+    return Storage(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       sequenceNumber: serializer.fromJson<int>(json['sequenceNumber']),
@@ -459,15 +458,14 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
     };
   }
 
-  OrderStorage copyWith({int? id, String? name, int? sequenceNumber}) =>
-      OrderStorage(
+  Storage copyWith({int? id, String? name, int? sequenceNumber}) => Storage(
         id: id ?? this.id,
         name: name ?? this.name,
         sequenceNumber: sequenceNumber ?? this.sequenceNumber,
       );
   @override
   String toString() {
-    return (StringBuffer('OrderStorage(')
+    return (StringBuffer('Storage(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('sequenceNumber: $sequenceNumber')
@@ -480,28 +478,28 @@ class OrderStorage extends DataClass implements Insertable<OrderStorage> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OrderStorage &&
+      (other is Storage &&
           other.id == this.id &&
           other.name == this.name &&
           other.sequenceNumber == this.sequenceNumber);
 }
 
-class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
+class StoragesCompanion extends UpdateCompanion<Storage> {
   final Value<int> id;
   final Value<String> name;
   final Value<int> sequenceNumber;
-  const OrderStoragesCompanion({
+  const StoragesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.sequenceNumber = const Value.absent(),
   });
-  OrderStoragesCompanion.insert({
+  StoragesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required int sequenceNumber,
   })  : name = Value(name),
         sequenceNumber = Value(sequenceNumber);
-  static Insertable<OrderStorage> custom({
+  static Insertable<Storage> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<int>? sequenceNumber,
@@ -513,9 +511,9 @@ class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
     });
   }
 
-  OrderStoragesCompanion copyWith(
+  StoragesCompanion copyWith(
       {Value<int>? id, Value<String>? name, Value<int>? sequenceNumber}) {
-    return OrderStoragesCompanion(
+    return StoragesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       sequenceNumber: sequenceNumber ?? this.sequenceNumber,
@@ -539,7 +537,7 @@ class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
 
   @override
   String toString() {
-    return (StringBuffer('OrderStoragesCompanion(')
+    return (StringBuffer('StoragesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('sequenceNumber: $sequenceNumber')
@@ -548,12 +546,11 @@ class OrderStoragesCompanion extends UpdateCompanion<OrderStorage> {
   }
 }
 
-class $OrderStoragesTable extends OrderStorages
-    with TableInfo<$OrderStoragesTable, OrderStorage> {
+class $StoragesTable extends Storages with TableInfo<$StoragesTable, Storage> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $OrderStoragesTable(this.attachedDatabase, [this._alias]);
+  $StoragesTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
@@ -575,11 +572,11 @@ class $OrderStoragesTable extends OrderStorages
   @override
   List<GeneratedColumn> get $columns => [id, name, sequenceNumber];
   @override
-  String get aliasedName => _alias ?? 'order_storages';
+  String get aliasedName => _alias ?? 'storages';
   @override
-  String get actualTableName => 'order_storages';
+  String get actualTableName => 'storages';
   @override
-  VerificationContext validateIntegrity(Insertable<OrderStorage> instance,
+  VerificationContext validateIntegrity(Insertable<Storage> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -606,14 +603,1232 @@ class $OrderStoragesTable extends OrderStorages
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  OrderStorage map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return OrderStorage.fromData(data,
+  Storage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return Storage.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  $OrderStoragesTable createAlias(String alias) {
-    return $OrderStoragesTable(attachedDatabase, alias);
+  $StoragesTable createAlias(String alias) {
+    return $StoragesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductArrival extends DataClass implements Insertable<ProductArrival> {
+  final int id;
+  final DateTime arrivalDate;
+  final String number;
+  final DateTime? unloadStart;
+  final DateTime? unloadEnd;
+  final int? storageId;
+  ProductArrival(
+      {required this.id,
+      required this.arrivalDate,
+      required this.number,
+      this.unloadStart,
+      this.unloadEnd,
+      this.storageId});
+  factory ProductArrival.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrival(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      arrivalDate: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}arrival_date'])!,
+      number: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}number'])!,
+      unloadStart: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}unload_start']),
+      unloadEnd: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}unload_end']),
+      storageId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}storage_id']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['arrival_date'] = Variable<DateTime>(arrivalDate);
+    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || unloadStart != null) {
+      map['unload_start'] = Variable<DateTime?>(unloadStart);
+    }
+    if (!nullToAbsent || unloadEnd != null) {
+      map['unload_end'] = Variable<DateTime?>(unloadEnd);
+    }
+    if (!nullToAbsent || storageId != null) {
+      map['storage_id'] = Variable<int?>(storageId);
+    }
+    return map;
+  }
+
+  ProductArrivalsCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalsCompanion(
+      id: Value(id),
+      arrivalDate: Value(arrivalDate),
+      number: Value(number),
+      unloadStart: unloadStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unloadStart),
+      unloadEnd: unloadEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unloadEnd),
+      storageId: storageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageId),
+    );
+  }
+
+  factory ProductArrival.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrival(
+      id: serializer.fromJson<int>(json['id']),
+      arrivalDate: serializer.fromJson<DateTime>(json['arrivalDate']),
+      number: serializer.fromJson<String>(json['number']),
+      unloadStart: serializer.fromJson<DateTime?>(json['unloadStart']),
+      unloadEnd: serializer.fromJson<DateTime?>(json['unloadEnd']),
+      storageId: serializer.fromJson<int?>(json['storageId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'arrivalDate': serializer.toJson<DateTime>(arrivalDate),
+      'number': serializer.toJson<String>(number),
+      'unloadStart': serializer.toJson<DateTime?>(unloadStart),
+      'unloadEnd': serializer.toJson<DateTime?>(unloadEnd),
+      'storageId': serializer.toJson<int?>(storageId),
+    };
+  }
+
+  ProductArrival copyWith(
+          {int? id,
+          DateTime? arrivalDate,
+          String? number,
+          DateTime? unloadStart,
+          DateTime? unloadEnd,
+          int? storageId}) =>
+      ProductArrival(
+        id: id ?? this.id,
+        arrivalDate: arrivalDate ?? this.arrivalDate,
+        number: number ?? this.number,
+        unloadStart: unloadStart ?? this.unloadStart,
+        unloadEnd: unloadEnd ?? this.unloadEnd,
+        storageId: storageId ?? this.storageId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrival(')
+          ..write('id: $id, ')
+          ..write('arrivalDate: $arrivalDate, ')
+          ..write('number: $number, ')
+          ..write('unloadStart: $unloadStart, ')
+          ..write('unloadEnd: $unloadEnd, ')
+          ..write('storageId: $storageId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, arrivalDate, number, unloadStart, unloadEnd, storageId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrival &&
+          other.id == this.id &&
+          other.arrivalDate == this.arrivalDate &&
+          other.number == this.number &&
+          other.unloadStart == this.unloadStart &&
+          other.unloadEnd == this.unloadEnd &&
+          other.storageId == this.storageId);
+}
+
+class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
+  final Value<int> id;
+  final Value<DateTime> arrivalDate;
+  final Value<String> number;
+  final Value<DateTime?> unloadStart;
+  final Value<DateTime?> unloadEnd;
+  final Value<int?> storageId;
+  const ProductArrivalsCompanion({
+    this.id = const Value.absent(),
+    this.arrivalDate = const Value.absent(),
+    this.number = const Value.absent(),
+    this.unloadStart = const Value.absent(),
+    this.unloadEnd = const Value.absent(),
+    this.storageId = const Value.absent(),
+  });
+  ProductArrivalsCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime arrivalDate,
+    required String number,
+    this.unloadStart = const Value.absent(),
+    this.unloadEnd = const Value.absent(),
+    this.storageId = const Value.absent(),
+  })  : arrivalDate = Value(arrivalDate),
+        number = Value(number);
+  static Insertable<ProductArrival> custom({
+    Expression<int>? id,
+    Expression<DateTime>? arrivalDate,
+    Expression<String>? number,
+    Expression<DateTime?>? unloadStart,
+    Expression<DateTime?>? unloadEnd,
+    Expression<int?>? storageId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (arrivalDate != null) 'arrival_date': arrivalDate,
+      if (number != null) 'number': number,
+      if (unloadStart != null) 'unload_start': unloadStart,
+      if (unloadEnd != null) 'unload_end': unloadEnd,
+      if (storageId != null) 'storage_id': storageId,
+    });
+  }
+
+  ProductArrivalsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? arrivalDate,
+      Value<String>? number,
+      Value<DateTime?>? unloadStart,
+      Value<DateTime?>? unloadEnd,
+      Value<int?>? storageId}) {
+    return ProductArrivalsCompanion(
+      id: id ?? this.id,
+      arrivalDate: arrivalDate ?? this.arrivalDate,
+      number: number ?? this.number,
+      unloadStart: unloadStart ?? this.unloadStart,
+      unloadEnd: unloadEnd ?? this.unloadEnd,
+      storageId: storageId ?? this.storageId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (arrivalDate.present) {
+      map['arrival_date'] = Variable<DateTime>(arrivalDate.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (unloadStart.present) {
+      map['unload_start'] = Variable<DateTime?>(unloadStart.value);
+    }
+    if (unloadEnd.present) {
+      map['unload_end'] = Variable<DateTime?>(unloadEnd.value);
+    }
+    if (storageId.present) {
+      map['storage_id'] = Variable<int?>(storageId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalsCompanion(')
+          ..write('id: $id, ')
+          ..write('arrivalDate: $arrivalDate, ')
+          ..write('number: $number, ')
+          ..write('unloadStart: $unloadStart, ')
+          ..write('unloadEnd: $unloadEnd, ')
+          ..write('storageId: $storageId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalsTable extends ProductArrivals
+    with TableInfo<$ProductArrivalsTable, ProductArrival> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _arrivalDateMeta =
+      const VerificationMeta('arrivalDate');
+  @override
+  late final GeneratedColumn<DateTime?> arrivalDate =
+      GeneratedColumn<DateTime?>('arrival_date', aliasedName, false,
+          type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String?> number = GeneratedColumn<String?>(
+      'number', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _unloadStartMeta =
+      const VerificationMeta('unloadStart');
+  @override
+  late final GeneratedColumn<DateTime?> unloadStart =
+      GeneratedColumn<DateTime?>('unload_start', aliasedName, true,
+          type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _unloadEndMeta = const VerificationMeta('unloadEnd');
+  @override
+  late final GeneratedColumn<DateTime?> unloadEnd = GeneratedColumn<DateTime?>(
+      'unload_end', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _storageIdMeta = const VerificationMeta('storageId');
+  @override
+  late final GeneratedColumn<int?> storageId = GeneratedColumn<int?>(
+      'storage_id', aliasedName, true,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'REFERENCES storages (id)');
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, arrivalDate, number, unloadStart, unloadEnd, storageId];
+  @override
+  String get aliasedName => _alias ?? 'product_arrivals';
+  @override
+  String get actualTableName => 'product_arrivals';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductArrival> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('arrival_date')) {
+      context.handle(
+          _arrivalDateMeta,
+          arrivalDate.isAcceptableOrUnknown(
+              data['arrival_date']!, _arrivalDateMeta));
+    } else if (isInserting) {
+      context.missing(_arrivalDateMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(_numberMeta,
+          number.isAcceptableOrUnknown(data['number']!, _numberMeta));
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('unload_start')) {
+      context.handle(
+          _unloadStartMeta,
+          unloadStart.isAcceptableOrUnknown(
+              data['unload_start']!, _unloadStartMeta));
+    }
+    if (data.containsKey('unload_end')) {
+      context.handle(_unloadEndMeta,
+          unloadEnd.isAcceptableOrUnknown(data['unload_end']!, _unloadEndMeta));
+    }
+    if (data.containsKey('storage_id')) {
+      context.handle(_storageIdMeta,
+          storageId.isAcceptableOrUnknown(data['storage_id']!, _storageIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrival map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductArrival.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalsTable createAlias(String alias) {
+    return $ProductArrivalsTable(attachedDatabase, alias);
+  }
+}
+
+class ProductArrivalPackage extends DataClass
+    implements Insertable<ProductArrivalPackage> {
+  final int id;
+  final int productArrivalId;
+  final String number;
+  final DateTime? acceptStart;
+  final DateTime? acceptEnd;
+  ProductArrivalPackage(
+      {required this.id,
+      required this.productArrivalId,
+      required this.number,
+      this.acceptStart,
+      this.acceptEnd});
+  factory ProductArrivalPackage.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalPackage(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_id'])!,
+      number: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}number'])!,
+      acceptStart: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}accept_start']),
+      acceptEnd: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}accept_end']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_id'] = Variable<int>(productArrivalId);
+    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || acceptStart != null) {
+      map['accept_start'] = Variable<DateTime?>(acceptStart);
+    }
+    if (!nullToAbsent || acceptEnd != null) {
+      map['accept_end'] = Variable<DateTime?>(acceptEnd);
+    }
+    return map;
+  }
+
+  ProductArrivalPackagesCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalPackagesCompanion(
+      id: Value(id),
+      productArrivalId: Value(productArrivalId),
+      number: Value(number),
+      acceptStart: acceptStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(acceptStart),
+      acceptEnd: acceptEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(acceptEnd),
+    );
+  }
+
+  factory ProductArrivalPackage.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalPackage(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalId: serializer.fromJson<int>(json['productArrivalId']),
+      number: serializer.fromJson<String>(json['number']),
+      acceptStart: serializer.fromJson<DateTime?>(json['acceptStart']),
+      acceptEnd: serializer.fromJson<DateTime?>(json['acceptEnd']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalId': serializer.toJson<int>(productArrivalId),
+      'number': serializer.toJson<String>(number),
+      'acceptStart': serializer.toJson<DateTime?>(acceptStart),
+      'acceptEnd': serializer.toJson<DateTime?>(acceptEnd),
+    };
+  }
+
+  ProductArrivalPackage copyWith(
+          {int? id,
+          int? productArrivalId,
+          String? number,
+          DateTime? acceptStart,
+          DateTime? acceptEnd}) =>
+      ProductArrivalPackage(
+        id: id ?? this.id,
+        productArrivalId: productArrivalId ?? this.productArrivalId,
+        number: number ?? this.number,
+        acceptStart: acceptStart ?? this.acceptStart,
+        acceptEnd: acceptEnd ?? this.acceptEnd,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackage(')
+          ..write('id: $id, ')
+          ..write('productArrivalId: $productArrivalId, ')
+          ..write('number: $number, ')
+          ..write('acceptStart: $acceptStart, ')
+          ..write('acceptEnd: $acceptEnd')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productArrivalId, number, acceptStart, acceptEnd);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalPackage &&
+          other.id == this.id &&
+          other.productArrivalId == this.productArrivalId &&
+          other.number == this.number &&
+          other.acceptStart == this.acceptStart &&
+          other.acceptEnd == this.acceptEnd);
+}
+
+class ProductArrivalPackagesCompanion
+    extends UpdateCompanion<ProductArrivalPackage> {
+  final Value<int> id;
+  final Value<int> productArrivalId;
+  final Value<String> number;
+  final Value<DateTime?> acceptStart;
+  final Value<DateTime?> acceptEnd;
+  const ProductArrivalPackagesCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalId = const Value.absent(),
+    this.number = const Value.absent(),
+    this.acceptStart = const Value.absent(),
+    this.acceptEnd = const Value.absent(),
+  });
+  ProductArrivalPackagesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalId,
+    required String number,
+    this.acceptStart = const Value.absent(),
+    this.acceptEnd = const Value.absent(),
+  })  : productArrivalId = Value(productArrivalId),
+        number = Value(number);
+  static Insertable<ProductArrivalPackage> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalId,
+    Expression<String>? number,
+    Expression<DateTime?>? acceptStart,
+    Expression<DateTime?>? acceptEnd,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalId != null) 'product_arrival_id': productArrivalId,
+      if (number != null) 'number': number,
+      if (acceptStart != null) 'accept_start': acceptStart,
+      if (acceptEnd != null) 'accept_end': acceptEnd,
+    });
+  }
+
+  ProductArrivalPackagesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalId,
+      Value<String>? number,
+      Value<DateTime?>? acceptStart,
+      Value<DateTime?>? acceptEnd}) {
+    return ProductArrivalPackagesCompanion(
+      id: id ?? this.id,
+      productArrivalId: productArrivalId ?? this.productArrivalId,
+      number: number ?? this.number,
+      acceptStart: acceptStart ?? this.acceptStart,
+      acceptEnd: acceptEnd ?? this.acceptEnd,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalId.present) {
+      map['product_arrival_id'] = Variable<int>(productArrivalId.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (acceptStart.present) {
+      map['accept_start'] = Variable<DateTime?>(acceptStart.value);
+    }
+    if (acceptEnd.present) {
+      map['accept_end'] = Variable<DateTime?>(acceptEnd.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackagesCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalId: $productArrivalId, ')
+          ..write('number: $number, ')
+          ..write('acceptStart: $acceptStart, ')
+          ..write('acceptEnd: $acceptEnd')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalPackagesTable extends ProductArrivalPackages
+    with TableInfo<$ProductArrivalPackagesTable, ProductArrivalPackage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalPackagesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalIdMeta =
+      const VerificationMeta('productArrivalId');
+  @override
+  late final GeneratedColumn<int?> productArrivalId = GeneratedColumn<int?>(
+      'product_arrival_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES product_arrivals (id) ON DELETE CASCADE');
+  final VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String?> number = GeneratedColumn<String?>(
+      'number', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _acceptStartMeta =
+      const VerificationMeta('acceptStart');
+  @override
+  late final GeneratedColumn<DateTime?> acceptStart =
+      GeneratedColumn<DateTime?>('accept_start', aliasedName, true,
+          type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _acceptEndMeta = const VerificationMeta('acceptEnd');
+  @override
+  late final GeneratedColumn<DateTime?> acceptEnd = GeneratedColumn<DateTime?>(
+      'accept_end', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalId, number, acceptStart, acceptEnd];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_packages';
+  @override
+  String get actualTableName => 'product_arrival_packages';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductArrivalPackage> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_id')) {
+      context.handle(
+          _productArrivalIdMeta,
+          productArrivalId.isAcceptableOrUnknown(
+              data['product_arrival_id']!, _productArrivalIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalIdMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(_numberMeta,
+          number.isAcceptableOrUnknown(data['number']!, _numberMeta));
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('accept_start')) {
+      context.handle(
+          _acceptStartMeta,
+          acceptStart.isAcceptableOrUnknown(
+              data['accept_start']!, _acceptStartMeta));
+    }
+    if (data.containsKey('accept_end')) {
+      context.handle(_acceptEndMeta,
+          acceptEnd.isAcceptableOrUnknown(data['accept_end']!, _acceptEndMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalPackage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductArrivalPackage.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalPackagesTable createAlias(String alias) {
+    return $ProductArrivalPackagesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductArrivalPackageLine extends DataClass
+    implements Insertable<ProductArrivalPackageLine> {
+  final int id;
+  final int productArrivalPackageId;
+  final String productName;
+  final int amount;
+  ProductArrivalPackageLine(
+      {required this.id,
+      required this.productArrivalPackageId,
+      required this.productName,
+      required this.amount});
+  factory ProductArrivalPackageLine.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalPackageLine(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalPackageId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_package_id'])!,
+      productName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
+    map['product_name'] = Variable<String>(productName);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ProductArrivalPackageLinesCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalPackageLinesCompanion(
+      id: Value(id),
+      productArrivalPackageId: Value(productArrivalPackageId),
+      productName: Value(productName),
+      amount: Value(amount),
+    );
+  }
+
+  factory ProductArrivalPackageLine.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalPackageLine(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalPackageId:
+          serializer.fromJson<int>(json['productArrivalPackageId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalPackageId':
+          serializer.toJson<int>(productArrivalPackageId),
+      'productName': serializer.toJson<String>(productName),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ProductArrivalPackageLine copyWith(
+          {int? id,
+          int? productArrivalPackageId,
+          String? productName,
+          int? amount}) =>
+      ProductArrivalPackageLine(
+        id: id ?? this.id,
+        productArrivalPackageId:
+            productArrivalPackageId ?? this.productArrivalPackageId,
+        productName: productName ?? this.productName,
+        amount: amount ?? this.amount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageLine(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productName: $productName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productArrivalPackageId, productName, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalPackageLine &&
+          other.id == this.id &&
+          other.productArrivalPackageId == this.productArrivalPackageId &&
+          other.productName == this.productName &&
+          other.amount == this.amount);
+}
+
+class ProductArrivalPackageLinesCompanion
+    extends UpdateCompanion<ProductArrivalPackageLine> {
+  final Value<int> id;
+  final Value<int> productArrivalPackageId;
+  final Value<String> productName;
+  final Value<int> amount;
+  const ProductArrivalPackageLinesCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalPackageId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  ProductArrivalPackageLinesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalPackageId,
+    required String productName,
+    required int amount,
+  })  : productArrivalPackageId = Value(productArrivalPackageId),
+        productName = Value(productName),
+        amount = Value(amount);
+  static Insertable<ProductArrivalPackageLine> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalPackageId,
+    Expression<String>? productName,
+    Expression<int>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalPackageId != null)
+        'product_arrival_package_id': productArrivalPackageId,
+      if (productName != null) 'product_name': productName,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  ProductArrivalPackageLinesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalPackageId,
+      Value<String>? productName,
+      Value<int>? amount}) {
+    return ProductArrivalPackageLinesCompanion(
+      id: id ?? this.id,
+      productArrivalPackageId:
+          productArrivalPackageId ?? this.productArrivalPackageId,
+      productName: productName ?? this.productName,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalPackageId.present) {
+      map['product_arrival_package_id'] =
+          Variable<int>(productArrivalPackageId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageLinesCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productName: $productName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
+    with
+        TableInfo<$ProductArrivalPackageLinesTable, ProductArrivalPackageLine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalPackageLinesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalPackageIdMeta =
+      const VerificationMeta('productArrivalPackageId');
+  @override
+  late final GeneratedColumn<int?> productArrivalPackageId =
+      GeneratedColumn<int?>('product_arrival_package_id', aliasedName, false,
+          type: const IntType(),
+          requiredDuringInsert: true,
+          defaultConstraints:
+              'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productNameMeta =
+      const VerificationMeta('productName');
+  @override
+  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
+      'product_name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalPackageId, productName, amount];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_package_lines';
+  @override
+  String get actualTableName => 'product_arrival_package_lines';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductArrivalPackageLine> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_package_id')) {
+      context.handle(
+          _productArrivalPackageIdMeta,
+          productArrivalPackageId.isAcceptableOrUnknown(
+              data['product_arrival_package_id']!,
+              _productArrivalPackageIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalPackageIdMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+          _productNameMeta,
+          productName.isAcceptableOrUnknown(
+              data['product_name']!, _productNameMeta));
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalPackageLine map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return ProductArrivalPackageLine.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalPackageLinesTable createAlias(String alias) {
+    return $ProductArrivalPackageLinesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductArrivalPackageNewLine extends DataClass
+    implements Insertable<ProductArrivalPackageNewLine> {
+  final int id;
+  final int productArrivalPackageId;
+  final int productId;
+  final String productName;
+  final int amount;
+  ProductArrivalPackageNewLine(
+      {required this.id,
+      required this.productArrivalPackageId,
+      required this.productId,
+      required this.productName,
+      required this.amount});
+  factory ProductArrivalPackageNewLine.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalPackageNewLine(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalPackageId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_package_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      productName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
+    map['product_id'] = Variable<int>(productId);
+    map['product_name'] = Variable<String>(productName);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ProductArrivalPackageNewLinesCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalPackageNewLinesCompanion(
+      id: Value(id),
+      productArrivalPackageId: Value(productArrivalPackageId),
+      productId: Value(productId),
+      productName: Value(productName),
+      amount: Value(amount),
+    );
+  }
+
+  factory ProductArrivalPackageNewLine.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalPackageNewLine(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalPackageId:
+          serializer.fromJson<int>(json['productArrivalPackageId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalPackageId':
+          serializer.toJson<int>(productArrivalPackageId),
+      'productId': serializer.toJson<int>(productId),
+      'productName': serializer.toJson<String>(productName),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ProductArrivalPackageNewLine copyWith(
+          {int? id,
+          int? productArrivalPackageId,
+          int? productId,
+          String? productName,
+          int? amount}) =>
+      ProductArrivalPackageNewLine(
+        id: id ?? this.id,
+        productArrivalPackageId:
+            productArrivalPackageId ?? this.productArrivalPackageId,
+        productId: productId ?? this.productId,
+        productName: productName ?? this.productName,
+        amount: amount ?? this.amount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewLine(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productArrivalPackageId, productId, productName, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalPackageNewLine &&
+          other.id == this.id &&
+          other.productArrivalPackageId == this.productArrivalPackageId &&
+          other.productId == this.productId &&
+          other.productName == this.productName &&
+          other.amount == this.amount);
+}
+
+class ProductArrivalPackageNewLinesCompanion
+    extends UpdateCompanion<ProductArrivalPackageNewLine> {
+  final Value<int> id;
+  final Value<int> productArrivalPackageId;
+  final Value<int> productId;
+  final Value<String> productName;
+  final Value<int> amount;
+  const ProductArrivalPackageNewLinesCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalPackageId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  ProductArrivalPackageNewLinesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalPackageId,
+    required int productId,
+    required String productName,
+    required int amount,
+  })  : productArrivalPackageId = Value(productArrivalPackageId),
+        productId = Value(productId),
+        productName = Value(productName),
+        amount = Value(amount);
+  static Insertable<ProductArrivalPackageNewLine> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalPackageId,
+    Expression<int>? productId,
+    Expression<String>? productName,
+    Expression<int>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalPackageId != null)
+        'product_arrival_package_id': productArrivalPackageId,
+      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  ProductArrivalPackageNewLinesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalPackageId,
+      Value<int>? productId,
+      Value<String>? productName,
+      Value<int>? amount}) {
+    return ProductArrivalPackageNewLinesCompanion(
+      id: id ?? this.id,
+      productArrivalPackageId:
+          productArrivalPackageId ?? this.productArrivalPackageId,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalPackageId.present) {
+      map['product_arrival_package_id'] =
+          Variable<int>(productArrivalPackageId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewLinesCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
+    with
+        TableInfo<$ProductArrivalPackageNewLinesTable,
+            ProductArrivalPackageNewLine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalPackageNewLinesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalPackageIdMeta =
+      const VerificationMeta('productArrivalPackageId');
+  @override
+  late final GeneratedColumn<int?> productArrivalPackageId =
+      GeneratedColumn<int?>('product_arrival_package_id', aliasedName, false,
+          type: const IntType(),
+          requiredDuringInsert: true,
+          defaultConstraints:
+              'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _productNameMeta =
+      const VerificationMeta('productName');
+  @override
+  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
+      'product_name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalPackageId, productId, productName, amount];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_package_new_lines';
+  @override
+  String get actualTableName => 'product_arrival_package_new_lines';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductArrivalPackageNewLine> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_package_id')) {
+      context.handle(
+          _productArrivalPackageIdMeta,
+          productArrivalPackageId.isAcceptableOrUnknown(
+              data['product_arrival_package_id']!,
+              _productArrivalPackageIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalPackageIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+          _productNameMeta,
+          productName.isAcceptableOrUnknown(
+              data['product_name']!, _productNameMeta));
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalPackageNewLine map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return ProductArrivalPackageNewLine.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalPackageNewLinesTable createAlias(String alias) {
+    return $ProductArrivalPackageNewLinesTable(attachedDatabase, alias);
   }
 }
 
@@ -1049,7 +2264,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.paySum = const Value.absent(),
   });
   OrdersCompanion.insert({
-    required int id,
+    this.id = const Value.absent(),
     this.courierName = const Value.absent(),
     required String trackingNumber,
     required String number,
@@ -1071,8 +2286,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     required bool documentsReturn,
     required double paidSum,
     required double paySum,
-  })  : id = Value(id),
-        trackingNumber = Value(trackingNumber),
+  })  : trackingNumber = Value(trackingNumber),
         number = Value(number),
         deliveryDate = Value(deliveryDate),
         statusName = Value(statusName),
@@ -1298,7 +2512,9 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
       'id', aliasedName, false,
-      type: const IntType(), requiredDuringInsert: true);
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _courierNameMeta =
       const VerificationMeta('courierName');
   @override
@@ -1373,7 +2589,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
       'storage_from_id', aliasedName, true,
       type: const IntType(),
       requiredDuringInsert: false,
-      defaultConstraints: 'REFERENCES order_storages (id)');
+      defaultConstraints: 'REFERENCES storages (id)');
   final VerificationMeta _storageToIdMeta =
       const VerificationMeta('storageToId');
   @override
@@ -1381,7 +2597,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
       'storage_to_id', aliasedName, true,
       type: const IntType(),
       requiredDuringInsert: false,
-      defaultConstraints: 'REFERENCES order_storages (id)');
+      defaultConstraints: 'REFERENCES storages (id)');
   final VerificationMeta _storageIssuedMeta =
       const VerificationMeta('storageIssued');
   @override
@@ -1459,8 +2675,6 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
     }
     if (data.containsKey('courier_name')) {
       context.handle(
@@ -1598,7 +2812,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Order map(Map<String, dynamic> data, {String? tablePrefix}) {
     return Order.fromData(data,
@@ -1854,7 +3068,7 @@ class $OrderLinesTable extends OrderLines
       'order_id', aliasedName, false,
       type: const IntType(),
       requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES orders (id)');
+      defaultConstraints: 'REFERENCES orders (id) ON DELETE CASCADE');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
@@ -2301,42 +3515,71 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
   }
 }
 
-abstract class _$AppStorage extends GeneratedDatabase {
-  _$AppStorage(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+abstract class _$AppDataStore extends GeneratedDatabase {
+  _$AppDataStore(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final $UsersTable users = $UsersTable(this);
-  late final $OrderStoragesTable orderStorages = $OrderStoragesTable(this);
+  late final $StoragesTable storages = $StoragesTable(this);
+  late final $ProductArrivalsTable productArrivals =
+      $ProductArrivalsTable(this);
+  late final $ProductArrivalPackagesTable productArrivalPackages =
+      $ProductArrivalPackagesTable(this);
+  late final $ProductArrivalPackageLinesTable productArrivalPackageLines =
+      $ProductArrivalPackageLinesTable(this);
+  late final $ProductArrivalPackageNewLinesTable productArrivalPackageNewLines =
+      $ProductArrivalPackageNewLinesTable(this);
   late final $OrdersTable orders = $OrdersTable(this);
   late final $OrderLinesTable orderLines = $OrderLinesTable(this);
   late final $ApiCredentialsTable apiCredentials = $ApiCredentialsTable(this);
   late final $PrefsTable prefs = $PrefsTable(this);
   late final ApiCredentialsDao apiCredentialsDao =
-      ApiCredentialsDao(this as AppStorage);
-  late final OrderStoragesDao orderStoragesDao =
-      OrderStoragesDao(this as AppStorage);
-  late final OrdersDao ordersDao = OrdersDao(this as AppStorage);
-  late final UsersDao usersDao = UsersDao(this as AppStorage);
+      ApiCredentialsDao(this as AppDataStore);
+  late final StoragesDao storagesDao = StoragesDao(this as AppDataStore);
+  late final ProductArrivalsDao productArrivalsDao =
+      ProductArrivalsDao(this as AppDataStore);
+  late final OrdersDao ordersDao = OrdersDao(this as AppDataStore);
+  late final UsersDao usersDao = UsersDao(this as AppDataStore);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, orderStorages, orders, orderLines, apiCredentials, prefs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        users,
+        storages,
+        productArrivals,
+        productArrivalPackages,
+        productArrivalPackageLines,
+        productArrivalPackageNewLines,
+        orders,
+        orderLines,
+        apiCredentials,
+        prefs
+      ];
 }
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$ApiCredentialsDaoMixin on DatabaseAccessor<AppStorage> {
+mixin _$ApiCredentialsDaoMixin on DatabaseAccessor<AppDataStore> {
   $ApiCredentialsTable get apiCredentials => attachedDatabase.apiCredentials;
 }
-mixin _$OrderStoragesDaoMixin on DatabaseAccessor<AppStorage> {
-  $OrderStoragesTable get orderStorages => attachedDatabase.orderStorages;
+mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $StoragesTable get storages => attachedDatabase.storages;
+  $ProductArrivalsTable get productArrivals => attachedDatabase.productArrivals;
+  $ProductArrivalPackagesTable get productArrivalPackages =>
+      attachedDatabase.productArrivalPackages;
+  $ProductArrivalPackageLinesTable get productArrivalPackageLines =>
+      attachedDatabase.productArrivalPackageLines;
+  $ProductArrivalPackageNewLinesTable get productArrivalPackageNewLines =>
+      attachedDatabase.productArrivalPackageNewLines;
 }
-mixin _$OrdersDaoMixin on DatabaseAccessor<AppStorage> {
-  $OrderStoragesTable get orderStorages => attachedDatabase.orderStorages;
+mixin _$StoragesDaoMixin on DatabaseAccessor<AppDataStore> {
+  $StoragesTable get storages => attachedDatabase.storages;
+}
+mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
+  $StoragesTable get storages => attachedDatabase.storages;
   $OrdersTable get orders => attachedDatabase.orders;
   $OrderLinesTable get orderLines => attachedDatabase.orderLines;
 }
-mixin _$UsersDaoMixin on DatabaseAccessor<AppStorage> {
+mixin _$UsersDaoMixin on DatabaseAccessor<AppDataStore> {
   $UsersTable get users => attachedDatabase.users;
 }
