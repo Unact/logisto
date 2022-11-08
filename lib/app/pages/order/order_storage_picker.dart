@@ -37,7 +37,7 @@ class _StoragePickerState extends State<StoragePicker> {
                   Storage? storage = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => StorageQrScanPage(storages: widget.storages),
+                      builder: (BuildContext context) => StorageQRScanPage(storages: widget.storages),
                       fullscreenDialog: true
                     )
                   );

@@ -34,13 +34,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.startLoad));
   }
 
-  Future<void> findProductArrivalPackage(String code) async {
-    List<ProductArrivalPackageEx> packageExList = state.productArrivalEx.packages;
-    int? productArrivalPackageId = int.tryParse(code);
-    ProductArrivalPackageEx? packageEx = packageExList.firstWhereOrNull(
-      (e) => e.package.id == productArrivalPackageId
-    );
-
+  Future<void> startAccept(ProductArrivalPackageEx? packageEx) async {
     if (state.packageInProgress != null) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Приемка места не завершена'));
       return;
@@ -147,9 +141,9 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
-  Future<ApiProduct> _findProduct(String code) async {
+  Future<List<ApiProduct>> _findProduct({String? code, String? name}) async {
     try {
-      return await Api(dataStore: app.dataStore).productArrivalFindProduct(code: code);
+      return await Api(dataStore: app.dataStore).productArrivalFindProduct(code: code, name: name);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

@@ -236,15 +236,16 @@ class Api {
     return ApiProductArrival.fromJson(productArrivalData);
   }
 
-  Future<ApiProduct> productArrivalFindProduct({
-    required String code
+  Future<List<ApiProduct>> productArrivalFindProduct({
+    String? code,
+    String? name
   }) async {
     final productData = await _sendRequest((dio) => dio.get(
       'v1/logisto/product_arrivals/find_product',
-      queryParameters: { 'code': code }
+      queryParameters: { 'code': code, 'name': name }
     ));
 
-    return ApiProduct.fromJson(productData);
+    return productData.map<ApiProduct>((e) => ApiProduct.fromJson(e)).toList();
   }
 
   Future<void> resetPassword({

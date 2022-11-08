@@ -1,6 +1,6 @@
 part of 'storage_qr_scan_page.dart';
 
-enum StorageQrScanStateStatus {
+enum StorageQRScanStateStatus {
   initial,
   dataLoaded,
   modeChanged,
@@ -9,26 +9,26 @@ enum StorageQrScanStateStatus {
   finished
 }
 
-class StorageQrScanState {
-  StorageQrScanState({
+class StorageQRScanState {
+  StorageQRScanState({
     required this.storages,
-    this.status = StorageQrScanStateStatus.initial,
+    this.status = StorageQRScanStateStatus.initial,
     this.storage,
     this.message = ''
   });
 
-  final StorageQrScanStateStatus status;
+  final StorageQRScanStateStatus status;
   final String message;
   final Storage? storage;
   final List<Storage> storages;
 
-  StorageQrScanState copyWith({
-    StorageQrScanStateStatus? status,
+  StorageQRScanState copyWith({
+    StorageQRScanStateStatus? status,
     Storage? storage,
     List<Storage>? storages,
     String? message
   }) {
-    return StorageQrScanState(
+    return StorageQRScanState(
       status: status ?? this.status,
       storage: storage ?? this.storage,
       storages: storages ?? this.storages,

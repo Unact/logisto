@@ -4,6 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '/app/constants/qr_types.dart';
+import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
@@ -11,38 +13,38 @@ import '/app/widgets/widgets.dart';
 part 'storage_qr_scan_state.dart';
 part 'storage_qr_scan_view_model.dart';
 
-class StorageQrScanPage extends StatelessWidget {
+class StorageQRScanPage extends StatelessWidget {
   final List<Storage> storages;
 
-  StorageQrScanPage({
+  StorageQRScanPage({
     Key? key,
     required this.storages
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StorageQrScanViewModel>(
-      create: (context) => StorageQrScanViewModel(context, storages: storages),
-      child: _StorageQrScanView(),
+    return BlocProvider<StorageQRScanViewModel>(
+      create: (context) => StorageQRScanViewModel(context, storages: storages),
+      child: _StorageQRScanView(),
     );
   }
 }
 
-class _StorageQrScanView extends StatefulWidget {
+class _StorageQRScanView extends StatefulWidget {
   @override
-  _StorageQrScanViewState createState() => _StorageQrScanViewState();
+  _StorageQRScanViewState createState() => _StorageQRScanViewState();
 }
 
-class _StorageQrScanViewState extends State<_StorageQrScanView> {
+class _StorageQRScanViewState extends State<_StorageQRScanView> {
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StorageQrScanViewModel, StorageQrScanState>(
+    return BlocConsumer<StorageQRScanViewModel, StorageQRScanState>(
       builder: (context, state) {
-        StorageQrScanViewModel vm = context.read<StorageQrScanViewModel>();
+        StorageQRScanViewModel vm = context.read<StorageQRScanViewModel>();
 
         return ScanView(
           child: Column(
@@ -58,12 +60,12 @@ class _StorageQrScanViewState extends State<_StorageQrScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case StorageQrScanStateStatus.scanReadFinished:
+          case StorageQRScanStateStatus.scanReadFinished:
             break;
-          case StorageQrScanStateStatus.failure:
+          case StorageQRScanStateStatus.failure:
             showMessage(state.message);
             break;
-          case StorageQrScanStateStatus.finished:
+          case StorageQRScanStateStatus.finished:
             Navigator.of(context).pop(state.storage);
             break;
           default:

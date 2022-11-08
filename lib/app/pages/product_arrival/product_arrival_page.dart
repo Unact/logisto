@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/pages/product_arrival_qr_scan/product_arrival_qr_scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
@@ -46,25 +47,21 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> showPackageQrScan() async {
+  Future<void> showPackageQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
-    await showDialog(
-      context: context,
-      useSafeArea: false,
-      builder: (context) {
-        return ScanView(
-          child: Container(),
-          onRead: (String code) {
-            Navigator.of(context).pop();
-            vm.findProductArrivalPackage(code);
-          }
-        );
-      }
+    ProductArrivalPackageEx? packageEx = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ProductArrivalQRScanPage(packages: vm.state.productArrivalEx.packages),
+        fullscreenDialog: true
+      )
     );
+
+    vm.startAccept(packageEx);
   }
 
-  Future<void> showPackageQrLineScan() async {
+  Future<void> showPackageLineQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     await showDialog(
@@ -81,6 +78,48 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         );
       }
     );
+  }
+
+  Future<void> showPackageLineManualInput() async {
+    //OrdersViewModel vm = context.read<OrdersViewModel>();
+    TextEditingController trackingNumberController = TextEditingController();
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                autofocus: true,
+                enableInteractiveSelection: false,
+                controller: trackingNumberController,
+                decoration: const InputDecoration(labelText: 'Трекинг'),
+              )
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Подтвердить')
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Отменить')
+            )
+          ]
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    //await vm.findOrder(trackingNumberController.text);
   }
 
   Future<List<dynamic>?> showProductAddDialog() async {
@@ -149,7 +188,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
             actions: state.allPackagesUnloded ? [] : <Widget>[
               IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
-                onPressed: showPackageQrScan,
+                onPressed: showPackageQRScan,
                 tooltip: 'Сканировать QR код'
               )
             ],
@@ -187,7 +226,8 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
       if (vm.state.packageInProgress == packageEx) {
         actionButtons.addAll([
           IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept),
-          IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: showPackageQrLineScan)
+          IconButton(icon: const Icon(Icons.text_fields), onPressed: showPackageLineManualInput),
+          IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: showPackageLineQRScan)
         ]);
         children.addAll(vm.state.newLines.map((e) => _productArrivalPackageNewLineTile(context, e)));
       } else {

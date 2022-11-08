@@ -1,6 +1,8 @@
 part of 'order_qr_scan_page.dart';
 
 class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanStateStatus> {
+  static const String qrType = 'ORDER';
+
   OrderQRScanViewModel(BuildContext context, { required Order order }) :
     super(
       context,
@@ -24,19 +26,29 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
     if (qrCode == null) return;
 
     List<String> qrCodeData = qrCode.split(' ');
-    OrderQRScanState newState = state;
-    List<bool> newOrderPackageScanned = state.orderPackageScanned;
+    String version = qrCodeData[0];
 
-    if (qrCodeData.length < 3 || qrCodeData[0] != Strings.qrCodeVersion) {
+    if (version == Strings.oldQRCodeVersion) return await _processQR(qrCodeData[1], int.parse(qrCodeData[2]));
+
+    if (version != Strings.newQRCodeVersion) {
       emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'Считан не поддерживаемый QR код'));
       return;
     }
 
-    String qrTrackingNumber = qrCodeData[1];
-    int packageNumber = int.tryParse(qrCodeData[2]) ?? 1;
+    if (qrCodeData[3] != QRTypes.order.typeName) {
+      emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'QR код не от заказа'));
+      return;
+    }
+
+    return await _processQR(qrCodeData[4], int.parse(qrCodeData[5]));
+  }
+
+  Future<void> _processQR(String qrTrackingNumber, int packageNumber) async {
+    OrderQRScanState newState = state;
+    List<bool> newOrderPackageScanned = state.orderPackageScanned;
 
     if (qrTrackingNumber != state.order.trackingNumber) {
-      emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'Считан QR код другого заказа'));
+      emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'QR код другого заказа'));
       return;
     }
 
