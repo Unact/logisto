@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -39,7 +40,6 @@ class _ProductArrivalPackageView extends StatefulWidget {
 
 class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-  final listTileStyle = const TextStyle(fontSize: 12);
 
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -71,7 +71,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
           floatingActionButton: !state.inProgress ?
             null :
             FloatingActionButton(child: const Icon(Icons.add), onPressed: showNewLineDialog),
-          body: _orderList(context)
+          body: _lineList(context)
         );
       },
       listener: (context, state) async {
@@ -91,7 +91,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
     );
   }
 
-  Widget _orderList(BuildContext context) {
+  Widget _lineList(BuildContext context) {
     ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
     List<Widget> lineWidgets = vm.state.packageEx.packageLines.map(
       (packageEx) => _productArrivalPackageLineTile(context, packageEx)
@@ -112,15 +112,15 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
 
   Widget _productArrivalPackageLineTile(BuildContext context, ProductArrivalPackageLine line) {
     return ListTile(
-      title: Text(line.productName, style: listTileStyle),
-      trailing: Text(line.amount.toString(), style: listTileStyle)
+      title: Text(line.productName, style: Style.listTileText),
+      trailing: Text(line.amount.toString(), style: Style.listTileText)
     );
   }
 
   Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLine newLine) {
     return ListTile(
-      title: Text(newLine.productName, style: listTileStyle),
-      trailing: Text(newLine.amount.toString(), style: listTileStyle)
+      title: Text(newLine.productName, style: Style.listTileText),
+      trailing: Text(newLine.amount.toString(), style: Style.listTileText)
     );
   }
 }

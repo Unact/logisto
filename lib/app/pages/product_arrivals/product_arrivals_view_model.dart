@@ -8,9 +8,7 @@ class ProductArrivalsViewModel extends PageViewModel<ProductArrivalsState, Produ
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.productArrivals,
-    app.dataStore.productArrivalPackages,
-    app.dataStore.productArrivalPackageLines,
+    app.dataStore.productArrivals
   ]);
 
   @override

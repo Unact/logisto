@@ -9,12 +9,10 @@ class ProductArrivalPackageViewModel extends PageViewModel<ProductArrivalPackage
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.users,
     app.dataStore.productArrivals,
     app.dataStore.productArrivalPackages,
     app.dataStore.productArrivalPackageLines,
     app.dataStore.productArrivalPackageNewLines,
-    app.dataStore.productArrivalNewPackages,
   ]);
 
   @override
@@ -26,13 +24,6 @@ class ProductArrivalPackageViewModel extends PageViewModel<ProductArrivalPackage
       packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
       newLines: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLines(productArrivalPackageId)
     ));
-  }
-
-  @override
-  Future<void> initViewModel() async {
-    await super.initViewModel();
-
-    emit(state.copyWith(status: ProductArrivalStateStatus.startLoad));
   }
 
   Future<void> endAccept() async {

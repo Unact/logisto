@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -42,7 +43,6 @@ class _ProductArrivalView extends StatefulWidget {
 
 class _ProductArrivalViewState extends State<_ProductArrivalView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-  final listTileStyle = const TextStyle(fontSize: 12);
 
   Future<void> navigateToPackage(ProductArrivalPackageEx packageEx) async {
     await Navigator.push(
@@ -110,14 +110,6 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
   Widget _dataList(BuildContext context) {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
-    ProductArrival productArrival = vm.state.productArrivalEx.productArrival;
-    List<Widget> packageWidgets = vm.state.productArrivalEx.packages.map(
-      (packageEx) => _productArrivalPackageTile(context, packageEx)
-    ).toList();
-
-    List<Widget> newPackageWidgets = vm.state.newPackages.map(
-      (packageEx) => _productArrivalNewPackageTile(context, packageEx)
-    ).toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -125,61 +117,75 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
       children: [
         InfoRow(
           title: const Text('Дата'),
-          trailing: Text(Format.dateStr(productArrival.arrivalDate))
+          trailing: Text(Format.dateStr(vm.state.productArrival.arrivalDate))
         ),
         InfoRow(
           title: const Text('Склад ИМ'),
-          trailing: Text(productArrival.storeName)
+          trailing: Text(vm.state.productArrival.storeName)
         ),
         InfoRow(
           title: const Text('Начало разгрузки'),
           trailing: !vm.state.unloadStarted ?
-            IconButton(
-              icon: const Icon(Icons.start),
-              onPressed: vm.startUnload,
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.zero
-            ) :
-            Text(Format.dateTimeStr(productArrival.unloadStart))
+            _unloadStartButton(context) :
+            Text(Format.dateTimeStr(vm.state.productArrival.unloadStart))
         ),
         InfoRow(
           title: const Text('Конец разгрузки'),
           trailing: vm.state.unloadInProgress ?
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.add_box),
-                  onPressed: showNewPackageDialog,
-                  tooltip: 'Добавить место приемки',
-                  constraints: const BoxConstraints(),
-                  padding: const EdgeInsets.only(right: 8)
-                ),
-                IconButton(
-                  icon: const Icon(Icons.task),
-                  onPressed: vm.endUnload,
-                  tooltip: 'Закончить разгрузку',
-                  constraints: const BoxConstraints(),
-                  padding: const EdgeInsets.only(left: 8)
-                )
-              ]
-            ) :
-            Text(Format.dateTimeStr(productArrival.unloadEnd))
+            _unloadWorkButtons(context) :
+            Text(Format.dateTimeStr(vm.state.productArrival.unloadEnd))
         ),
         InfoRow(
           title: const Text('Места'),
-          trailing: vm.state.allPackagesAcceptStarted ?
-            null :
-            IconButton(
-              icon: const Icon(Icons.qr_code_scanner),
-              onPressed: showPackageQRScan,
-              tooltip: 'Сканировать QR код',
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.zero,
-            ),
+          trailing: vm.state.allPackagesAcceptStarted ? null : _qrScanButton(context)
         ),
-        ...newPackageWidgets,
-        ...packageWidgets
+        ...vm.state.newPackages.map((packageEx) => _productArrivalNewPackageTile(context, packageEx)),
+        ...vm.state.productArrivalEx.packages.map((packageEx) => _productArrivalPackageTile(context, packageEx))
       ]
+    );
+  }
+
+  Widget _unloadStartButton(BuildContext context) {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    return IconButton(
+      icon: const Icon(Icons.start),
+      onPressed: vm.startUnload,
+      constraints: const BoxConstraints(),
+      padding: EdgeInsets.zero
+    );
+  }
+
+  Widget _unloadWorkButtons(BuildContext context) {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.add_box),
+          onPressed: showNewPackageDialog,
+          tooltip: 'Добавить место приемки',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(right: 8)
+        ),
+        IconButton(
+          icon: const Icon(Icons.task),
+          onPressed: vm.endUnload,
+          tooltip: 'Закончить разгрузку',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(left: 8)
+        )
+      ]
+    );
+  }
+
+  Widget _qrScanButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.qr_code_scanner),
+      onPressed: showPackageQRScan,
+      tooltip: 'Сканировать QR код',
+      constraints: const BoxConstraints(),
+      padding: EdgeInsets.zero,
     );
   }
 
@@ -196,7 +202,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
     return ListTile(
       leading: leading,
-      title: Text('${package.typeName} ${package.number}', style: listTileStyle),
+      title: Text('${package.typeName} ${package.number}', style: Style.listTileText),
       onTap: package.acceptStart == null ? null : () => navigateToPackage(packageEx)
     );
   }
@@ -204,7 +210,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
   Widget _productArrivalNewPackageTile(BuildContext context, ProductArrivalNewPackage newPackage) {
     return ListTile(
       leading: const Icon(Icons.close_rounded, color: Colors.red),
-      title: Text("${newPackage.typeName} ${newPackage.number}", style: listTileStyle)
+      title: Text("${newPackage.typeName} ${newPackage.number}", style: Style.listTileText)
     );
   }
 }

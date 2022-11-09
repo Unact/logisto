@@ -9,11 +9,9 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.users,
     app.dataStore.productArrivals,
     app.dataStore.productArrivalPackages,
     app.dataStore.productArrivalPackageLines,
-    app.dataStore.productArrivalPackageNewLines,
     app.dataStore.productArrivalNewPackages,
   ]);
 
@@ -26,6 +24,30 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
       productArrivalEx: await app.dataStore.productArrivalsDao.getProductArrivalEx(productArrivalId),
       newPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewPackages(productArrivalId)
     ));
+  }
+
+  Future<void> startUnload() async {
+    emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
+
+    try {
+      await _startUnload(state.productArrivalEx);
+
+      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> endUnload() async {
+    emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
+
+    try {
+      await _endUnload(state.productArrivalEx, state.newPackages);
+
+      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
+    }
   }
 
   Future<void> startAccept(ProductArrivalPackageEx? packageEx) async {
@@ -50,30 +72,6 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
       await _startAccept(packageEx);
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало приемки'));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
-    }
-  }
-
-  Future<void> startUnload() async {
-    emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
-
-    try {
-      await _startUnload(state.productArrivalEx);
-
-      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
-    }
-  }
-
-  Future<void> endUnload() async {
-    emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
-
-    try {
-      await _endUnload(state.productArrivalEx, state.newPackages);
-
-      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
     }

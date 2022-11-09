@@ -8,6 +8,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -42,7 +43,6 @@ class _NewLineView extends StatefulWidget {
 class NewLineViewState extends State<_NewLineView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   late ThemeData theme = Theme.of(context);
-  final listTileStyle = const TextStyle(fontSize: 12);
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
@@ -67,7 +67,7 @@ class NewLineViewState extends State<_NewLineView> {
                     hideOnError: true,
                     minCharsForSuggestions: 5,
                     textFieldConfiguration: TextFieldConfiguration(
-                      style: listTileStyle,
+                      style: Style.listTileText,
                       maxLines: 2,
                       autofocus: true,
                       focusNode: productFocus,
@@ -100,7 +100,7 @@ class NewLineViewState extends State<_NewLineView> {
                     autocorrect: false,
                     onChanged: (value) => int.tryParse(value) != null ? vm.setAmount(int.parse(value)) : null,
                     controller: _amountController,
-                    style: listTileStyle,
+                    style: Style.listTileText,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(labelText: 'Кол-во')
                   )

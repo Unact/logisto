@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -36,7 +37,6 @@ class _NewPackageView extends StatefulWidget {
 }
 
 class NewPackageViewState extends State<_NewPackageView> {
-  final listTileStyle = const TextStyle(fontSize: 12);
   final TextEditingController _amountController = TextEditingController();
   FocusNode amountFocus = FocusNode();
   ApiProduct? product;
@@ -57,11 +57,11 @@ class NewPackageViewState extends State<_NewPackageView> {
                 children: <Widget>[
                   DropdownButtonFormField(
                     autofocus: true,
-                    decoration: InputDecoration(labelText: 'Тип', labelStyle: listTileStyle),
+                    decoration: const InputDecoration(labelText: 'Тип', labelStyle: Style.listTileText),
                     items: vm.state.types.map((e) {
                       return DropdownMenuItem<ProductArrivalPackageType>(
                         value: e,
-                        child: Text(e.name, style: listTileStyle)
+                        child: Text(e.name, style: Style.listTileText)
                       );
                     }).toList(),
                     onChanged: (ProductArrivalPackageType? value) => value != null ? vm.setType(value) : null
@@ -72,7 +72,7 @@ class NewPackageViewState extends State<_NewPackageView> {
                     autocorrect: false,
                     onChanged: (value) => int.tryParse(value) != null ? vm.setAmount(int.parse(value)) : null,
                     controller: _amountController,
-                    style: listTileStyle,
+                    style: Style.listTileText,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(labelText: 'Кол-во')
                   )
