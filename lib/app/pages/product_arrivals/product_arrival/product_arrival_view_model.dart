@@ -14,32 +14,21 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     app.dataStore.productArrivalPackages,
     app.dataStore.productArrivalPackageLines,
     app.dataStore.productArrivalPackageNewLines,
+    app.dataStore.productArrivalNewPackages,
   ]);
 
   @override
   Future<void> loadData() async {
+    int productArrivalId = state.productArrivalEx.productArrival.id;
+
     emit(state.copyWith(
       status: ProductArrivalStateStatus.dataLoaded,
-      productArrivalEx: await app.dataStore.productArrivalsDao.getProductPackageEx(
-        state.productArrivalEx.productArrival.id
-      ),
-      newLines: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLines()
+      productArrivalEx: await app.dataStore.productArrivalsDao.getProductArrivalEx(productArrivalId),
+      newPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewPackages(productArrivalId)
     ));
   }
 
-  @override
-  Future<void> initViewModel() async {
-    await super.initViewModel();
-
-    emit(state.copyWith(status: ProductArrivalStateStatus.startLoad));
-  }
-
   Future<void> startAccept(ProductArrivalPackageEx? packageEx) async {
-    if (state.packageInProgress != null) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Приемка места не завершена'));
-      return;
-    }
-
     if (packageEx == null) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Место не найдено'));
       return;
@@ -66,44 +55,59 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
-  Future<void> addProduct(String code) async {
+  Future<void> startUnload() async {
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      ApiProduct product = await _findProduct(code);
+      await _startUnload(state.productArrivalEx);
 
-      emit(state.copyWith(status: ProductArrivalStateStatus.productFound, lastFoundProduct: product));
+      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
     } on AppError catch(e) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
     }
   }
 
-  Future<void> addProductArrivalPackageLine(int amount) async {
-    try {
-      ProductArrivalPackageNewLinesCompanion line = ProductArrivalPackageNewLinesCompanion(
-        productArrivalPackageId: Value(state.packageInProgress!.package.id),
-        productName: Value(state.lastFoundProduct!.name),
-        productId: Value(state.lastFoundProduct!.id),
-        amount: Value(amount)
-      );
-
-      await app.dataStore.productArrivalsDao.addProductArrivalPackageNewLine(line);
-
-      emit(state.copyWith(status: ProductArrivalStateStatus.lineAdded));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
-    }
-  }
-
-  Future<void> endAccept() async {
+  Future<void> endUnload() async {
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _endAccept();
+      await _endUnload(state.productArrivalEx, state.newPackages);
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> _startUnload(ProductArrivalEx productArrivalEx) async {
+    try {
+      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginUnload(
+        id: productArrivalEx.productArrival.id
+      );
+
+      await _saveProductArrival(newApiProductArrival);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await app.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> _endUnload(ProductArrivalEx productArrivalEx, List<ProductArrivalNewPackage> newPackages) async {
+    try {
+      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishUnload(
+        id: productArrivalEx.productArrival.id,
+        packages: newPackages.map((e) => { 'number': e.number, 'productArrivalPackageTypeId': e.typeId }).toList()
+      );
+
+      await app.dataStore.productArrivalsDao.clearProductArrivalNewPackages();
+      await _saveProductArrival(newApiProductArrival);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await app.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
     }
   }
 
@@ -114,36 +118,6 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
       );
 
       await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _endAccept() async {
-    ProductArrivalPackageEx packageEx = state.packageInProgress!;
-
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishPackageAccept(
-        id: packageEx.package.id,
-        lines: state.newLines.map((e) => { 'product': e.productId, 'amount': e.amount }).toList()
-      );
-
-      await app.dataStore.productArrivalsDao.clearProductArrivalPackageNewLines();
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<List<ApiProduct>> _findProduct({String? code, String? name}) async {
-    try {
-      return await Api(dataStore: app.dataStore).productArrivalFindProduct(code: code, name: name);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

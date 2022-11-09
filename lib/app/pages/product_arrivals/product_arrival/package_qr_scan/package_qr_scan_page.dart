@@ -10,48 +10,48 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
-part 'storage_qr_scan_state.dart';
-part 'storage_qr_scan_view_model.dart';
+part 'package_qr_scan_state.dart';
+part 'package_qr_scan_view_model.dart';
 
-class StorageQRScanPage extends StatelessWidget {
-  final List<Storage> storages;
+class PackageQRScanPage extends StatelessWidget {
+  final List<ProductArrivalPackageEx> packages;
 
-  StorageQRScanPage({
+  PackageQRScanPage({
     Key? key,
-    required this.storages
+    required this.packages
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StorageQRScanViewModel>(
-      create: (context) => StorageQRScanViewModel(context, storages: storages),
-      child: _StorageQRScanView(),
+    return BlocProvider<PackageQRScanViewModel>(
+      create: (context) => PackageQRScanViewModel(context, packages: packages),
+      child: _PackageQRScanView(),
     );
   }
 }
 
-class _StorageQRScanView extends StatefulWidget {
+class _PackageQRScanView extends StatefulWidget {
   @override
-  _StorageQRScanViewState createState() => _StorageQRScanViewState();
+  _PackageQRScanViewState createState() => _PackageQRScanViewState();
 }
 
-class _StorageQRScanViewState extends State<_StorageQRScanView> {
+class _PackageQRScanViewState extends State<_PackageQRScanView> {
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StorageQRScanViewModel, StorageQRScanState>(
+    return BlocConsumer<PackageQRScanViewModel, PackageQRScanState>(
       builder: (context, state) {
-        StorageQRScanViewModel vm = context.read<StorageQRScanViewModel>();
+        PackageQRScanViewModel vm = context.read<PackageQRScanViewModel>();
 
         return ScanView(
           child: Column(
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте склад', style: TextStyle(color: Colors.white, fontSize: 20))
+                child: const Text('Отсканируйте место приемки', style: TextStyle(color: Colors.white, fontSize: 20))
               )
             ]
           ),
@@ -60,13 +60,13 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case StorageQRScanStateStatus.scanReadFinished:
+          case PackageQRScanStateStatus.scanReadFinished:
             break;
-          case StorageQRScanStateStatus.failure:
+          case PackageQRScanStateStatus.failure:
             showMessage(state.message);
             break;
-          case StorageQRScanStateStatus.finished:
-            Navigator.of(context).pop(state.storage);
+          case PackageQRScanStateStatus.finished:
+            Navigator.of(context).pop(state.packageEx);
             break;
           default:
         }

@@ -1,4 +1,4 @@
-part of 'storage_qr_scan_page.dart';
+part of 'storage_picker.dart';
 
 enum StorageQRScanStateStatus {
   initial,

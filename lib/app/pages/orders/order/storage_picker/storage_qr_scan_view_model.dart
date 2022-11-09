@@ -1,4 +1,4 @@
-part of 'storage_qr_scan_page.dart';
+part of 'storage_picker.dart';
 
 class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQRScanStateStatus> {
   StorageQRScanViewModel(BuildContext context, { required List<Storage> storages }) :

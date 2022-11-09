@@ -9,4 +9,6 @@ class Strings {
 
   static const oldQRCodeVersion = '1';
   static const newQRCodeVersion = '2';
+
+  static const undefinedNumber = 'б/н';
 }

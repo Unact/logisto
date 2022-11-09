@@ -195,13 +195,13 @@ class Api {
 
   Future<ApiProductArrival> productArrivalsFinishUnload({
     required int id,
-    required int amount
+    required List<Map<String, dynamic>> packages
   }) async {
     final productArrivalData = await _sendRequest((dio) => dio.post(
       'v1/logisto/product_arrivals/finish_unload',
       data: {
         'id': id,
-        'amount': amount
+        'packages': packages
       }
     ));
 

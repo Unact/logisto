@@ -1,4 +1,18 @@
-part of 'order_page.dart';
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '/app/constants/qr_types.dart';
+import '/app/constants/strings.dart';
+import '/app/data/database.dart';
+import '/app/pages/shared/page_view_model.dart';
+import '/app/widgets/widgets.dart';
+
+part 'storage_qr_scan_page.dart';
+part 'storage_qr_scan_state.dart';
+part 'storage_qr_scan_view_model.dart';
 
 class StoragePicker extends StatefulWidget {
   final List<Storage> storages;
@@ -34,7 +48,7 @@ class _StoragePickerState extends State<StoragePicker> {
               labelText: 'Склад',
               suffixIcon: IconButton(
                 onPressed: () async {
-                  Storage? storage = await Navigator.push(
+                  Storage? storage = await Navigator.push<Storage>(
                     context,
                     MaterialPageRoute(
                       builder: (BuildContext context) => StorageQRScanPage(storages: widget.storages),

@@ -9,10 +9,10 @@ import '/app/constants/qr_types.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/pages/order/order_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
+import 'order/order_page.dart';
 
 part 'orders_state.dart';
 part 'orders_view_model.dart';
@@ -88,11 +88,12 @@ class _OrdersViewState extends State<_OrdersView> {
   Future<void> showQRScan() async {
     OrdersViewModel vm = context.read<OrdersViewModel>();
 
-    String? result = await showDialog(
-      context: context,
-      useSafeArea: false,
-      builder: (context) {
-        return ScanView(
+    String? result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => ScanView(
+          barcodeMode: true,
           child: Container(),
           onRead: (String code) {
             List<String> qrCodeData = code.split(' ');
@@ -103,8 +104,8 @@ class _OrdersViewState extends State<_OrdersView> {
               return Navigator.of(context).pop(qrCodeData[4]);
             }
           }
-        );
-      }
+        )
+      )
     );
 
     if (result == null) return;

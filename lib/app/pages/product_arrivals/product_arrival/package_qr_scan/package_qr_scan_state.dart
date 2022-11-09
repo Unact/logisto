@@ -1,6 +1,6 @@
-part of '../product_arrival_qr_scan/product_arrival_qr_scan_page.dart';
+part of 'package_qr_scan_page.dart';
 
-enum ProductArrivalQRScanStateStatus {
+enum PackageQRScanStateStatus {
   initial,
   dataLoaded,
   modeChanged,
@@ -9,26 +9,26 @@ enum ProductArrivalQRScanStateStatus {
   finished
 }
 
-class ProductArrivalQRScanState {
-  ProductArrivalQRScanState({
+class PackageQRScanState {
+  PackageQRScanState({
     required this.packages,
-    this.status = ProductArrivalQRScanStateStatus.initial,
+    this.status = PackageQRScanStateStatus.initial,
     this.packageEx,
     this.message = ''
   });
 
-  final ProductArrivalQRScanStateStatus status;
+  final PackageQRScanStateStatus status;
   final String message;
   final ProductArrivalPackageEx? packageEx;
   final List<ProductArrivalPackageEx> packages;
 
-  ProductArrivalQRScanState copyWith({
-    ProductArrivalQRScanStateStatus? status,
+  PackageQRScanState copyWith({
+    PackageQRScanStateStatus? status,
     ProductArrivalPackageEx? packageEx,
     List<ProductArrivalPackageEx>? packages,
     String? message
   }) {
-    return ProductArrivalQRScanState(
+    return PackageQRScanState(
       status: status ?? this.status,
       packageEx: packageEx ?? this.packageEx,
       packages: packages ?? this.packages,

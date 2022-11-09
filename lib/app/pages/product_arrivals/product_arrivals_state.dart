@@ -2,11 +2,7 @@ part of 'product_arrivals_page.dart';
 
 enum ProductArrivalsStateStatus {
   initial,
-  dataLoaded,
-  startLoad,
-  inProgress,
-  success,
-  failure,
+  dataLoaded
 }
 
 class ProductArrivalsState {
