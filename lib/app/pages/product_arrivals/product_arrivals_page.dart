@@ -36,7 +36,7 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
     return BlocBuilder<ProductArrivalsViewModel, ProductArrivalsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Разгрузка')),
+          appBar: AppBar(title: const Text('Разгрузки')),
           body: _arrivalsList(context)
         );
       },
@@ -68,7 +68,7 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
     ProductArrival productArrival = productArrivalEx.productArrival;
 
     return ListTile(
-      title: Text('Приемка ${productArrival.number}'),
+      title: Text('Разгрузка ${productArrival.number}'),
       onTap: () {
         Navigator.push(
           context,

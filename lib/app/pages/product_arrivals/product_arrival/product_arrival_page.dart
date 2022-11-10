@@ -87,7 +87,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         ProductArrival productArrival = state.productArrivalEx.productArrival;
 
         return Scaffold(
-          appBar: AppBar(title: Text('Приемка ${productArrival.number}')),
+          appBar: AppBar(title: Text('Разгрузка ${productArrival.number}')),
           body: _dataList(context)
         );
       },
@@ -128,13 +128,13 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           trailing: Text(vm.state.productArrival.storeName)
         ),
         InfoRow(
-          title: const Text('Начало разгрузки'),
+          title: const Text('Начало'),
           trailing: !vm.state.unloadStarted ?
             _unloadStartButton(context) :
             Text(Format.dateTimeStr(vm.state.productArrival.unloadStart))
         ),
         InfoRow(
-          title: const Text('Конец разгрузки'),
+          title: const Text('Конец'),
           trailing: vm.state.unloadInProgress ?
             _unloadWorkButtons(context) :
             Text(Format.dateTimeStr(vm.state.productArrival.unloadEnd))
@@ -200,7 +200,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         const Icon(Icons.close_rounded, color: Colors.red)
       : (
         package.acceptEnd != null ?
-          const Icon(Icons.check, color: Colors.green,) :
+          const Icon(Icons.check, color: Colors.green) :
           const Icon(Icons.hourglass_empty, color: Colors.yellow)
       );
 

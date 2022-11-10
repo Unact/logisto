@@ -137,7 +137,7 @@ class _InfoViewState extends State<_InfoView> {
           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ProductArrivalsPage()));
         },
         isThreeLine: true,
-        title: const Text('Разгрузка'),
+        title: const Text('Разгрузки'),
         subtitle: RichText(
           text: TextSpan(
             style: const TextStyle(color: Colors.grey),

@@ -64,7 +64,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
         return Scaffold(
           appBar: AppBar(
             title: Text('${package.typeName} ${package.number}'),
-            actions: !state.inProgress ?
+            actions: !state.inProgress || state.newLines.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept)]
           ),
