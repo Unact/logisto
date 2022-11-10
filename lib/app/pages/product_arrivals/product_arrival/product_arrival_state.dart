@@ -3,12 +3,9 @@ part of 'product_arrival_page.dart';
 enum ProductArrivalStateStatus {
   initial,
   dataLoaded,
-  startLoad,
   inProgress,
   success,
-  failure,
-  productFound,
-  lineAdded
+  failure
 }
 
 class ProductArrivalState {
@@ -16,35 +13,31 @@ class ProductArrivalState {
     this.status = ProductArrivalStateStatus.initial,
     required this.productArrivalEx,
     this.message = '',
-    this.lastFoundProduct,
-    this.newLines = const []
+    this.newPackages = const []
   });
 
   final ProductArrivalStateStatus status;
   final ProductArrivalEx productArrivalEx;
   final String message;
-  final ApiProduct? lastFoundProduct;
-  final List<ProductArrivalPackageNewLine> newLines;
+  final List<ProductArrivalNewPackage> newPackages;
 
-  ProductArrivalPackageEx? get packageInProgress => productArrivalEx.packages.firstWhereOrNull(
-    (e) => e.package.acceptStart != null && e.package.acceptEnd == null
-  );
-
-  bool get allPackagesUnloded => productArrivalEx.packages.every((e) => e.package.acceptEnd != null);
+  ProductArrival get productArrival => productArrivalEx.productArrival;
+  bool get allPackagesAcceptStarted => productArrivalEx.packages.every((e) => e.package.acceptStart != null);
+  bool get unloadStarted => productArrivalEx.productArrival.unloadStart != null;
+  bool get unloadInProgress => unloadStarted && productArrivalEx.productArrival.unloadEnd == null;
+  bool get unloadEnded => productArrivalEx.productArrival.unloadEnd != null;
 
   ProductArrivalState copyWith({
     ProductArrivalStateStatus? status,
     ProductArrivalEx? productArrivalEx,
     String? message,
-    ApiProduct? lastFoundProduct,
-    List<ProductArrivalPackageNewLine>? newLines
+    List<ProductArrivalNewPackage>? newPackages
   }) {
     return ProductArrivalState(
       status: status ?? this.status,
       productArrivalEx: productArrivalEx ?? this.productArrivalEx,
       message: message ?? this.message,
-      lastFoundProduct: lastFoundProduct ?? this.lastFoundProduct,
-      newLines: newLines ?? this.newLines
+      newPackages: newPackages ?? this.newPackages
     );
   }
 }

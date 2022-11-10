@@ -4,14 +4,9 @@ import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '/app/constants/strings.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
-import '/app/pages/product_arrival/product_arrival_page.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
-import '/app/utils/format.dart';
-import '/app/widgets/widgets.dart';
+import 'product_arrival/product_arrival_page.dart';
 
 part 'product_arrivals_state.dart';
 part 'product_arrivals_view_model.dart';
@@ -36,85 +31,19 @@ class _ProductArrivalsView extends StatefulWidget {
 }
 
 class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
-  late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  Future<List<dynamic>?> showEndDialog(ProductArrivalEx productArrivalEx) async {
-    ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
-
-    return await showDialog<List<dynamic>>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        TextEditingController _amountController = TextEditingController();
-        int? amount;
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Укажите количество мест'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    TextFormField(
-                      maxLines: 1,
-                      autofocus: true,
-                      autocorrect: false,
-                      onChanged: (value) => setState(() => amount = int.tryParse(_amountController.text)),
-                      controller: _amountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Кол-во')
-                    )
-                  ]
-                )
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text(Strings.ok),
-                  onPressed: amount == null ? null : () async {
-                    Navigator.of(context).pop(null);
-                    await vm.endUnload(productArrivalEx, amount!);
-                  }
-                ),
-                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
-              ],
-            );
-          }
-        );
-      }
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProductArrivalsViewModel, ProductArrivalsState>(
+    return BlocBuilder<ProductArrivalsViewModel, ProductArrivalsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Разгрузка')),
-          body: _orderList(context)
+          appBar: AppBar(title: const Text('Разгрузки')),
+          body: _arrivalsList(context)
         );
-      },
-      listener: (context, state) async {
-        switch (state.status) {
-          case ProductArrivalsStateStatus.inProgress:
-            await _progressDialog.open();
-            break;
-          case ProductArrivalsStateStatus.success:
-          case ProductArrivalsStateStatus.failure:
-            showMessage(state.message);
-            _progressDialog.close();
-            break;
-          default:
-            break;
-        }
       },
     );
   }
 
-  Widget _orderList(BuildContext context) {
+  Widget _arrivalsList(BuildContext context) {
     ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
     List<Widget> storageWidgets = vm.state.storages.map(((storage) {
       List<ProductArrivalEx> productArrivals = vm.state.productArrivalExList
@@ -136,46 +65,18 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
   }
 
   Widget _productArrivalTile(BuildContext context, ProductArrivalEx productArrivalEx) {
-    ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
     ProductArrival productArrival = productArrivalEx.productArrival;
-    List<Widget> actionButtons = [];
-
-    if (productArrival.unloadStart == null) {
-      actionButtons.add(IconButton(
-        icon: const Icon(Icons.start),
-        onPressed: () => vm.startUnload(productArrivalEx)
-      ));
-    }
-
-    if (actionButtons.isEmpty && productArrival.unloadEnd == null) {
-      actionButtons.add(IconButton(
-        icon: const Icon(Icons.task),
-        onPressed: () => showEndDialog(productArrivalEx)
-      ));
-    }
-
-    if (actionButtons.isEmpty) {
-      actionButtons.add(IconButton(
-        icon: const Icon(Icons.edit),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => ProductArrivalPage(productArrivalEx: productArrivalEx)
-            )
-          );
-        }
-      ));
-    }
 
     return ListTile(
-      title: Text('${productArrival.number} от ${Format.dateStr(productArrival.arrivalDate)}'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: actionButtons
-      ),
-      onTap: null
+      title: Text('Разгрузка ${productArrival.number}'),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => ProductArrivalPage(productArrivalEx: productArrivalEx)
+          )
+        );
+      }
     );
   }
 }

@@ -7,18 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/pages/accept_payment/accept_payment_page.dart';
-import '/app/pages/order_qr_scan/order_qr_scan_page.dart';
-import '/app/pages/storage_qr_scan/storage_qr_scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/utils/format.dart';
 import '/app/utils/parsing.dart';
 import '/app/widgets/widgets.dart';
+import 'accept_payment/accept_payment_page.dart';
+import 'order_qr_scan/order_qr_scan_page.dart';
+import 'storage_picker/storage_picker.dart';
 
 part 'order_state.dart';
 part 'order_view_model.dart';
-part 'order_storage_picker.dart';
 
 class OrderPage extends StatelessWidget {
   final OrderEx orderEx;
@@ -132,7 +131,7 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showQRScanPage() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    bool res = await Navigator.push(
+    bool res = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => OrderQRScanPage(order: vm.state.order),
@@ -145,10 +144,12 @@ class _OrderViewState extends State<_OrderView> {
 
   Future<void> showAcceptPaymentDialog() async {
     OrderViewModel vm = context.read<OrderViewModel>();
-    String result = await showDialog<String>(
-      context: context,
-      builder: (_) => AcceptPaymentPage(order: vm.state.order, cardPayment: vm.state.cardPayment),
-      barrierDismissible: false
+    String result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => AcceptPaymentPage(order: vm.state.order, cardPayment: vm.state.cardPayment)
+      )
     ) ?? 'Платеж отменен';
 
     vm.finishPayment(result);

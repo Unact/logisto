@@ -4,11 +4,13 @@ class ApiData {
   List<ApiOrder> orders;
   List<ApiStorage> storages;
   List<ApiProductArrival> productArrivals;
+  List<ApiProductArrivalPackageType> productArrivalPackageTypes;
 
   ApiData({
     required this.orders,
     required this.storages,
-    required this.productArrivals
+    required this.productArrivals,
+    required this.productArrivalPackageTypes
   });
 
   factory ApiData.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,8 @@ class ApiData {
       orders: json['orders'].map<ApiOrder>((e) => ApiOrder.fromJson(e)).toList(),
       storages: json['storages'].map<ApiStorage>((e) => ApiStorage.fromJson(e)).toList(),
       productArrivals: json['productArrivals'].map<ApiProductArrival>((e) => ApiProductArrival.fromJson(e)).toList(),
+      productArrivalPackageTypes: json['productArrivalPackageTypes']
+        .map<ApiProductArrivalPackageType>((e) => ApiProductArrivalPackageType.fromJson(e)).toList(),
     );
   }
 }

@@ -195,13 +195,13 @@ class Api {
 
   Future<ApiProductArrival> productArrivalsFinishUnload({
     required int id,
-    required int amount
+    required List<Map<String, dynamic>> packages
   }) async {
     final productArrivalData = await _sendRequest((dio) => dio.post(
       'v1/logisto/product_arrivals/finish_unload',
       data: {
         'id': id,
-        'amount': amount
+        'packages': packages
       }
     ));
 
@@ -236,15 +236,16 @@ class Api {
     return ApiProductArrival.fromJson(productArrivalData);
   }
 
-  Future<ApiProduct> productArrivalFindProduct({
-    required String code
+  Future<List<ApiProduct>> productArrivalFindProduct({
+    String? code,
+    String? name
   }) async {
     final productData = await _sendRequest((dio) => dio.get(
       'v1/logisto/product_arrivals/find_product',
-      queryParameters: { 'code': code }
+      queryParameters: { 'code': code, 'name': name }
     ));
 
-    return ApiProduct.fromJson(productData);
+    return productData.map<ApiProduct>((e) => ApiProduct.fromJson(e)).toList();
   }
 
   Future<void> resetPassword({

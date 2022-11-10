@@ -7,5 +7,8 @@ class Strings {
   static const ok = 'ОК';
   static const cancel = 'Отмена';
 
-  static const qrCodeVersion = '1';
+  static const oldQRCodeVersion = '1';
+  static const newQRCodeVersion = '2';
+
+  static const undefinedNumber = 'б/н';
 }

@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 
+import '/app/constants/qr_types.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/pages/order/order_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
+import 'order/order_page.dart';
 
 part 'orders_state.dart';
 part 'orders_view_model.dart';
@@ -46,7 +47,7 @@ class _OrdersViewState extends State<_OrdersView> {
     OrdersViewModel vm = context.read<OrdersViewModel>();
     TextEditingController trackingNumberController = TextEditingController();
 
-    bool result = await showDialog(
+    bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -77,31 +78,34 @@ class _OrdersViewState extends State<_OrdersView> {
           ]
         );
       }
-    );
+    ) ?? false;
 
     if (!result) return;
 
     await vm.findOrder(trackingNumberController.text);
   }
 
-  Future<void> showQrScan() async {
+  Future<void> showQRScan() async {
     OrdersViewModel vm = context.read<OrdersViewModel>();
 
-    String? result = await showDialog(
-      context: context,
-      useSafeArea: false,
-      builder: (context) {
-        return ScanView(
+    String? result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => ScanView(
+          barcodeMode: true,
           child: Container(),
           onRead: (String code) {
             List<String> qrCodeData = code.split(' ');
+            String version = qrCodeData[0];
 
-            if (qrCodeData.length < 3 || qrCodeData[0] != Strings.qrCodeVersion) return;
-
-            Navigator.of(context).pop(qrCodeData[1]);
+            if (version == Strings.oldQRCodeVersion) return Navigator.of(context).pop(qrCodeData[1]);
+            if (version == Strings.newQRCodeVersion && qrCodeData[3] == QRTypes.order.typeName) {
+              return Navigator.of(context).pop(qrCodeData[4]);
+            }
           }
-        );
-      }
+        )
+      )
     );
 
     if (result == null) return;
@@ -119,7 +123,7 @@ class _OrdersViewState extends State<_OrdersView> {
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
-                onPressed: showQrScan,
+                onPressed: showQRScan,
                 tooltip: 'Сканировать QR код'
               ),
               IconButton(

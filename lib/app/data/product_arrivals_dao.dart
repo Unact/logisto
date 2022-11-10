@@ -1,7 +1,14 @@
 part of 'database.dart';
 
 @DriftAccessor(
-  tables: [ProductArrivals, ProductArrivalPackages, ProductArrivalPackageLines, ProductArrivalPackageNewLines],
+  tables: [
+    ProductArrivals,
+    ProductArrivalPackages,
+    ProductArrivalPackageLines,
+    ProductArrivalPackageTypes,
+    ProductArrivalPackageNewLines,
+    ProductArrivalNewPackages,
+  ],
 )
 class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductArrivalsDaoMixin {
   ProductArrivalsDao(AppDataStore db) : super(db);
@@ -20,11 +27,22 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     });
   }
 
+  Future<void> loadProductArrivalPackageTypes(List<ProductArrivalPackageType> packageTypeList) async {
+    await batch((batch) {
+      batch.deleteWhere(productArrivalPackageTypes, (row) => const Constant(true));
+      batch.insertAll(productArrivalPackageTypes, packageTypeList);
+    });
+  }
+
   Future<void> loadProductArrivalPackageLines(List<ProductArrivalPackageLine> lineList) async {
     await batch((batch) {
       batch.deleteWhere(productArrivalPackageLines, (row) => const Constant(true));
       batch.insertAll(productArrivalPackageLines, lineList);
     });
+  }
+
+  Future<void> addProductArrivalNewPackage(ProductArrivalNewPackagesCompanion newPackage) async {
+    await into(productArrivalNewPackages).insert(newPackage);
   }
 
   Future<void> addProductArrivalPackageNewLine(ProductArrivalPackageNewLinesCompanion newLine) async {
@@ -56,12 +74,30 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     );
   }
 
+  Future<void> clearProductArrivalNewPackages() async {
+    await delete(productArrivalNewPackages).go();
+  }
+
   Future<void> clearProductArrivalPackageNewLines() async {
     await delete(productArrivalPackageNewLines).go();
   }
 
-  Future<List<ProductArrivalPackageNewLine>> getProductArrivalPackageNewLines() async {
-    return select(productArrivalPackageNewLines).get();
+  Future<List<ProductArrivalPackageType>> getProductArrivalPackageTypes() async {
+    return select(productArrivalPackageTypes).get();
+  }
+
+  Future<List<ProductArrivalNewPackage>> getProductArrivalNewPackages(int productArrivalId) async {
+    return (
+      select(productArrivalNewPackages)
+      ..where((e)=> e.productArrivalId.equals(productArrivalId))
+    ).get();
+  }
+
+  Future<List<ProductArrivalPackageNewLine>> getProductArrivalPackageNewLines(int productArrivalPackageId) async {
+    return (
+      select(productArrivalPackageNewLines)
+      ..where((e)=> e.productArrivalPackageId.equals(productArrivalPackageId))
+    ).get();
   }
 
   Future<List<ProductArrivalEx>> getProductPackageExList() async {
@@ -99,7 +135,7 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     }).toList();
   }
 
-  Future<ProductArrivalEx> getProductPackageEx(int id) async {
+  Future<ProductArrivalEx> getProductArrivalEx(int id) async {
     final productArrivalsQuery = select(productArrivals)
       .join([innerJoin(storages, storages.id.equalsExp(productArrivals.storageId))])
       ..orderBy([
@@ -125,6 +161,16 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
         productArrivalPackageLinesRows.where((line) => line.productArrivalPackageId == e.id).toList()
       )).toList()
     );
+  }
+
+  Future<ProductArrivalPackageEx> getProductArrivalPackageEx(int id) async {
+    final productArrivalPackageRow = await (select(productArrivalPackages)..where((t) => t.id.equals(id))).getSingle();
+    final productArrivalPackageLinesQuery = select(productArrivalPackageLines)
+      ..where((t) => t.productArrivalPackageId.equals(productArrivalPackageRow.id))
+      ..orderBy([(u) => OrderingTerm(expression: u.productName)]);
+    final productArrivalPackageLinesRows = await productArrivalPackageLinesQuery.get();
+
+    return ProductArrivalPackageEx(productArrivalPackageRow, productArrivalPackageLinesRows);
   }
 }
 

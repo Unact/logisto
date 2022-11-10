@@ -55,6 +55,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         List<ProductArrivalPackage> productArrivalPackages = productArrivalPackageEx.map((e) => e.package).toList();
         List<ProductArrivalPackageLine> productArrivalPackageLines = productArrivalPackageEx
           .map((e) => e.packageLines).expand((e) => e).toList();
+        List<ProductArrivalPackageType> productArrivalPackageTypes = data.productArrivalPackageTypes
+          .map((e) => e.toDatabaseEnt()).toList();
         List<Order> orders = orderEx.map((e) => e.order).toList();
         List<OrderLine> orderLines = orderEx.map((e) => e.lines).expand((e) => e).toList();
         List<Storage> storages = (
@@ -70,6 +72,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         await dataStore.productArrivalsDao.loadProductArrivals(productArrivals);
         await dataStore.productArrivalsDao.loadProductArrivalPackages(productArrivalPackages);
         await dataStore.productArrivalsDao.loadProductArrivalPackageLines(productArrivalPackageLines);
+        await dataStore.productArrivalsDao.loadProductArrivalPackageTypes(productArrivalPackageTypes);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

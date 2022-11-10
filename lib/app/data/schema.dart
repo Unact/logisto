@@ -28,6 +28,8 @@ class ProductArrivals extends Table {
   DateTimeColumn get unloadStart => dateTime().nullable()();
   DateTimeColumn get unloadEnd => dateTime().nullable()();
   IntColumn get storageId => integer().nullable().references(Storages, #id)();
+  TextColumn get storeName => text()();
+  TextColumn get sellerName => text()();
 }
 
 class ProductArrivalPackages extends Table {
@@ -35,8 +37,14 @@ class ProductArrivalPackages extends Table {
   IntColumn get productArrivalId => integer()
     .references(ProductArrivals, #id, onDelete: KeyAction.cascade)();
   TextColumn get number => text()();
+  TextColumn get typeName => text()();
   DateTimeColumn get acceptStart => dateTime().nullable()();
   DateTimeColumn get acceptEnd => dateTime().nullable()();
+}
+
+class ProductArrivalPackageTypes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
 }
 
 class ProductArrivalPackageLines extends Table {
@@ -54,6 +62,15 @@ class ProductArrivalPackageNewLines extends Table {
   IntColumn get productId => integer()();
   TextColumn get productName => text()();
   IntColumn get amount => integer()();
+}
+
+class ProductArrivalNewPackages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalId => integer()
+    .references(ProductArrivals, #id, onDelete: KeyAction.cascade)();
+  IntColumn get typeId => integer()();
+  TextColumn get typeName => text()();
+  TextColumn get number => text()();
 }
 
 class Orders extends Table {
