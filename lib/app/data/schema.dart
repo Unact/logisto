@@ -29,6 +29,7 @@ class ProductArrivals extends Table {
   DateTimeColumn get unloadEnd => dateTime().nullable()();
   IntColumn get storageId => integer().nullable().references(Storages, #id)();
   TextColumn get storeName => text()();
+  TextColumn get sellerName => text()();
 }
 
 class ProductArrivalPackages extends Table {

@@ -120,6 +120,10 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           trailing: Text(Format.dateStr(vm.state.productArrival.arrivalDate))
         ),
         InfoRow(
+          title: const Text('ИМ'),
+          trailing: Text(vm.state.productArrival.sellerName)
+        ),
+        InfoRow(
           title: const Text('Склад ИМ'),
           trailing: Text(vm.state.productArrival.storeName)
         ),

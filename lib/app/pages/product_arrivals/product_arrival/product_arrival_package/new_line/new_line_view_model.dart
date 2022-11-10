@@ -14,7 +14,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
     ));
   }
 
-  Future<List<ApiProduct>> searchProductByName(String name) async {
+  Future<List<ApiProduct>> findProductsByName(String name) async {
     try {
       return await _findProduct(name: name);
     } on AppError catch(e) {
@@ -24,7 +24,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
     }
   }
 
-  Future<void> findProductByCode(String code) async {
+  Future<void> findAndSetProductByCode(String code) async {
     emit(state.copyWith(status: NewLineStateStatus.inProgress));
 
     try {

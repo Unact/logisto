@@ -96,7 +96,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishUnload(
         id: productArrivalEx.productArrival.id,
-        packages: newPackages.map((e) => { 'number': e.number, 'productArrivalPackageTypeId': e.typeId }).toList()
+        packages: newPackages.map((e) => { 'productArrivalPackageTypeId': e.typeId }).toList()
       );
 
       await app.dataStore.productArrivalsDao.clearProductArrivalNewPackages();

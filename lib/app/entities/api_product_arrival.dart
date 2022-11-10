@@ -9,6 +9,7 @@ class ApiProductArrival {
   final List<ApiProductArrivalPackage> packages;
   final ApiStorage storage;
   final String storeName;
+  final String sellerName;
 
   const ApiProductArrival({
     required this.id,
@@ -18,7 +19,8 @@ class ApiProductArrival {
     this.unloadEnd,
     required this.packages,
     required this.storage,
-    required this.storeName
+    required this.storeName,
+    required this.sellerName
   });
 
   factory ApiProductArrival.fromJson(dynamic json) {
@@ -30,7 +32,8 @@ class ApiProductArrival {
       unloadEnd: Parsing.parseDate(json['unloadEnd']),
       packages: json['packages'].map<ApiProductArrivalPackage>((e) => ApiProductArrivalPackage.fromJson(e)).toList(),
       storage: ApiStorage.fromJson(json['storage']),
-      storeName: json['storeName']
+      storeName: json['storeName'],
+      sellerName: json['sellerName']
     );
   }
 
@@ -42,7 +45,8 @@ class ApiProductArrival {
       unloadStart: unloadStart,
       unloadEnd: unloadEnd,
       storageId: storage.id,
-      storeName: storeName
+      storeName: storeName,
+      sellerName: sellerName
     );
     List<ProductArrivalPackageEx> productArrivalPackages = packages.map((e) {
       final productArrivalPackage = ProductArrivalPackage(

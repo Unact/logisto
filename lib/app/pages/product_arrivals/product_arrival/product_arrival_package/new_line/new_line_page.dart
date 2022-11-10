@@ -85,7 +85,7 @@ class NewLineViewState extends State<_NewLineView> {
                         child: Text('Ничего не найдено', style: TextStyle(color: theme.disabledColor)),
                       );
                     },
-                    suggestionsCallback: (String pattern) => vm.searchProductByName(pattern),
+                    suggestionsCallback: (String pattern) => vm.findProductsByName(pattern),
                     itemBuilder: (BuildContext ctx, ApiProduct suggestion) {
                       return ListTile(
                         isThreeLine: false,
@@ -166,7 +166,7 @@ class NewLineViewState extends State<_NewLineView> {
           ),
           onRead: (String code) {
             Navigator.of(context).pop();
-            vm.findProductByCode(code);
+            vm.findAndSetProductByCode(code);
           }
         )
       )
