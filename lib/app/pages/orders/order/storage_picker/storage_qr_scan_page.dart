@@ -47,8 +47,6 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case StorageQRScanStateStatus.scanReadFinished:
-            break;
           case StorageQRScanStateStatus.failure:
             showMessage(state.message);
             break;

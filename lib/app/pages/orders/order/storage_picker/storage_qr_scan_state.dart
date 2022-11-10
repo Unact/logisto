@@ -2,9 +2,6 @@ part of 'storage_picker.dart';
 
 enum StorageQRScanStateStatus {
   initial,
-  dataLoaded,
-  modeChanged,
-  scanReadFinished,
   failure,
   finished
 }

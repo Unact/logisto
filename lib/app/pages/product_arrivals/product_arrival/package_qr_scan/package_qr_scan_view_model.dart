@@ -8,11 +8,7 @@ class PackageQRScanViewModel extends PageViewModel<PackageQRScanState, PackageQR
   PackageQRScanStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: PackageQRScanStateStatus.dataLoaded
-    ));
-  }
+  Future<void> loadData() async {}
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;

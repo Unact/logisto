@@ -2,8 +2,6 @@ part of 'order_qr_scan_page.dart';
 
 enum OrderQRScanStateStatus {
   initial,
-  dataLoaded,
-  modeChanged,
   scanReadFinished,
   failure,
   finished

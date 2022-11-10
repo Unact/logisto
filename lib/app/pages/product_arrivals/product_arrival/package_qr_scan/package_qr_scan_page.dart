@@ -60,8 +60,6 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case PackageQRScanStateStatus.scanReadFinished:
-            break;
           case PackageQRScanStateStatus.failure:
             showMessage(state.message);
             break;

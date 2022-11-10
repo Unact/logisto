@@ -2,9 +2,6 @@ part of 'package_qr_scan_page.dart';
 
 enum PackageQRScanStateStatus {
   initial,
-  dataLoaded,
-  modeChanged,
-  scanReadFinished,
   failure,
   finished
 }

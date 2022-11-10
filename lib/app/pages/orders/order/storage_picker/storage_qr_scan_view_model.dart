@@ -8,11 +8,7 @@ class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQR
   StorageQRScanStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: StorageQRScanStateStatus.dataLoaded
-    ));
-  }
+  Future<void> loadData() async {}
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;

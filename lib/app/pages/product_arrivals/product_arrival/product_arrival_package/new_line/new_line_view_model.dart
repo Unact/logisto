@@ -8,11 +8,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
   NewLineStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: NewLineStateStatus.dataLoaded
-    ));
-  }
+  Future<void> loadData() async {}
 
   Future<List<ApiProduct>> findProductsByName(String name) async {
     try {

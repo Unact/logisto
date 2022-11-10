@@ -3,7 +3,6 @@ part of 'product_arrival_package_page.dart';
 enum ProductArrivalStateStatus {
   initial,
   dataLoaded,
-  startLoad,
   inProgress,
   success,
   failure

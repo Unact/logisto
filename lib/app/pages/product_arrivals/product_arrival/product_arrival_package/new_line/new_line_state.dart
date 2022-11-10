@@ -2,8 +2,6 @@ part of 'new_line_page.dart';
 
 enum NewLineStateStatus {
   initial,
-  dataLoaded,
-  startLoad,
   inProgress,
   success,
   failure,
