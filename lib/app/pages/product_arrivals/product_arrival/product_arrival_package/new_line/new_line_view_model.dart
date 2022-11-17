@@ -51,7 +51,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
     );
   }
 
-  Future<void> addProductArrivalPackageLine() async {
+  Future<void> addProductArrivalPackageNewLine() async {
     if (state.product == null) {
       emit(state.copyWith(status: NewLineStateStatus.failure, message: 'Не указан товар'));
       return;
@@ -62,22 +62,17 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
       return;
     }
 
-    try {
-      ProductArrivalPackageNewLinesCompanion line = ProductArrivalPackageNewLinesCompanion(
-        productArrivalPackageId: Value(state.packageEx.package.id),
-        productName: Value(state.product!.name),
-        productId: Value(state.product!.id),
-        amount: Value(state.amount!)
-      );
+    ProductArrivalPackageNewLinesCompanion line = ProductArrivalPackageNewLinesCompanion(
+      productArrivalPackageId: Value(state.packageEx.package.id),
+      productName: Value(state.product!.name),
+      productId: Value(state.product!.id),
+      amount: Value(state.amount!)
+    );
 
-      await app.dataStore.productArrivalsDao.addProductArrivalPackageNewLine(line);
+    await app.dataStore.productArrivalsDao.addProductArrivalPackageNewLine(line);
 
-      emit(state.copyWith(status: NewLineStateStatus.lineAdded));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: NewLineStateStatus.failure, message: e.message));
-    }
+    emit(state.copyWith(status: NewLineStateStatus.lineAdded));
   }
-
 
   Future<List<ApiProduct>> _findProduct({String? code, String? name}) async {
     try {

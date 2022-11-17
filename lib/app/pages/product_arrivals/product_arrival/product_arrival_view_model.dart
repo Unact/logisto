@@ -77,6 +77,10 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
+  Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) async {
+    await app.dataStore.productArrivalsDao.deleteProductArrivalNewPackage(newPackage);
+  }
+
   Future<void> _startUnload(ProductArrivalEx productArrivalEx) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginUnload(

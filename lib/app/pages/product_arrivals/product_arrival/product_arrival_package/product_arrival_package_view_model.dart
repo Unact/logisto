@@ -38,6 +38,10 @@ class ProductArrivalPackageViewModel extends PageViewModel<ProductArrivalPackage
     }
   }
 
+  Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLine packageNewLine) async {
+    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewLine(packageNewLine);
+  }
+
   Future<void> _endAccept(ProductArrivalPackageEx packageEx, List<ProductArrivalPackageNewLine> newLines) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishPackageAccept(

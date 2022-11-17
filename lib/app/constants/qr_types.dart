@@ -1,7 +1,8 @@
 enum QRTypes {
   order,
   storage,
-  productArrivalPackage;
+  productArrivalPackage,
+  productArrival;
 
   String get typeName {
     switch (this) {
@@ -11,6 +12,8 @@ enum QRTypes {
         return 'STORAGE';
       case productArrivalPackage:
         return 'PRODUCT-ARRIVAL-PACKAGE';
+      case productArrival:
+        return 'PRODUCT-ARRIVAL';
     }
   }
 }

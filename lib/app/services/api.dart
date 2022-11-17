@@ -180,6 +180,17 @@ class Api {
     return ApiOrder.fromJson(orderData);
   }
 
+  Future<ApiProductArrival> findProductArrival({
+    required String number
+  }) async {
+    final orderData = await _sendRequest((dio) => dio.get(
+      'v1/logisto/product_arrivals/find_product_arrival',
+      queryParameters: { 'number': number }
+    ));
+
+    return ApiProductArrival.fromJson(orderData);
+  }
+
   Future<ApiProductArrival> productArrivalsBeginUnload({
     required int id
   }) async {

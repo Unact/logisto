@@ -51,6 +51,7 @@ class _OrdersViewState extends State<_OrdersView> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          alignment: Alignment.topCenter,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -93,7 +94,6 @@ class _OrdersViewState extends State<_OrdersView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => ScanView(
-          barcodeMode: true,
           child: Container(),
           onRead: (String code) {
             List<String> qrCodeData = code.split(' ');
