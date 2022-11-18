@@ -23,13 +23,6 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
     ));
   }
 
-  @override
-  Future<void> initViewModel() async {
-    await super.initViewModel();
-
-    emit(state.copyWith(status: OrdersStateStatus.startLoad));
-  }
-
   Future<Order?> findOrder(String trackingNumber) async {
     emit(state.copyWith(status: OrdersStateStatus.inProgress));
 

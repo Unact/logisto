@@ -65,6 +65,7 @@ class _OrderViewState extends State<_OrderView> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              alignment: Alignment.topCenter,
               title: const Text('Подтвердите заказ'),
               content: SingleChildScrollView(
                 child: ListBody(
@@ -75,7 +76,6 @@ class _OrderViewState extends State<_OrderView> {
                       onChanged: (storage, _) => setState(() => newStorage = storage)
                     ),
                     TextFormField(
-                      maxLines: 1,
                       autocorrect: false,
                       controller: _weightDialogController,
                       style: textStyle,
@@ -83,7 +83,6 @@ class _OrderViewState extends State<_OrderView> {
                       decoration: const InputDecoration(labelText: 'Вес, кг')
                     ),
                     TextFormField(
-                      maxLines: 1,
                       autocorrect: false,
                       controller: _volumeDialogController,
                       style: textStyle,
@@ -161,6 +160,7 @@ class _OrderViewState extends State<_OrderView> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          alignment: Alignment.topCenter,
           title: const Text('Предупреждение'),
           content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
           actions: <Widget>[
@@ -185,6 +185,7 @@ class _OrderViewState extends State<_OrderView> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              alignment: Alignment.topCenter,
               contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 8, 24.0),
               title: const Text('Выберите склад'),
               content: SingleChildScrollView(
@@ -279,7 +280,6 @@ class _OrderViewState extends State<_OrderView> {
       InfoRow(
         title: const Text('Вес, кг'),
         trailing: !vm.state.scanned ? Text(weight) : TextFormField(
-          maxLines: 1,
           autocorrect: false,
           controller: _weightController,
           style: const TextStyle(fontSize: 14),
@@ -291,7 +291,6 @@ class _OrderViewState extends State<_OrderView> {
       InfoRow(
         title: const Text('Объем, м3'),
         trailing: !vm.state.scanned ? Text(volume) : TextFormField(
-          maxLines: 1,
           autocorrect: false,
           controller: _volumeController,
           style: const TextStyle(fontSize: 14),

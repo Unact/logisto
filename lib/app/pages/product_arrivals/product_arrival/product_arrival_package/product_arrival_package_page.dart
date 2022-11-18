@@ -118,9 +118,16 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
   }
 
   Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLine newLine) {
-    return ListTile(
-      title: Text(newLine.productName, style: Style.listTileText),
-      trailing: Text(newLine.amount.toString(), style: Style.listTileText)
+    ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
+
+    return Dismissible(
+      key: Key(newLine.hashCode.toString()),
+      background: Container(color: Colors.red[500]),
+      onDismissed: (direction) => vm.deleteProductArrivalPackageNewLine(newLine),
+      child: ListTile(
+        title: Text(newLine.productName, style: Style.listTileText),
+        trailing: Text(newLine.amount.toString(), style: Style.listTileText)
+      )
     );
   }
 }

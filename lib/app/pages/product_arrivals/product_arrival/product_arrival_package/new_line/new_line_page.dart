@@ -59,6 +59,7 @@ class NewLineViewState extends State<_NewLineView> {
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: AlertDialog(
+            alignment: Alignment.topCenter,
             title: const Text('Новая позиция'),
             content: SingleChildScrollView(
               child: ListBody(
@@ -68,7 +69,6 @@ class NewLineViewState extends State<_NewLineView> {
                     minCharsForSuggestions: 5,
                     textFieldConfiguration: TextFieldConfiguration(
                       style: Style.listTileText,
-                      maxLines: 2,
                       autofocus: true,
                       focusNode: productFocus,
                       controller: _nameController,
@@ -96,7 +96,6 @@ class NewLineViewState extends State<_NewLineView> {
                   ),
                   TextFormField(
                     focusNode: amountFocus,
-                    maxLines: 1,
                     autocorrect: false,
                     onChanged: (value) => int.tryParse(value) != null ? vm.setAmount(int.parse(value)) : null,
                     controller: _amountController,
@@ -110,7 +109,7 @@ class NewLineViewState extends State<_NewLineView> {
             actions: <Widget>[
               TextButton(
                 child: const Text(Strings.ok),
-                onPressed: vm.addProductArrivalPackageLine,
+                onPressed: vm.addProductArrivalPackageNewLine,
               ),
               TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop())
             ],

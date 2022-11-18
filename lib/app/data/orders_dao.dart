@@ -58,30 +58,14 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   }
 
   Future<OrderEx> getOrderEx(int id) async {
-    final storageFrom = alias(storages, 'from_storage');
-    final storageTo = alias(storages, 'to_storage');
-    final orderQuery = select(orders)
-      .join(
-        [
-          leftOuterJoin(storageFrom, storageFrom.id.equalsExp(orders.storageFromId)),
-          leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
-        ],
-      )
-      ..where(orders.id.equals(id));
-    final orderLinesQuery = select(orderLines)
-      ..where((t) => t.orderId.equals(id))
-      ..orderBy([(u) => OrderingTerm(expression: u.name)]);
-    final orderRow = await orderQuery.getSingle();
-
-    return OrderEx(
-      orderRow.readTable(orders),
-      await orderLinesQuery.get(),
-      orderRow.readTableOrNull(storageFrom),
-      orderRow.readTableOrNull(storageTo)
-    );
+    return (await _getOrderEx(orders.id.equals(id)))!;
   }
 
   Future<OrderEx?> getOrderExByTrackingNumber(String trackingNumber) async {
+    return _getOrderEx(orders.trackingNumber.equals(trackingNumber));
+  }
+
+  Future<OrderEx?> _getOrderEx(Expression<bool> whereExp) async {
     final storageFrom = alias(storages, 'from_storage');
     final storageTo = alias(storages, 'to_storage');
     final orderQuery = select(orders)
@@ -91,13 +75,14 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
           leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
         ],
       )
-      ..where(orders.trackingNumber.equals(trackingNumber));
+      ..where(whereExp);
     final orderRow = await orderQuery.getSingleOrNull();
 
     if (orderRow == null) return null;
 
+    final id = orderRow.readTable(orders).id;
     final orderLinesQuery = select(orderLines)
-      ..where((t) => t.orderId.equals(orderRow.readTable(orders).id))
+      ..where((t) => t.orderId.equals(id))
       ..orderBy([(u) => OrderingTerm(expression: u.name)]);
 
     return OrderEx(

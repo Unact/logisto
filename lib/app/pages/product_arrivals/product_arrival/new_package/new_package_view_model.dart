@@ -40,21 +40,17 @@ class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageState
       return;
     }
 
-    try {
-      for (var i = 1; i <= state.amount!; i++) {
-        ProductArrivalNewPackagesCompanion package = ProductArrivalNewPackagesCompanion(
-          productArrivalId: Value(state.productArrivalEx.productArrival.id),
-          typeName: Value(state.type!.name),
-          typeId: Value(state.type!.id),
-          number: const Value(Strings.undefinedNumber)
-        );
+    for (var i = 1; i <= state.amount!; i++) {
+      ProductArrivalNewPackagesCompanion package = ProductArrivalNewPackagesCompanion(
+        productArrivalId: Value(state.productArrivalEx.productArrival.id),
+        typeName: Value(state.type!.name),
+        typeId: Value(state.type!.id),
+        number: const Value(Strings.undefinedNumber)
+      );
 
-        await app.dataStore.productArrivalsDao.addProductArrivalNewPackage(package);
-      }
-
-      emit(state.copyWith(status: NewPackageStateStatus.packagesAdded));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: NewPackageStateStatus.failure, message: e.message));
+      await app.dataStore.productArrivalsDao.addProductArrivalNewPackage(package);
     }
+
+    emit(state.copyWith(status: NewPackageStateStatus.packagesAdded));
   }
 }

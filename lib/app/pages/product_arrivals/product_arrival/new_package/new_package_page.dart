@@ -52,6 +52,7 @@ class NewPackageViewState extends State<_NewPackageView> {
           backgroundColor: Colors.transparent,
           body: AlertDialog(
             title: const Text('Новое место'),
+            alignment: Alignment.topCenter,
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -68,7 +69,6 @@ class NewPackageViewState extends State<_NewPackageView> {
                   ),
                   TextFormField(
                     focusNode: amountFocus,
-                    maxLines: 1,
                     autocorrect: false,
                     onChanged: (value) => int.tryParse(value) != null ? vm.setAmount(int.parse(value)) : null,
                     controller: _amountController,

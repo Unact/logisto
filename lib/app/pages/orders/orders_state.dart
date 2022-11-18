@@ -3,7 +3,6 @@ part of 'orders_page.dart';
 enum OrdersStateStatus {
   initial,
   dataLoaded,
-  startLoad,
   inProgress,
   success,
   failure,

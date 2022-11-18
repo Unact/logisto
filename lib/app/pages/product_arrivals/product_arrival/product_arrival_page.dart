@@ -164,6 +164,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         IconButton(
           icon: const Icon(Icons.add_box),
@@ -212,9 +213,16 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
   }
 
   Widget _productArrivalNewPackageTile(BuildContext context, ProductArrivalNewPackage newPackage) {
-    return ListTile(
-      leading: const Icon(Icons.close_rounded, color: Colors.red),
-      title: Text("${newPackage.typeName} ${newPackage.number}", style: Style.listTileText)
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    return Dismissible(
+      key: Key(newPackage.hashCode.toString()),
+      background: Container(color: Colors.red[500]),
+      onDismissed: (direction) => vm.deleteProductArrivalNewPackage(newPackage),
+      child: ListTile(
+        leading: const Icon(Icons.close_rounded, color: Colors.red),
+        title: Text("${newPackage.typeName} ${newPackage.number}", style: Style.listTileText)
+      )
     );
   }
 }
