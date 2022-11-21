@@ -22,7 +22,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       status: InfoStateStatus.dataLoaded,
       newVersionAvailable: await app.newVersionAvailable,
       orderExList: await app.dataStore.ordersDao.getOrderExList(),
-      productArrivalExList: await app.dataStore.productArrivalsDao.getProductPackageExList()
+      productArrivalExList: await app.dataStore.productArrivalsDao.getProductPackageExList(),
+      user: await app.dataStore.usersDao.getUser()
     ));
   }
 
