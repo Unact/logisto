@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
+import 'package:camera/camera.dart' as camera;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -99,7 +99,7 @@ class _ScanViewState extends State<ScanView> {
   }
 
   Future<void> _initScanMode() async {
-    _hasCamera = (await availableCameras()).isNotEmpty;
+    _hasCamera = (await camera.availableCameras()).isNotEmpty;
 
     setState(() {});
   }
@@ -112,9 +112,9 @@ class _ScanViewState extends State<ScanView> {
 
     if (Platform.isAndroid) {
       _controller!.pauseCamera();
-    } else if (Platform.isIOS) {
-      _controller!.resumeCamera();
     }
+
+    _controller!.resumeCamera();
   }
 
   @override
@@ -201,14 +201,14 @@ class _ScanViewState extends State<ScanView> {
             color: Colors.white,
             icon: const Icon(Icons.flash_on),
             onPressed: () async {
-              _controller!.toggleFlash();
+              try { _controller!.toggleFlash(); } on CameraException catch(_) {}
             }
           ),
           IconButton(
             color: Colors.white,
             icon: const Icon(Icons.switch_camera),
             onPressed: () async {
-              _controller!.flipCamera();
+              try { _controller!.flipCamera(); } on CameraException catch(_) {}
             }
           ),
           IconButton(
@@ -241,6 +241,9 @@ class _ScanViewState extends State<ScanView> {
                 ),
               onPermissionSet: (QRViewController controller, bool permission) {
                 DateTime? lastScan;
+
+                // https://github.com/juliuscanute/qr_code_scanner/issues/560
+                _controller!.resumeCamera();
 
                 _subscription = _controller!.scannedDataStream.listen((scanData) async {
                   final currentScan = DateTime.now();
