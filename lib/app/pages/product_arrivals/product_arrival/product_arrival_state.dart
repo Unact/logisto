@@ -5,7 +5,9 @@ enum ProductArrivalStateStatus {
   dataLoaded,
   inProgress,
   success,
-  failure
+  failure,
+  scanSuccess,
+  scanFailed
 }
 
 class ProductArrivalState {
@@ -13,13 +15,16 @@ class ProductArrivalState {
     this.status = ProductArrivalStateStatus.initial,
     required this.productArrivalEx,
     this.message = '',
-    this.newPackages = const []
+    this.newPackages = const [],
+    this.scanned = false
   });
 
   final ProductArrivalStateStatus status;
   final ProductArrivalEx productArrivalEx;
   final String message;
   final List<ProductArrivalNewPackage> newPackages;
+
+  final bool scanned;
 
   ProductArrival get productArrival => productArrivalEx.productArrival;
   bool get allPackagesAcceptStarted => productArrivalEx.packages.every((e) => e.package.acceptStart != null);
@@ -31,13 +36,15 @@ class ProductArrivalState {
     ProductArrivalStateStatus? status,
     ProductArrivalEx? productArrivalEx,
     String? message,
-    List<ProductArrivalNewPackage>? newPackages
+    List<ProductArrivalNewPackage>? newPackages,
+    bool? scanned
   }) {
     return ProductArrivalState(
       status: status ?? this.status,
       productArrivalEx: productArrivalEx ?? this.productArrivalEx,
       message: message ?? this.message,
-      newPackages: newPackages ?? this.newPackages
+      newPackages: newPackages ?? this.newPackages,
+      scanned: scanned ?? this.scanned
     );
   }
 }

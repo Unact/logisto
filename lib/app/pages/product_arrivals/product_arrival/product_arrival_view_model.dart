@@ -81,6 +81,15 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     await app.dataStore.productArrivalsDao.deleteProductArrivalNewPackage(newPackage);
   }
 
+  void markScanned(String number) {
+    if (number != state.productArrival.number) {
+      emit(state.copyWith(status: ProductArrivalStateStatus.scanFailed, message: 'Отсканирована другая приемка'));
+      return;
+    }
+
+    emit(state.copyWith(scanned: true, status: ProductArrivalStateStatus.scanSuccess));
+  }
+
   Future<void> _startUnload(ProductArrivalEx productArrivalEx) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginUnload(
