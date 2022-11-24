@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '/app/constants/qr_types.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
@@ -80,6 +81,33 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     );
   }
 
+  Future<void> showQRScan() async {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    String? result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => ScanView(
+          child: Container(),
+          onRead: (String code) {
+            List<String> qrCodeData = code.split(' ');
+            String version = qrCodeData[0];
+
+            if (version == Strings.oldQRCodeVersion) return Navigator.of(context).pop(qrCodeData[1]);
+            if (version == Strings.newQRCodeVersion && qrCodeData[3] == QRTypes.productArrival.typeName) {
+              return Navigator.of(context).pop(qrCodeData[4]);
+            }
+          }
+        )
+      )
+    );
+
+    if (result == null) return;
+
+    vm.markScanned(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProductArrivalViewModel, ProductArrivalState>(
@@ -95,6 +123,9 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         switch (state.status) {
           case ProductArrivalStateStatus.inProgress:
             await _progressDialog.open();
+            break;
+          case ProductArrivalStateStatus.scanFailed:
+            showMessage(state.message);
             break;
           case ProductArrivalStateStatus.success:
           case ProductArrivalStateStatus.failure:
@@ -152,10 +183,20 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
   Widget _unloadStartButton(BuildContext context) {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
+    if (!vm.state.scanned) {
+      return IconButton(
+        icon: const Icon(Icons.qr_code),
+        onPressed: showQRScan,
+        constraints: const BoxConstraints(),
+        padding: EdgeInsets.zero
+      );
+    }
+
     return IconButton(
       icon: const Icon(Icons.start),
       onPressed: vm.startUnload,
       constraints: const BoxConstraints(),
+      tooltip: 'Начать разгрузку',
       padding: EdgeInsets.zero
     );
   }
