@@ -11,32 +11,32 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 
-part 'new_package_state.dart';
-part 'new_package_view_model.dart';
+part 'new_unload_package_state.dart';
+part 'new_unload_package_view_model.dart';
 
-class NewPackagePage extends StatelessWidget {
+class NewUnloadPackagePage extends StatelessWidget {
   final ProductArrivalEx productArrivalEx;
 
-  NewPackagePage({
+  NewUnloadPackagePage({
     required this.productArrivalEx,
     Key? key
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NewPackageViewModel>(
-      create: (context) => NewPackageViewModel(context, productArrivalEx: productArrivalEx),
-      child: ScaffoldMessenger(child: _NewPackageView()),
+    return BlocProvider<NewUnloadPackageViewModel>(
+      create: (context) => NewUnloadPackageViewModel(context, productArrivalEx: productArrivalEx),
+      child: ScaffoldMessenger(child: _NewUnloadPackageView()),
     );
   }
 }
 
-class _NewPackageView extends StatefulWidget {
+class _NewUnloadPackageView extends StatefulWidget {
   @override
-  NewPackageViewState createState() => NewPackageViewState();
+  NewUnloadPackageViewState createState() => NewUnloadPackageViewState();
 }
 
-class NewPackageViewState extends State<_NewPackageView> {
+class NewUnloadPackageViewState extends State<_NewUnloadPackageView> {
   final TextEditingController _amountController = TextEditingController();
   FocusNode amountFocus = FocusNode();
   ApiProduct? product;
@@ -44,14 +44,14 @@ class NewPackageViewState extends State<_NewPackageView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NewPackageViewModel, NewPackageState>(
+    return BlocConsumer<NewUnloadPackageViewModel, NewUnloadPackageState>(
       builder: (context, state) {
-        NewPackageViewModel vm = context.read<NewPackageViewModel>();
+        NewUnloadPackageViewModel vm = context.read<NewUnloadPackageViewModel>();
 
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: AlertDialog(
-            title: const Text('Новое место приемки'),
+            title: const Text('Новое место разгрузки'),
             alignment: Alignment.topCenter,
             content: SingleChildScrollView(
               child: ListBody(
@@ -82,7 +82,7 @@ class NewPackageViewState extends State<_NewPackageView> {
             actions: <Widget>[
               TextButton(
                 child: const Text(Strings.ok),
-                onPressed: vm.addProductArrivalPackage,
+                onPressed: vm.addProductArrivalUnloadPackage,
               ),
               TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop())
             ],
@@ -91,13 +91,13 @@ class NewPackageViewState extends State<_NewPackageView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case NewPackageStateStatus.packagesAdded:
+          case NewUnloadPackageStateStatus.unloadPackageAdded:
             Navigator.of(context).pop();
             break;
-          case NewPackageStateStatus.setType:
+          case NewUnloadPackageStateStatus.setType:
             amountFocus.requestFocus();
             break;
-          case NewPackageStateStatus.failure:
+          case NewUnloadPackageStateStatus.failure:
             showMessage(state.message);
             break;
           default:

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
+import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,6 +14,7 @@ import '/app/services/api.dart';
 import '/app/utils/format.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
+import 'new_unload_package/new_unload_package_page.dart';
 import 'package_qr_scan/package_qr_scan_page.dart';
 import 'product_arrival_package/product_arrival_package_page.dart';
 
@@ -81,6 +82,15 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     );
   }
 
+  Future<void> showNewUnloadPackageDialog() async {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => NewUnloadPackagePage(productArrivalEx: vm.state.productArrivalEx)
+    );
+  }
+
   Future<void> showQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
@@ -116,7 +126,13 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
         return Scaffold(
           appBar: AppBar(title: Text('Разгрузка ${productArrival.number}')),
-          body: _dataList(context)
+          body: _dataList(context),
+          floatingActionButton: state.allPackagesAcceptStarted ? null : FloatingActionButton(
+            child: const Icon(Icons.qr_code_scanner),
+            onPressed: showPackageQRScan,
+            tooltip: 'Сканировать QR код',
+
+          )
         );
       },
       listener: (context, state) async {
@@ -170,12 +186,24 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
             _unloadWorkButtons(context) :
             Text(Format.dateTimeStr(vm.state.productArrival.unloadEnd))
         ),
-        InfoRow(
-          title: const Text('Места'),
-          trailing: vm.state.allPackagesAcceptStarted ? null : _qrScanButton(context)
+        ExpansionTile(
+          initiallyExpanded: vm.state.unloadInProgress,
+          title: const Text('Места разгрузки', style: Style.listTileTitleText),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+          children: [
+            ...vm.state.newUnloadPackages.map((e) => _productArrivalNewUnloadPackageTile(context, e)),
+            ...vm.state.productArrivalEx.unloadPackages.map((e) => _productArrivalUnloadPackageTile(context, e)),
+          ]
         ),
-        ...vm.state.newPackages.map((packageEx) => _productArrivalNewPackageTile(context, packageEx)),
-        ...vm.state.productArrivalEx.packages.map((packageEx) => _productArrivalPackageTile(context, packageEx))
+        ExpansionTile(
+          initiallyExpanded: vm.state.unloadStarted,
+          title: const Text('Места приемки', style: Style.listTileTitleText),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+          children: [
+            ...vm.state.newPackages.map((e) => _productArrivalNewPackageTile(context, e)),
+            ...vm.state.productArrivalEx.packages.map((e) => _productArrivalPackageTile(context, e))
+          ]
+        ),
       ]
     );
   }
@@ -188,6 +216,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         icon: const Icon(Icons.qr_code),
         onPressed: showQRScan,
         constraints: const BoxConstraints(),
+        tooltip: 'Начать разгрузку',
         padding: EdgeInsets.zero
       );
     }
@@ -208,9 +237,23 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         IconButton(
+          icon: const Icon(Icons.fact_check),
+          onPressed: showNewUnloadPackageDialog,
+          tooltip: 'Добавить место разгрузки',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(right: 8)
+        ),
+        IconButton(
           icon: const Icon(Icons.add_box),
           onPressed: showNewPackageDialog,
           tooltip: 'Добавить место приемки',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(right: 8)
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy_all),
+          onPressed: vm.copyUnloadPackages,
+          tooltip: 'Скопировать из разгрузки',
           constraints: const BoxConstraints(),
           padding: const EdgeInsets.only(right: 8)
         ),
@@ -222,16 +265,6 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           padding: const EdgeInsets.only(left: 8)
         )
       ]
-    );
-  }
-
-  Widget _qrScanButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.qr_code_scanner),
-      onPressed: showPackageQRScan,
-      tooltip: 'Сканировать QR код',
-      constraints: const BoxConstraints(),
-      padding: EdgeInsets.zero,
     );
   }
 
@@ -263,6 +296,27 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
       child: ListTile(
         leading: const Icon(Icons.close_rounded, color: Colors.red),
         title: Text("${newPackage.typeName} ${newPackage.number}", style: Style.listTileText)
+      )
+    );
+  }
+
+  Widget _productArrivalUnloadPackageTile(BuildContext context, ProductArrivalUnloadPackage unloadPackage) {
+    return ListTile(
+      title: Text(unloadPackage.typeName, style: Style.listTileText),
+      trailing: Text(unloadPackage.amount.toString(), style: Style.listTileText),
+    );
+  }
+
+  Widget _productArrivalNewUnloadPackageTile(BuildContext context, ProductArrivalNewUnloadPackage newUnloadPackage) {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    return Dismissible(
+      key: Key(newUnloadPackage.hashCode.toString()),
+      background: Container(color: Colors.red[500]),
+      onDismissed: (direction) => vm.deleteProductArrivalNewUnloadPackage(newUnloadPackage),
+      child: ListTile(
+        title: Text(newUnloadPackage.typeName, style: Style.listTileText),
+        trailing: Text(newUnloadPackage.amount.toString(), style: Style.listTileText),
       )
     );
   }

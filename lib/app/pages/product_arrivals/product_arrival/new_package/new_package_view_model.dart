@@ -31,7 +31,7 @@ class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageState
 
   Future<void> addProductArrivalPackage() async {
     if (state.type == null) {
-      emit(state.copyWith(status: NewPackageStateStatus.failure, message: 'Не указан товар'));
+      emit(state.copyWith(status: NewPackageStateStatus.failure, message: 'Не указан тип'));
       return;
     }
 
