@@ -7,6 +7,7 @@ class ApiProductArrival {
   final DateTime? unloadStart;
   final DateTime? unloadEnd;
   final List<ApiProductArrivalPackage> packages;
+  final List<ApiProductArrivalUnloadPackage> unloadPackages;
   final ApiStorage storage;
   final String storeName;
   final String sellerName;
@@ -18,6 +19,7 @@ class ApiProductArrival {
     this.unloadStart,
     this.unloadEnd,
     required this.packages,
+    required this.unloadPackages,
     required this.storage,
     required this.storeName,
     required this.sellerName
@@ -31,6 +33,9 @@ class ApiProductArrival {
       unloadStart: Parsing.parseDate(json['unloadStart']),
       unloadEnd: Parsing.parseDate(json['unloadEnd']),
       packages: json['packages'].map<ApiProductArrivalPackage>((e) => ApiProductArrivalPackage.fromJson(e)).toList(),
+      unloadPackages: json['unloadPackages'].map<ApiProductArrivalUnloadPackage>(
+        (e) => ApiProductArrivalUnloadPackage.fromJson(e)
+      ).toList(),
       storage: ApiStorage.fromJson(json['storage']),
       storeName: json['storeName'],
       sellerName: json['sellerName']
@@ -66,12 +71,21 @@ class ApiProductArrival {
 
       return ProductArrivalPackageEx(productArrivalPackage, lines);
     }).toList();
+    List<ProductArrivalUnloadPackage> productArrivalUnloadPackages = unloadPackages.map((e) {
+      return ProductArrivalUnloadPackage(
+        id: e.id,
+        productArrivalId: id,
+        amount: e.id,
+        typeName: e.typeName
+      );
+    }).toList();
     Storage dbStorage = Storage(id: storage.id, name: storage.name, sequenceNumber: storage.sequenceNumber);
 
     return ProductArrivalEx(
       productArrival,
       dbStorage,
       productArrivalPackages,
+      productArrivalUnloadPackages
     );
   }
 }

@@ -11,8 +11,10 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
     app.dataStore.productArrivals,
     app.dataStore.productArrivalPackages,
+    app.dataStore.productArrivalUnloadPackages,
     app.dataStore.productArrivalPackageLines,
     app.dataStore.productArrivalNewPackages,
+    app.dataStore.productArrivalNewUnloadPackages,
   ]);
 
   @override
@@ -22,7 +24,8 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(
       status: ProductArrivalStateStatus.dataLoaded,
       productArrivalEx: await app.dataStore.productArrivalsDao.getProductArrivalEx(productArrivalId),
-      newPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewPackages(productArrivalId)
+      newPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewPackages(productArrivalId),
+      newUnloadPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewUnloadPackages(productArrivalId),
     ));
   }
 
@@ -42,7 +45,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _endUnload(state.productArrivalEx, state.newPackages);
+      await _endUnload(state.productArrivalEx, state.newPackages, state.newUnloadPackages);
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -81,6 +84,25 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     await app.dataStore.productArrivalsDao.deleteProductArrivalNewPackage(newPackage);
   }
 
+  Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) async {
+    await app.dataStore.productArrivalsDao.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
+  }
+
+  Future<void> copyUnloadPackages() async {
+    for (var newUnloadPackage in state.newUnloadPackages) {
+      for (var i = 1; i <= newUnloadPackage.amount; i++) {
+        ProductArrivalNewPackagesCompanion package = ProductArrivalNewPackagesCompanion(
+          productArrivalId: Value(state.productArrivalEx.productArrival.id),
+          typeName: Value(newUnloadPackage.typeName),
+          typeId: Value(newUnloadPackage.typeId),
+          number: const Value(Strings.undefinedNumber)
+        );
+
+        await app.dataStore.productArrivalsDao.addProductArrivalNewPackage(package);
+      }
+    }
+  }
+
   void markScanned(String number) {
     if (number != state.productArrival.number) {
       emit(state.copyWith(status: ProductArrivalStateStatus.scanFailed, message: 'Отсканирована другая приемка'));
@@ -105,11 +127,18 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
-  Future<void> _endUnload(ProductArrivalEx productArrivalEx, List<ProductArrivalNewPackage> newPackages) async {
+  Future<void> _endUnload(
+    ProductArrivalEx productArrivalEx,
+    List<ProductArrivalNewPackage> newPackages,
+    List<ProductArrivalNewUnloadPackage> newUnloadPackages
+  ) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishUnload(
         id: productArrivalEx.productArrival.id,
-        packages: newPackages.map((e) => { 'productArrivalPackageTypeId': e.typeId }).toList()
+        packages: newPackages.map((e) => { 'productArrivalPackageTypeId': e.typeId }).toList(),
+        unloadPackages: newUnloadPackages.map(
+          (e) => { 'productArrivalPackageTypeId': e.typeId, 'amount': e.amount }
+        ).toList()
       );
 
       await app.dataStore.productArrivalsDao.clearProductArrivalNewPackages();

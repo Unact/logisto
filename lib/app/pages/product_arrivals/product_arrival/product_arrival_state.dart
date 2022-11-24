@@ -16,6 +16,7 @@ class ProductArrivalState {
     required this.productArrivalEx,
     this.message = '',
     this.newPackages = const [],
+    this.newUnloadPackages = const [],
     this.scanned = false
   });
 
@@ -23,6 +24,7 @@ class ProductArrivalState {
   final ProductArrivalEx productArrivalEx;
   final String message;
   final List<ProductArrivalNewPackage> newPackages;
+  final List<ProductArrivalNewUnloadPackage> newUnloadPackages;
 
   final bool scanned;
 
@@ -37,6 +39,7 @@ class ProductArrivalState {
     ProductArrivalEx? productArrivalEx,
     String? message,
     List<ProductArrivalNewPackage>? newPackages,
+    List<ProductArrivalNewUnloadPackage>? newUnloadPackages,
     bool? scanned
   }) {
     return ProductArrivalState(
@@ -44,6 +47,7 @@ class ProductArrivalState {
       productArrivalEx: productArrivalEx ?? this.productArrivalEx,
       message: message ?? this.message,
       newPackages: newPackages ?? this.newPackages,
+      newUnloadPackages: newUnloadPackages ?? this.newUnloadPackages,
       scanned: scanned ?? this.scanned
     );
   }
