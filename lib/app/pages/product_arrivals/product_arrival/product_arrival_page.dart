@@ -196,7 +196,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           ]
         ),
         ExpansionTile(
-          initiallyExpanded: true,
+          initiallyExpanded: vm.state.unloadStarted,
           title: const Text('Места приемки', style: Style.listTileTitleText),
           tilePadding: const EdgeInsets.symmetric(horizontal: 8),
           children: [
