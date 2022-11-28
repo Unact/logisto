@@ -75,7 +75,7 @@ class ApiProductArrival {
       return ProductArrivalUnloadPackage(
         id: e.id,
         productArrivalId: id,
-        amount: e.id,
+        amount: e.amount,
         typeName: e.typeName
       );
     }).toList();

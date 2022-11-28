@@ -142,6 +142,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
       );
 
       await app.dataStore.productArrivalsDao.clearProductArrivalNewPackages();
+      await app.dataStore.productArrivalsDao.clearProductArrivalNewUnloadPackages();
       await _saveProductArrival(newApiProductArrival);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

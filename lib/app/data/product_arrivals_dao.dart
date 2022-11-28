@@ -86,6 +86,13 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     return into(productArrivalPackageLines).insertOnConflictUpdate(productArrivalPackageLine);
   }
 
+  Future<int> upsertProductArrivalUnloadPackage(
+    int id,
+    ProductArrivalUnloadPackagesCompanion productArrivalUnloadPackage
+  ) {
+    return into(productArrivalUnloadPackages).insertOnConflictUpdate(productArrivalUnloadPackage);
+  }
+
   Future<void> updateProductArrivalEx(ProductArrivalEx productArrivalEx) async {
     await (delete(productArrivals)..where((tbl) => tbl.id.equals(productArrivalEx.productArrival.id))).go();
     await upsertProductArrival(productArrivalEx.productArrival.id, productArrivalEx.productArrival.toCompanion(false));
@@ -97,6 +104,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
       productArrivalEx.packages,
       (e) => upsertProductArrivalPackage(e.package.id, e.package.toCompanion(false))
     );
+    await Future.forEach<ProductArrivalUnloadPackage>(
+      productArrivalEx.unloadPackages,
+      (e) => upsertProductArrivalUnloadPackage(e.id, e.toCompanion(false))
+    );
   }
 
   Future<void> clearProductArrivalNewPackages() async {
@@ -105,6 +116,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
 
   Future<void> clearProductArrivalPackageNewLines() async {
     await delete(productArrivalPackageNewLines).go();
+  }
+
+  Future<void> clearProductArrivalNewUnloadPackages() async {
+    await delete(productArrivalNewUnloadPackages).go();
   }
 
   Future<List<ProductArrivalPackageType>> getProductArrivalPackageTypes() async {
