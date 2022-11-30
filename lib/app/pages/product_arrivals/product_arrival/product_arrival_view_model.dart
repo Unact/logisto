@@ -29,11 +29,11 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     ));
   }
 
-  Future<void> startUnload() async {
+  Future<void> startUnload(String storageUnloadPointIdStr) async {
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _startUnload(state.productArrivalEx);
+      await _startUnload(state.productArrivalEx, int.parse(storageUnloadPointIdStr));
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
     } on AppError catch(e) {
@@ -105,17 +105,21 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
 
   void markScanned(String number) {
     if (number != state.productArrival.number) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.scanFailed, message: 'Отсканирована другая приемка'));
+      emit(state.copyWith(
+        status: ProductArrivalStateStatus.productArrivalScanFailed,
+        message: 'Отсканирована другая приемка'
+      ));
       return;
     }
 
-    emit(state.copyWith(scanned: true, status: ProductArrivalStateStatus.scanSuccess));
+    emit(state.copyWith(scanned: true, status: ProductArrivalStateStatus.productArrivalScanSuccess));
   }
 
-  Future<void> _startUnload(ProductArrivalEx productArrivalEx) async {
+  Future<void> _startUnload(ProductArrivalEx productArrivalEx, int storageUnloadPointId) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginUnload(
-        id: productArrivalEx.productArrival.id
+        id: productArrivalEx.productArrival.id,
+        storageUnloadPointId: storageUnloadPointId
       );
 
       await _saveProductArrival(newApiProductArrival);

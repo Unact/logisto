@@ -192,12 +192,14 @@ class Api {
   }
 
   Future<ApiProductArrival> productArrivalsBeginUnload({
-    required int id
+    required int id,
+    required int storageUnloadPointId
   }) async {
     final productArrivalData = await _sendRequest((dio) => dio.post(
       'v1/logisto/product_arrivals/begin_unload',
       data: {
-        'id': id
+        'id': id,
+        'storageUnloadPointId': storageUnloadPointId
       }
     ));
 

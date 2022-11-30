@@ -91,7 +91,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     );
   }
 
-  Future<void> showQRScan() async {
+  Future<void> showStorageUnloadPointQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     String? result = await Navigator.push<String>(
@@ -104,10 +104,33 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
             List<String> qrCodeData = code.split(' ');
             String version = qrCodeData[0];
 
-            if (version == Strings.oldQRCodeVersion) return Navigator.of(context).pop(qrCodeData[1]);
-            if (version == Strings.newQRCodeVersion && qrCodeData[3] == QRTypes.productArrival.typeName) {
-              return Navigator.of(context).pop(qrCodeData[4]);
-            }
+            if (version != Strings.newQRCodeVersion) return;
+            if (qrCodeData[3] == QRTypes.storageUnloadPoint.typeName) return Navigator.of(context).pop(qrCodeData[1]);
+          }
+        )
+      )
+    );
+
+    if (result == null) return;
+
+    vm.startUnload(result);
+  }
+
+  Future<void> showProductArrivalQRScan() async {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    String? result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => ScanView(
+          child: Container(),
+          onRead: (String code) {
+            List<String> qrCodeData = code.split(' ');
+            String version = qrCodeData[0];
+
+            if (version != Strings.newQRCodeVersion) return;
+            if (qrCodeData[3] == QRTypes.productArrival.typeName) return Navigator.of(context).pop(qrCodeData[4]);
           }
         )
       )
@@ -140,7 +163,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           case ProductArrivalStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case ProductArrivalStateStatus.scanFailed:
+          case ProductArrivalStateStatus.productArrivalScanFailed:
             showMessage(state.message);
             break;
           case ProductArrivalStateStatus.success:
@@ -218,7 +241,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     if (!vm.state.scanned) {
       return IconButton(
         icon: const Icon(Icons.qr_code),
-        onPressed: showQRScan,
+        onPressed: showProductArrivalQRScan,
         constraints: const BoxConstraints(),
         tooltip: 'Начать разгрузку',
         padding: EdgeInsets.zero
@@ -227,7 +250,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
     return IconButton(
       icon: const Icon(Icons.start),
-      onPressed: vm.startUnload,
+      onPressed: showStorageUnloadPointQRScan,
       constraints: const BoxConstraints(),
       tooltip: 'Начать разгрузку',
       padding: EdgeInsets.zero

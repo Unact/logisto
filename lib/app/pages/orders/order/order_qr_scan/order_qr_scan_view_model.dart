@@ -24,8 +24,6 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
     List<String> qrCodeData = qrCode.split(' ');
     String version = qrCodeData[0];
 
-    if (version == Strings.oldQRCodeVersion) return await _processQR(qrCodeData[1], int.parse(qrCodeData[2]));
-
     if (version != Strings.newQRCodeVersion) {
       emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'Считан не поддерживаемый QR код'));
       return;
