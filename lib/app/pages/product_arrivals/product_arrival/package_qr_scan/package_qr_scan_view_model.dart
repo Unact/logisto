@@ -16,7 +16,7 @@ class PackageQRScanViewModel extends PageViewModel<PackageQRScanState, PackageQR
     List<String> qrCodeData = qrCode.split(' ');
     String version = qrCodeData[0];
 
-    if (version != Strings.newQRCodeVersion) {
+    if (version != Strings.qrCodeVersion) {
       emit(state.copyWith(status: PackageQRScanStateStatus.failure, message: 'Считан не поддерживаемый QR код'));
       return;
     }

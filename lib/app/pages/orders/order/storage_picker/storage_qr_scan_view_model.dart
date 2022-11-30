@@ -28,7 +28,7 @@ class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQR
 
     String version = qrCodeData[0];
 
-    if (version != Strings.newQRCodeVersion) {
+    if (version != Strings.qrCodeVersion) {
       emit(state.copyWith(status: StorageQRScanStateStatus.failure, message: 'Считан не поддерживаемый QR код'));
       return;
     }

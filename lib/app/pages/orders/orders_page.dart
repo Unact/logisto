@@ -99,10 +99,8 @@ class _OrdersViewState extends State<_OrdersView> {
             List<String> qrCodeData = code.split(' ');
             String version = qrCodeData[0];
 
-            if (version == Strings.oldQRCodeVersion) return Navigator.of(context).pop(qrCodeData[1]);
-            if (version == Strings.newQRCodeVersion && qrCodeData[3] == QRTypes.order.typeName) {
-              return Navigator.of(context).pop(qrCodeData[4]);
-            }
+            if (version != Strings.qrCodeVersion) return;
+            if (qrCodeData[3] == QRTypes.order.typeName) return Navigator.of(context).pop(qrCodeData[4]);
           }
         )
       )

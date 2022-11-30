@@ -6,8 +6,8 @@ enum ProductArrivalStateStatus {
   inProgress,
   success,
   failure,
-  scanSuccess,
-  scanFailed
+  productArrivalScanSuccess,
+  productArrivalScanFailed
 }
 
 class ProductArrivalState {
