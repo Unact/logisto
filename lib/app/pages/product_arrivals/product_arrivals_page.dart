@@ -99,7 +99,7 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
             List<String> qrCodeData = code.split(' ');
             String version = qrCodeData[0];
 
-            if (version != Strings.newQRCodeVersion) return;
+            if (version != Strings.qrCodeVersion) return;
             if (qrCodeData[3] == QRTypes.productArrival.typeName) return Navigator.of(context).pop(qrCodeData[4]);
           }
         )
