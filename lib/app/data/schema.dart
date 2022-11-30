@@ -30,6 +30,7 @@ class ProductArrivals extends Table {
   IntColumn get storageId => integer().nullable().references(Storages, #id)();
   TextColumn get storeName => text()();
   TextColumn get sellerName => text()();
+  TextColumn get statusName => text()();
 }
 
 class ProductArrivalPackages extends Table {

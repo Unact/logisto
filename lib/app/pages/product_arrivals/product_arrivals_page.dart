@@ -184,23 +184,12 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
     );
   }
 
-  String productArrivalStatus(ProductArrivalEx productArrivalEx) {
-    ProductArrival productArrival = productArrivalEx.productArrival;
-
-    if (productArrival.unloadStart == null) return 'Новая';
-    if (productArrival.unloadStart != null && productArrival.unloadEnd == null) return 'Начата разгрузка';
-    if (productArrivalEx.packages.any((el) => el.package.acceptEnd == null)) return 'Идет приемка';
-    if (productArrivalEx.packages.every((el) => el.package.acceptEnd != null)) return 'Завершена приемка';
-
-    return '';
-  }
-
   Widget _productArrivalTile(BuildContext context, ProductArrivalEx productArrivalEx) {
     ProductArrival productArrival = productArrivalEx.productArrival;
 
     return ListTile(
       title: Text('Разгрузка ${productArrival.number}'),
-      subtitle: Text(productArrivalStatus(productArrivalEx)),
+      subtitle: Text(productArrival.statusName),
       onTap: () {
         Navigator.push(
           context,

@@ -163,6 +163,10 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
       padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
       children: [
         InfoRow(
+          title: const Text('Статус'),
+          trailing: Text(vm.state.productArrival.statusName)
+        ),
+        InfoRow(
           title: const Text('Дата'),
           trailing: Text(Format.dateStr(vm.state.productArrival.arrivalDate))
         ),

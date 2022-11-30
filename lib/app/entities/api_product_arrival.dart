@@ -11,6 +11,7 @@ class ApiProductArrival {
   final ApiStorage storage;
   final String storeName;
   final String sellerName;
+  final String statusName;
 
   const ApiProductArrival({
     required this.id,
@@ -22,7 +23,8 @@ class ApiProductArrival {
     required this.unloadPackages,
     required this.storage,
     required this.storeName,
-    required this.sellerName
+    required this.sellerName,
+    required this.statusName
   });
 
   factory ApiProductArrival.fromJson(dynamic json) {
@@ -38,7 +40,8 @@ class ApiProductArrival {
       ).toList(),
       storage: ApiStorage.fromJson(json['storage']),
       storeName: json['storeName'],
-      sellerName: json['sellerName']
+      sellerName: json['sellerName'],
+      statusName: json['statusName']
     );
   }
 
@@ -51,7 +54,8 @@ class ApiProductArrival {
       unloadEnd: unloadEnd,
       storageId: storage.id,
       storeName: storeName,
-      sellerName: sellerName
+      sellerName: sellerName,
+      statusName: statusName
     );
     List<ProductArrivalPackageEx> productArrivalPackages = packages.map((e) {
       final productArrivalPackage = ProductArrivalPackage(
