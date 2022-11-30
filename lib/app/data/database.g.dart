@@ -623,6 +623,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
   final int? storageId;
   final String storeName;
   final String sellerName;
+  final String statusName;
   ProductArrival(
       {required this.id,
       required this.arrivalDate,
@@ -631,7 +632,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       this.unloadEnd,
       this.storageId,
       required this.storeName,
-      required this.sellerName});
+      required this.sellerName,
+      required this.statusName});
   factory ProductArrival.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return ProductArrival(
@@ -651,6 +653,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           .mapFromDatabaseResponse(data['${effectivePrefix}store_name'])!,
       sellerName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}seller_name'])!,
+      statusName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}status_name'])!,
     );
   }
   @override
@@ -670,6 +674,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
     }
     map['store_name'] = Variable<String>(storeName);
     map['seller_name'] = Variable<String>(sellerName);
+    map['status_name'] = Variable<String>(statusName);
     return map;
   }
 
@@ -689,6 +694,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           : Value(storageId),
       storeName: Value(storeName),
       sellerName: Value(sellerName),
+      statusName: Value(statusName),
     );
   }
 
@@ -704,6 +710,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       storageId: serializer.fromJson<int?>(json['storageId']),
       storeName: serializer.fromJson<String>(json['storeName']),
       sellerName: serializer.fromJson<String>(json['sellerName']),
+      statusName: serializer.fromJson<String>(json['statusName']),
     );
   }
   @override
@@ -718,6 +725,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       'storageId': serializer.toJson<int?>(storageId),
       'storeName': serializer.toJson<String>(storeName),
       'sellerName': serializer.toJson<String>(sellerName),
+      'statusName': serializer.toJson<String>(statusName),
     };
   }
 
@@ -729,7 +737,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           DateTime? unloadEnd,
           int? storageId,
           String? storeName,
-          String? sellerName}) =>
+          String? sellerName,
+          String? statusName}) =>
       ProductArrival(
         id: id ?? this.id,
         arrivalDate: arrivalDate ?? this.arrivalDate,
@@ -739,6 +748,7 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
         storageId: storageId ?? this.storageId,
         storeName: storeName ?? this.storeName,
         sellerName: sellerName ?? this.sellerName,
+        statusName: statusName ?? this.statusName,
       );
   @override
   String toString() {
@@ -750,14 +760,15 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           ..write('unloadEnd: $unloadEnd, ')
           ..write('storageId: $storageId, ')
           ..write('storeName: $storeName, ')
-          ..write('sellerName: $sellerName')
+          ..write('sellerName: $sellerName, ')
+          ..write('statusName: $statusName')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, arrivalDate, number, unloadStart,
-      unloadEnd, storageId, storeName, sellerName);
+      unloadEnd, storageId, storeName, sellerName, statusName);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -769,7 +780,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           other.unloadEnd == this.unloadEnd &&
           other.storageId == this.storageId &&
           other.storeName == this.storeName &&
-          other.sellerName == this.sellerName);
+          other.sellerName == this.sellerName &&
+          other.statusName == this.statusName);
 }
 
 class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
@@ -781,6 +793,7 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
   final Value<int?> storageId;
   final Value<String> storeName;
   final Value<String> sellerName;
+  final Value<String> statusName;
   const ProductArrivalsCompanion({
     this.id = const Value.absent(),
     this.arrivalDate = const Value.absent(),
@@ -790,6 +803,7 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     this.storageId = const Value.absent(),
     this.storeName = const Value.absent(),
     this.sellerName = const Value.absent(),
+    this.statusName = const Value.absent(),
   });
   ProductArrivalsCompanion.insert({
     this.id = const Value.absent(),
@@ -800,10 +814,12 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     this.storageId = const Value.absent(),
     required String storeName,
     required String sellerName,
+    required String statusName,
   })  : arrivalDate = Value(arrivalDate),
         number = Value(number),
         storeName = Value(storeName),
-        sellerName = Value(sellerName);
+        sellerName = Value(sellerName),
+        statusName = Value(statusName);
   static Insertable<ProductArrival> custom({
     Expression<int>? id,
     Expression<DateTime>? arrivalDate,
@@ -813,6 +829,7 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     Expression<int?>? storageId,
     Expression<String>? storeName,
     Expression<String>? sellerName,
+    Expression<String>? statusName,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -823,6 +840,7 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       if (storageId != null) 'storage_id': storageId,
       if (storeName != null) 'store_name': storeName,
       if (sellerName != null) 'seller_name': sellerName,
+      if (statusName != null) 'status_name': statusName,
     });
   }
 
@@ -834,7 +852,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       Value<DateTime?>? unloadEnd,
       Value<int?>? storageId,
       Value<String>? storeName,
-      Value<String>? sellerName}) {
+      Value<String>? sellerName,
+      Value<String>? statusName}) {
     return ProductArrivalsCompanion(
       id: id ?? this.id,
       arrivalDate: arrivalDate ?? this.arrivalDate,
@@ -844,6 +863,7 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       storageId: storageId ?? this.storageId,
       storeName: storeName ?? this.storeName,
       sellerName: sellerName ?? this.sellerName,
+      statusName: statusName ?? this.statusName,
     );
   }
 
@@ -874,6 +894,9 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     if (sellerName.present) {
       map['seller_name'] = Variable<String>(sellerName.value);
     }
+    if (statusName.present) {
+      map['status_name'] = Variable<String>(statusName.value);
+    }
     return map;
   }
 
@@ -887,7 +910,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
           ..write('unloadEnd: $unloadEnd, ')
           ..write('storageId: $storageId, ')
           ..write('storeName: $storeName, ')
-          ..write('sellerName: $sellerName')
+          ..write('sellerName: $sellerName, ')
+          ..write('statusName: $statusName')
           ..write(')'))
         .toString();
   }
@@ -945,6 +969,11 @@ class $ProductArrivalsTable extends ProductArrivals
   late final GeneratedColumn<String?> sellerName = GeneratedColumn<String?>(
       'seller_name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _statusNameMeta = const VerificationMeta('statusName');
+  @override
+  late final GeneratedColumn<String?> statusName = GeneratedColumn<String?>(
+      'status_name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -954,7 +983,8 @@ class $ProductArrivalsTable extends ProductArrivals
         unloadEnd,
         storageId,
         storeName,
-        sellerName
+        sellerName,
+        statusName
       ];
   @override
   String get aliasedName => _alias ?? 'product_arrivals';
@@ -1009,6 +1039,14 @@ class $ProductArrivalsTable extends ProductArrivals
               data['seller_name']!, _sellerNameMeta));
     } else if (isInserting) {
       context.missing(_sellerNameMeta);
+    }
+    if (data.containsKey('status_name')) {
+      context.handle(
+          _statusNameMeta,
+          statusName.isAcceptableOrUnknown(
+              data['status_name']!, _statusNameMeta));
+    } else if (isInserting) {
+      context.missing(_statusNameMeta);
     }
     return context;
   }
