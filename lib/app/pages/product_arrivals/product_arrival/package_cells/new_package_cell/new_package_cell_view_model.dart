@@ -16,7 +16,7 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
   Future<void> loadData() async {
     List<ApiProduct> products = state.packageEx.packageLines.map(
       (e) => ApiProduct(id: e.productId, name: e.productName)
-    ).toList();
+    ).toSet().toList();
 
     emit(state.copyWith(status: NewPackageCellStateStatus.dataLoaded, packageLineProducts: products));
   }

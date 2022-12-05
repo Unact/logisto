@@ -26,8 +26,9 @@ class SimpleQRScanDialog {
             List<String> qrCodeData = code.split(' ');
             String version = qrCodeData[0];
 
-            if (version != Strings.qrCodeVersion) return;
-            if (qrCodeData[3] == qrType.typeName) return Navigator.of(context).pop(qrCodeData);
+            if (version != Strings.qrCodeVersion || qrCodeData[3] != qrType.typeName) return;
+
+            return Navigator.of(context).pop(qrCodeData);
           }
         )
       )
