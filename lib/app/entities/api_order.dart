@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiOrder {
+class ApiOrder extends Equatable {
   final int id;
   final String? courierName;
   final String trackingNumber;
@@ -125,4 +125,31 @@ class ApiOrder {
 
     return OrderEx(order, orderLines, storageFromOrder, storageToOrder);
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    courierName,
+    trackingNumber,
+    number,
+    deliveryDate,
+    deliveryDateTimeFrom,
+    deliveryDateTimeTo,
+    statusName,
+    packages,
+    weight,
+    volume,
+    deliveryAddressName,
+    pickupAddressName,
+    storageIssued,
+    storageAccepted,
+    firstMovementDate,
+    delivered,
+    paidSum,
+    paySum,
+    documentsReturn,
+    lines,
+    storageFrom,
+    storageTo
+  ];
 }

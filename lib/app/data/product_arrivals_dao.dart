@@ -8,6 +8,7 @@ part of 'database.dart';
     ProductArrivalPackageLines,
     ProductArrivalPackageTypes,
     ProductArrivalPackageNewLines,
+    ProductArrivalPackageNewCells,
     ProductArrivalNewPackages,
     ProductArrivalNewUnloadPackages
   ],
@@ -58,6 +59,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await into(productArrivalPackageNewLines).insert(newLine);
   }
 
+  Future<void> addProductArrivalPackageNewCell(ProductArrivalPackageNewCellsCompanion newCell) async {
+    await into(productArrivalPackageNewCells).insert(newCell);
+  }
+
   Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) async {
     await into(productArrivalNewUnloadPackages).insert(newUnloadPackage);
   }
@@ -68,6 +73,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
 
   Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLine newLine) async {
     await (delete(productArrivalPackageNewLines)..where((e) => e.id.equals(newLine.id))).go();
+  }
+
+  Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCell newCell) async {
+    await (delete(productArrivalPackageNewCells)..where((e) => e.id.equals(newCell.id))).go();
   }
 
   Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) async {
@@ -118,6 +127,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await delete(productArrivalPackageNewLines).go();
   }
 
+  Future<void> clearProductArrivalPackageNewCells() async {
+    await delete(productArrivalPackageNewCells).go();
+  }
+
   Future<void> clearProductArrivalNewUnloadPackages() async {
     await delete(productArrivalNewUnloadPackages).go();
   }
@@ -136,6 +149,13 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
   Future<List<ProductArrivalPackageNewLine>> getProductArrivalPackageNewLines(int productArrivalPackageId) async {
     return (
       select(productArrivalPackageNewLines)
+      ..where((e)=> e.productArrivalPackageId.equals(productArrivalPackageId))
+    ).get();
+  }
+
+  Future<List<ProductArrivalPackageNewCell>> getProductArrivalPackageNewCells(int productArrivalPackageId) async {
+    return (
+      select(productArrivalPackageNewCells)
       ..where((e)=> e.productArrivalPackageId.equals(productArrivalPackageId))
     ).get();
   }

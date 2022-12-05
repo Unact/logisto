@@ -26,6 +26,7 @@ part 'users_dao.dart';
     ProductArrivalPackageLines,
     ProductArrivalNewPackages,
     ProductArrivalPackageNewLines,
+    ProductArrivalPackageNewCells,
     ProductArrivalNewUnloadPackages,
     Orders,
     OrderLines,
@@ -91,7 +92,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

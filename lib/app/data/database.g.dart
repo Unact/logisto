@@ -1073,13 +1073,15 @@ class ProductArrivalPackage extends DataClass
   final String typeName;
   final DateTime? acceptStart;
   final DateTime? acceptEnd;
+  final DateTime? placed;
   ProductArrivalPackage(
       {required this.id,
       required this.productArrivalId,
       required this.number,
       required this.typeName,
       this.acceptStart,
-      this.acceptEnd});
+      this.acceptEnd,
+      this.placed});
   factory ProductArrivalPackage.fromData(Map<String, dynamic> data,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1096,6 +1098,8 @@ class ProductArrivalPackage extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}accept_start']),
       acceptEnd: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}accept_end']),
+      placed: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}placed']),
     );
   }
   @override
@@ -1110,6 +1114,9 @@ class ProductArrivalPackage extends DataClass
     }
     if (!nullToAbsent || acceptEnd != null) {
       map['accept_end'] = Variable<DateTime?>(acceptEnd);
+    }
+    if (!nullToAbsent || placed != null) {
+      map['placed'] = Variable<DateTime?>(placed);
     }
     return map;
   }
@@ -1126,6 +1133,8 @@ class ProductArrivalPackage extends DataClass
       acceptEnd: acceptEnd == null && nullToAbsent
           ? const Value.absent()
           : Value(acceptEnd),
+      placed:
+          placed == null && nullToAbsent ? const Value.absent() : Value(placed),
     );
   }
 
@@ -1139,6 +1148,7 @@ class ProductArrivalPackage extends DataClass
       typeName: serializer.fromJson<String>(json['typeName']),
       acceptStart: serializer.fromJson<DateTime?>(json['acceptStart']),
       acceptEnd: serializer.fromJson<DateTime?>(json['acceptEnd']),
+      placed: serializer.fromJson<DateTime?>(json['placed']),
     );
   }
   @override
@@ -1151,6 +1161,7 @@ class ProductArrivalPackage extends DataClass
       'typeName': serializer.toJson<String>(typeName),
       'acceptStart': serializer.toJson<DateTime?>(acceptStart),
       'acceptEnd': serializer.toJson<DateTime?>(acceptEnd),
+      'placed': serializer.toJson<DateTime?>(placed),
     };
   }
 
@@ -1160,7 +1171,8 @@ class ProductArrivalPackage extends DataClass
           String? number,
           String? typeName,
           DateTime? acceptStart,
-          DateTime? acceptEnd}) =>
+          DateTime? acceptEnd,
+          DateTime? placed}) =>
       ProductArrivalPackage(
         id: id ?? this.id,
         productArrivalId: productArrivalId ?? this.productArrivalId,
@@ -1168,6 +1180,7 @@ class ProductArrivalPackage extends DataClass
         typeName: typeName ?? this.typeName,
         acceptStart: acceptStart ?? this.acceptStart,
         acceptEnd: acceptEnd ?? this.acceptEnd,
+        placed: placed ?? this.placed,
       );
   @override
   String toString() {
@@ -1177,14 +1190,15 @@ class ProductArrivalPackage extends DataClass
           ..write('number: $number, ')
           ..write('typeName: $typeName, ')
           ..write('acceptStart: $acceptStart, ')
-          ..write('acceptEnd: $acceptEnd')
+          ..write('acceptEnd: $acceptEnd, ')
+          ..write('placed: $placed')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(
-      id, productArrivalId, number, typeName, acceptStart, acceptEnd);
+      id, productArrivalId, number, typeName, acceptStart, acceptEnd, placed);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1194,7 +1208,8 @@ class ProductArrivalPackage extends DataClass
           other.number == this.number &&
           other.typeName == this.typeName &&
           other.acceptStart == this.acceptStart &&
-          other.acceptEnd == this.acceptEnd);
+          other.acceptEnd == this.acceptEnd &&
+          other.placed == this.placed);
 }
 
 class ProductArrivalPackagesCompanion
@@ -1205,6 +1220,7 @@ class ProductArrivalPackagesCompanion
   final Value<String> typeName;
   final Value<DateTime?> acceptStart;
   final Value<DateTime?> acceptEnd;
+  final Value<DateTime?> placed;
   const ProductArrivalPackagesCompanion({
     this.id = const Value.absent(),
     this.productArrivalId = const Value.absent(),
@@ -1212,6 +1228,7 @@ class ProductArrivalPackagesCompanion
     this.typeName = const Value.absent(),
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
+    this.placed = const Value.absent(),
   });
   ProductArrivalPackagesCompanion.insert({
     this.id = const Value.absent(),
@@ -1220,6 +1237,7 @@ class ProductArrivalPackagesCompanion
     required String typeName,
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
+    this.placed = const Value.absent(),
   })  : productArrivalId = Value(productArrivalId),
         number = Value(number),
         typeName = Value(typeName);
@@ -1230,6 +1248,7 @@ class ProductArrivalPackagesCompanion
     Expression<String>? typeName,
     Expression<DateTime?>? acceptStart,
     Expression<DateTime?>? acceptEnd,
+    Expression<DateTime?>? placed,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1238,6 +1257,7 @@ class ProductArrivalPackagesCompanion
       if (typeName != null) 'type_name': typeName,
       if (acceptStart != null) 'accept_start': acceptStart,
       if (acceptEnd != null) 'accept_end': acceptEnd,
+      if (placed != null) 'placed': placed,
     });
   }
 
@@ -1247,7 +1267,8 @@ class ProductArrivalPackagesCompanion
       Value<String>? number,
       Value<String>? typeName,
       Value<DateTime?>? acceptStart,
-      Value<DateTime?>? acceptEnd}) {
+      Value<DateTime?>? acceptEnd,
+      Value<DateTime?>? placed}) {
     return ProductArrivalPackagesCompanion(
       id: id ?? this.id,
       productArrivalId: productArrivalId ?? this.productArrivalId,
@@ -1255,6 +1276,7 @@ class ProductArrivalPackagesCompanion
       typeName: typeName ?? this.typeName,
       acceptStart: acceptStart ?? this.acceptStart,
       acceptEnd: acceptEnd ?? this.acceptEnd,
+      placed: placed ?? this.placed,
     );
   }
 
@@ -1279,6 +1301,9 @@ class ProductArrivalPackagesCompanion
     if (acceptEnd.present) {
       map['accept_end'] = Variable<DateTime?>(acceptEnd.value);
     }
+    if (placed.present) {
+      map['placed'] = Variable<DateTime?>(placed.value);
+    }
     return map;
   }
 
@@ -1290,7 +1315,8 @@ class ProductArrivalPackagesCompanion
           ..write('number: $number, ')
           ..write('typeName: $typeName, ')
           ..write('acceptStart: $acceptStart, ')
-          ..write('acceptEnd: $acceptEnd')
+          ..write('acceptEnd: $acceptEnd, ')
+          ..write('placed: $placed')
           ..write(')'))
         .toString();
   }
@@ -1338,9 +1364,14 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
   late final GeneratedColumn<DateTime?> acceptEnd = GeneratedColumn<DateTime?>(
       'accept_end', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _placedMeta = const VerificationMeta('placed');
+  @override
+  late final GeneratedColumn<DateTime?> placed = GeneratedColumn<DateTime?>(
+      'placed', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, productArrivalId, number, typeName, acceptStart, acceptEnd];
+      [id, productArrivalId, number, typeName, acceptStart, acceptEnd, placed];
   @override
   String get aliasedName => _alias ?? 'product_arrival_packages';
   @override
@@ -1383,6 +1414,10 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
     if (data.containsKey('accept_end')) {
       context.handle(_acceptEndMeta,
           acceptEnd.isAcceptableOrUnknown(data['accept_end']!, _acceptEndMeta));
+    }
+    if (data.containsKey('placed')) {
+      context.handle(_placedMeta,
+          placed.isAcceptableOrUnknown(data['placed']!, _placedMeta));
     }
     return context;
   }
@@ -1846,11 +1881,13 @@ class ProductArrivalPackageLine extends DataClass
     implements Insertable<ProductArrivalPackageLine> {
   final int id;
   final int productArrivalPackageId;
+  final int productId;
   final String productName;
   final int amount;
   ProductArrivalPackageLine(
       {required this.id,
       required this.productArrivalPackageId,
+      required this.productId,
       required this.productName,
       required this.amount});
   factory ProductArrivalPackageLine.fromData(Map<String, dynamic> data,
@@ -1861,6 +1898,8 @@ class ProductArrivalPackageLine extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       productArrivalPackageId: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}product_arrival_package_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
       productName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
       amount: const IntType()
@@ -1872,6 +1911,7 @@ class ProductArrivalPackageLine extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
+    map['product_id'] = Variable<int>(productId);
     map['product_name'] = Variable<String>(productName);
     map['amount'] = Variable<int>(amount);
     return map;
@@ -1881,6 +1921,7 @@ class ProductArrivalPackageLine extends DataClass
     return ProductArrivalPackageLinesCompanion(
       id: Value(id),
       productArrivalPackageId: Value(productArrivalPackageId),
+      productId: Value(productId),
       productName: Value(productName),
       amount: Value(amount),
     );
@@ -1893,6 +1934,7 @@ class ProductArrivalPackageLine extends DataClass
       id: serializer.fromJson<int>(json['id']),
       productArrivalPackageId:
           serializer.fromJson<int>(json['productArrivalPackageId']),
+      productId: serializer.fromJson<int>(json['productId']),
       productName: serializer.fromJson<String>(json['productName']),
       amount: serializer.fromJson<int>(json['amount']),
     );
@@ -1904,6 +1946,7 @@ class ProductArrivalPackageLine extends DataClass
       'id': serializer.toJson<int>(id),
       'productArrivalPackageId':
           serializer.toJson<int>(productArrivalPackageId),
+      'productId': serializer.toJson<int>(productId),
       'productName': serializer.toJson<String>(productName),
       'amount': serializer.toJson<int>(amount),
     };
@@ -1912,12 +1955,14 @@ class ProductArrivalPackageLine extends DataClass
   ProductArrivalPackageLine copyWith(
           {int? id,
           int? productArrivalPackageId,
+          int? productId,
           String? productName,
           int? amount}) =>
       ProductArrivalPackageLine(
         id: id ?? this.id,
         productArrivalPackageId:
             productArrivalPackageId ?? this.productArrivalPackageId,
+        productId: productId ?? this.productId,
         productName: productName ?? this.productName,
         amount: amount ?? this.amount,
       );
@@ -1926,6 +1971,7 @@ class ProductArrivalPackageLine extends DataClass
     return (StringBuffer('ProductArrivalPackageLine(')
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
           ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
@@ -1934,13 +1980,14 @@ class ProductArrivalPackageLine extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, productArrivalPackageId, productName, amount);
+      Object.hash(id, productArrivalPackageId, productId, productName, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductArrivalPackageLine &&
           other.id == this.id &&
           other.productArrivalPackageId == this.productArrivalPackageId &&
+          other.productId == this.productId &&
           other.productName == this.productName &&
           other.amount == this.amount);
 }
@@ -1949,25 +1996,30 @@ class ProductArrivalPackageLinesCompanion
     extends UpdateCompanion<ProductArrivalPackageLine> {
   final Value<int> id;
   final Value<int> productArrivalPackageId;
+  final Value<int> productId;
   final Value<String> productName;
   final Value<int> amount;
   const ProductArrivalPackageLinesCompanion({
     this.id = const Value.absent(),
     this.productArrivalPackageId = const Value.absent(),
+    this.productId = const Value.absent(),
     this.productName = const Value.absent(),
     this.amount = const Value.absent(),
   });
   ProductArrivalPackageLinesCompanion.insert({
     this.id = const Value.absent(),
     required int productArrivalPackageId,
+    required int productId,
     required String productName,
     required int amount,
   })  : productArrivalPackageId = Value(productArrivalPackageId),
+        productId = Value(productId),
         productName = Value(productName),
         amount = Value(amount);
   static Insertable<ProductArrivalPackageLine> custom({
     Expression<int>? id,
     Expression<int>? productArrivalPackageId,
+    Expression<int>? productId,
     Expression<String>? productName,
     Expression<int>? amount,
   }) {
@@ -1975,6 +2027,7 @@ class ProductArrivalPackageLinesCompanion
       if (id != null) 'id': id,
       if (productArrivalPackageId != null)
         'product_arrival_package_id': productArrivalPackageId,
+      if (productId != null) 'product_id': productId,
       if (productName != null) 'product_name': productName,
       if (amount != null) 'amount': amount,
     });
@@ -1983,12 +2036,14 @@ class ProductArrivalPackageLinesCompanion
   ProductArrivalPackageLinesCompanion copyWith(
       {Value<int>? id,
       Value<int>? productArrivalPackageId,
+      Value<int>? productId,
       Value<String>? productName,
       Value<int>? amount}) {
     return ProductArrivalPackageLinesCompanion(
       id: id ?? this.id,
       productArrivalPackageId:
           productArrivalPackageId ?? this.productArrivalPackageId,
+      productId: productId ?? this.productId,
       productName: productName ?? this.productName,
       amount: amount ?? this.amount,
     );
@@ -2004,6 +2059,9 @@ class ProductArrivalPackageLinesCompanion
       map['product_arrival_package_id'] =
           Variable<int>(productArrivalPackageId.value);
     }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
     if (productName.present) {
       map['product_name'] = Variable<String>(productName.value);
     }
@@ -2018,6 +2076,7 @@ class ProductArrivalPackageLinesCompanion
     return (StringBuffer('ProductArrivalPackageLinesCompanion(')
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
           ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
@@ -2048,6 +2107,11 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
           requiredDuringInsert: true,
           defaultConstraints:
               'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
   final VerificationMeta _productNameMeta =
       const VerificationMeta('productName');
   @override
@@ -2061,7 +2125,7 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
       type: const IntType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, productArrivalPackageId, productName, amount];
+      [id, productArrivalPackageId, productId, productName, amount];
   @override
   String get aliasedName => _alias ?? 'product_arrival_package_lines';
   @override
@@ -2083,6 +2147,12 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
               _productArrivalPackageIdMeta));
     } else if (isInserting) {
       context.missing(_productArrivalPackageIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
     }
     if (data.containsKey('product_name')) {
       context.handle(
@@ -2720,6 +2790,399 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
   @override
   $ProductArrivalPackageNewLinesTable createAlias(String alias) {
     return $ProductArrivalPackageNewLinesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductArrivalPackageNewCell extends DataClass
+    implements Insertable<ProductArrivalPackageNewCell> {
+  final int id;
+  final int productArrivalPackageId;
+  final int productId;
+  final String productName;
+  final int storageCellId;
+  final String storageCellName;
+  final int amount;
+  ProductArrivalPackageNewCell(
+      {required this.id,
+      required this.productArrivalPackageId,
+      required this.productId,
+      required this.productName,
+      required this.storageCellId,
+      required this.storageCellName,
+      required this.amount});
+  factory ProductArrivalPackageNewCell.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalPackageNewCell(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalPackageId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_package_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      productName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
+      storageCellId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}storage_cell_id'])!,
+      storageCellName: const StringType().mapFromDatabaseResponse(
+          data['${effectivePrefix}storage_cell_name'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
+    map['product_id'] = Variable<int>(productId);
+    map['product_name'] = Variable<String>(productName);
+    map['storage_cell_id'] = Variable<int>(storageCellId);
+    map['storage_cell_name'] = Variable<String>(storageCellName);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ProductArrivalPackageNewCellsCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalPackageNewCellsCompanion(
+      id: Value(id),
+      productArrivalPackageId: Value(productArrivalPackageId),
+      productId: Value(productId),
+      productName: Value(productName),
+      storageCellId: Value(storageCellId),
+      storageCellName: Value(storageCellName),
+      amount: Value(amount),
+    );
+  }
+
+  factory ProductArrivalPackageNewCell.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalPackageNewCell(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalPackageId:
+          serializer.fromJson<int>(json['productArrivalPackageId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      storageCellId: serializer.fromJson<int>(json['storageCellId']),
+      storageCellName: serializer.fromJson<String>(json['storageCellName']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalPackageId':
+          serializer.toJson<int>(productArrivalPackageId),
+      'productId': serializer.toJson<int>(productId),
+      'productName': serializer.toJson<String>(productName),
+      'storageCellId': serializer.toJson<int>(storageCellId),
+      'storageCellName': serializer.toJson<String>(storageCellName),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ProductArrivalPackageNewCell copyWith(
+          {int? id,
+          int? productArrivalPackageId,
+          int? productId,
+          String? productName,
+          int? storageCellId,
+          String? storageCellName,
+          int? amount}) =>
+      ProductArrivalPackageNewCell(
+        id: id ?? this.id,
+        productArrivalPackageId:
+            productArrivalPackageId ?? this.productArrivalPackageId,
+        productId: productId ?? this.productId,
+        productName: productName ?? this.productName,
+        storageCellId: storageCellId ?? this.storageCellId,
+        storageCellName: storageCellName ?? this.storageCellName,
+        amount: amount ?? this.amount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewCell(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('storageCellName: $storageCellName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, productArrivalPackageId, productId,
+      productName, storageCellId, storageCellName, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalPackageNewCell &&
+          other.id == this.id &&
+          other.productArrivalPackageId == this.productArrivalPackageId &&
+          other.productId == this.productId &&
+          other.productName == this.productName &&
+          other.storageCellId == this.storageCellId &&
+          other.storageCellName == this.storageCellName &&
+          other.amount == this.amount);
+}
+
+class ProductArrivalPackageNewCellsCompanion
+    extends UpdateCompanion<ProductArrivalPackageNewCell> {
+  final Value<int> id;
+  final Value<int> productArrivalPackageId;
+  final Value<int> productId;
+  final Value<String> productName;
+  final Value<int> storageCellId;
+  final Value<String> storageCellName;
+  final Value<int> amount;
+  const ProductArrivalPackageNewCellsCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalPackageId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.storageCellId = const Value.absent(),
+    this.storageCellName = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  ProductArrivalPackageNewCellsCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalPackageId,
+    required int productId,
+    required String productName,
+    required int storageCellId,
+    required String storageCellName,
+    required int amount,
+  })  : productArrivalPackageId = Value(productArrivalPackageId),
+        productId = Value(productId),
+        productName = Value(productName),
+        storageCellId = Value(storageCellId),
+        storageCellName = Value(storageCellName),
+        amount = Value(amount);
+  static Insertable<ProductArrivalPackageNewCell> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalPackageId,
+    Expression<int>? productId,
+    Expression<String>? productName,
+    Expression<int>? storageCellId,
+    Expression<String>? storageCellName,
+    Expression<int>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalPackageId != null)
+        'product_arrival_package_id': productArrivalPackageId,
+      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
+      if (storageCellId != null) 'storage_cell_id': storageCellId,
+      if (storageCellName != null) 'storage_cell_name': storageCellName,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  ProductArrivalPackageNewCellsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalPackageId,
+      Value<int>? productId,
+      Value<String>? productName,
+      Value<int>? storageCellId,
+      Value<String>? storageCellName,
+      Value<int>? amount}) {
+    return ProductArrivalPackageNewCellsCompanion(
+      id: id ?? this.id,
+      productArrivalPackageId:
+          productArrivalPackageId ?? this.productArrivalPackageId,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      storageCellId: storageCellId ?? this.storageCellId,
+      storageCellName: storageCellName ?? this.storageCellName,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalPackageId.present) {
+      map['product_arrival_package_id'] =
+          Variable<int>(productArrivalPackageId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (storageCellId.present) {
+      map['storage_cell_id'] = Variable<int>(storageCellId.value);
+    }
+    if (storageCellName.present) {
+      map['storage_cell_name'] = Variable<String>(storageCellName.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewCellsCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('storageCellName: $storageCellName, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
+    with
+        TableInfo<$ProductArrivalPackageNewCellsTable,
+            ProductArrivalPackageNewCell> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalPackageNewCellsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalPackageIdMeta =
+      const VerificationMeta('productArrivalPackageId');
+  @override
+  late final GeneratedColumn<int?> productArrivalPackageId =
+      GeneratedColumn<int?>('product_arrival_package_id', aliasedName, false,
+          type: const IntType(),
+          requiredDuringInsert: true,
+          defaultConstraints:
+              'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _productNameMeta =
+      const VerificationMeta('productName');
+  @override
+  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
+      'product_name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _storageCellIdMeta =
+      const VerificationMeta('storageCellId');
+  @override
+  late final GeneratedColumn<int?> storageCellId = GeneratedColumn<int?>(
+      'storage_cell_id', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _storageCellNameMeta =
+      const VerificationMeta('storageCellName');
+  @override
+  late final GeneratedColumn<String?> storageCellName =
+      GeneratedColumn<String?>('storage_cell_name', aliasedName, false,
+          type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        productArrivalPackageId,
+        productId,
+        productName,
+        storageCellId,
+        storageCellName,
+        amount
+      ];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_package_new_cells';
+  @override
+  String get actualTableName => 'product_arrival_package_new_cells';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductArrivalPackageNewCell> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_package_id')) {
+      context.handle(
+          _productArrivalPackageIdMeta,
+          productArrivalPackageId.isAcceptableOrUnknown(
+              data['product_arrival_package_id']!,
+              _productArrivalPackageIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalPackageIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+          _productNameMeta,
+          productName.isAcceptableOrUnknown(
+              data['product_name']!, _productNameMeta));
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('storage_cell_id')) {
+      context.handle(
+          _storageCellIdMeta,
+          storageCellId.isAcceptableOrUnknown(
+              data['storage_cell_id']!, _storageCellIdMeta));
+    } else if (isInserting) {
+      context.missing(_storageCellIdMeta);
+    }
+    if (data.containsKey('storage_cell_name')) {
+      context.handle(
+          _storageCellNameMeta,
+          storageCellName.isAcceptableOrUnknown(
+              data['storage_cell_name']!, _storageCellNameMeta));
+    } else if (isInserting) {
+      context.missing(_storageCellNameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalPackageNewCell map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return ProductArrivalPackageNewCell.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalPackageNewCellsTable createAlias(String alias) {
+    return $ProductArrivalPackageNewCellsTable(attachedDatabase, alias);
   }
 }
 
@@ -4724,6 +5187,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $ProductArrivalNewPackagesTable(this);
   late final $ProductArrivalPackageNewLinesTable productArrivalPackageNewLines =
       $ProductArrivalPackageNewLinesTable(this);
+  late final $ProductArrivalPackageNewCellsTable productArrivalPackageNewCells =
+      $ProductArrivalPackageNewCellsTable(this);
   late final $ProductArrivalNewUnloadPackagesTable
       productArrivalNewUnloadPackages =
       $ProductArrivalNewUnloadPackagesTable(this);
@@ -4751,6 +5216,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         productArrivalPackageLines,
         productArrivalNewPackages,
         productArrivalPackageNewLines,
+        productArrivalPackageNewCells,
         productArrivalNewUnloadPackages,
         orders,
         orderLines,
@@ -4779,6 +5245,8 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
       attachedDatabase.productArrivalPackageTypes;
   $ProductArrivalPackageNewLinesTable get productArrivalPackageNewLines =>
       attachedDatabase.productArrivalPackageNewLines;
+  $ProductArrivalPackageNewCellsTable get productArrivalPackageNewCells =>
+      attachedDatabase.productArrivalPackageNewCells;
   $ProductArrivalNewPackagesTable get productArrivalNewPackages =>
       attachedDatabase.productArrivalNewPackages;
   $ProductArrivalNewUnloadPackagesTable get productArrivalNewUnloadPackages =>

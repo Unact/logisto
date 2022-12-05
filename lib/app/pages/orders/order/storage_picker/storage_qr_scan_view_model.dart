@@ -33,7 +33,7 @@ class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQR
       return;
     }
 
-    if (qrCodeData[3] != QRTypes.storage.typeName) {
+    if (qrCodeData[3] != QRType.storage.typeName) {
       emit(state.copyWith(status: StorageQRScanStateStatus.failure, message: 'QR код не от склада'));
       return;
     }

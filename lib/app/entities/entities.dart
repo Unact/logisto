@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 import '/app/data/database.dart';
 import '/app/utils/parsing.dart';
 
@@ -11,6 +13,7 @@ part 'api_product_arrival_package_type.dart';
 part 'api_product_arrival_unload_package.dart';
 part 'api_product_arrival.dart';
 part 'api_product.dart';
+part 'api_storage_cell.dart';
 part 'api_storage.dart';
 part 'api_user_data.dart';
 part 'app_error.dart';

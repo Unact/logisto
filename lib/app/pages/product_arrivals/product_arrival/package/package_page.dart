@@ -13,32 +13,32 @@ import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
 import 'new_line/new_line_page.dart';
 
-part 'product_arrival_package_state.dart';
-part 'product_arrival_package_view_model.dart';
+part 'package_state.dart';
+part 'package_view_model.dart';
 
-class ProductArrivalPackagePage extends StatelessWidget {
+class PackagePage extends StatelessWidget {
   final ProductArrivalPackageEx packageEx;
 
-  ProductArrivalPackagePage({
+  PackagePage({
     required this.packageEx,
     Key? key
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProductArrivalPackageViewModel>(
-      create: (context) => ProductArrivalPackageViewModel(context, packageEx: packageEx),
-      child: _ProductArrivalPackageView(),
+    return BlocProvider<PackageViewModel>(
+      create: (context) => PackageViewModel(context, packageEx: packageEx),
+      child: _PackageView(),
     );
   }
 }
 
-class _ProductArrivalPackageView extends StatefulWidget {
+class _PackageView extends StatefulWidget {
   @override
-  _ProductArrivalPackageViewState createState() => _ProductArrivalPackageViewState();
+  _PackageViewState createState() => _PackageViewState();
 }
 
-class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> {
+class _PackageViewState extends State<_PackageView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
   void showMessage(String message) {
@@ -46,7 +46,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
   }
 
   Future<void> showNewLineDialog() async {
-    ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
+    PackageViewModel vm = context.read<PackageViewModel>();
 
     await showDialog(
       context: context,
@@ -56,14 +56,14 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProductArrivalPackageViewModel, ProductArrivalPackageState>(
+    return BlocConsumer<PackageViewModel, PackageState>(
       builder: (context, state) {
-        ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
+        PackageViewModel vm = context.read<PackageViewModel>();
         ProductArrivalPackage package = state.packageEx.package;
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('${package.typeName} ${package.number}'),
+            title: Text('${package.typeName} ${package.number}. Приемка'),
             actions: !state.inProgress || state.newLines.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept)]
@@ -76,11 +76,11 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
       },
       listener: (context, state) async {
         switch (state.status) {
-          case ProductArrivalStateStatus.inProgress:
+          case PackageStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case ProductArrivalStateStatus.success:
-          case ProductArrivalStateStatus.failure:
+          case PackageStateStatus.success:
+          case PackageStateStatus.failure:
             showMessage(state.message);
             _progressDialog.close();
             break;
@@ -92,7 +92,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
   }
 
   Widget _lineList(BuildContext context) {
-    ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
+    PackageViewModel vm = context.read<PackageViewModel>();
     List<Widget> lineWidgets = vm.state.packageEx.packageLines.map(
       (packageEx) => _productArrivalPackageLineTile(context, packageEx)
     ).toList();
@@ -118,7 +118,7 @@ class _ProductArrivalPackageViewState extends State<_ProductArrivalPackageView> 
   }
 
   Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLine newLine) {
-    ProductArrivalPackageViewModel vm = context.read<ProductArrivalPackageViewModel>();
+    PackageViewModel vm = context.read<PackageViewModel>();
 
     return Dismissible(
       key: Key(newLine.hashCode.toString()),

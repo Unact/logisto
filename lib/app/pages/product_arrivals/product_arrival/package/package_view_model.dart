@@ -1,11 +1,11 @@
-part of 'product_arrival_package_page.dart';
+part of 'package_page.dart';
 
-class ProductArrivalPackageViewModel extends PageViewModel<ProductArrivalPackageState, ProductArrivalStateStatus> {
-  ProductArrivalPackageViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
-    super(context, ProductArrivalPackageState(packageEx: packageEx));
+class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
+  PackageViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
+    super(context, PackageState(packageEx: packageEx));
 
   @override
-  ProductArrivalStateStatus get status => state.status;
+  PackageStateStatus get status => state.status;
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
@@ -20,21 +20,21 @@ class ProductArrivalPackageViewModel extends PageViewModel<ProductArrivalPackage
     int productArrivalPackageId = state.packageEx.package.id;
 
     emit(state.copyWith(
-      status: ProductArrivalStateStatus.dataLoaded,
+      status: PackageStateStatus.dataLoaded,
       packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
       newLines: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLines(productArrivalPackageId)
     ));
   }
 
   Future<void> endAccept() async {
-    emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
+    emit(state.copyWith(status: PackageStateStatus.inProgress));
 
     try {
       await _endAccept(state.packageEx, state.newLines);
 
-      emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
+      emit(state.copyWith(status: PackageStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
+      emit(state.copyWith(status: PackageStateStatus.failure, message: e.message));
     }
   }
 

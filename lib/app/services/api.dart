@@ -251,6 +251,21 @@ class Api {
     return ApiProductArrival.fromJson(productArrivalData);
   }
 
+  Future<ApiProductArrival> productArrivalsPlacePackageProducts({
+    required int id,
+    required List<Map<String, dynamic>> cells
+  }) async {
+    final productArrivalData = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_arrivals/place_package_products',
+      data: {
+        'id': id,
+        'cells': cells
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
   Future<List<ApiProduct>> productArrivalFindProduct({
     String? code,
     String? name

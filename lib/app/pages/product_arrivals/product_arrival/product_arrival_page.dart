@@ -16,7 +16,8 @@ import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
 import 'new_unload_package/new_unload_package_page.dart';
 import 'package_qr_scan/package_qr_scan_page.dart';
-import 'product_arrival_package/product_arrival_package_page.dart';
+import 'package/package_page.dart';
+import 'package_cells/package_cells_page.dart';
 
 part 'product_arrival_state.dart';
 part 'product_arrival_view_model.dart';
@@ -50,7 +51,17 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => ProductArrivalPackagePage(packageEx: packageEx)
+        builder: (BuildContext context) => PackagePage(packageEx: packageEx)
+      )
+    );
+  }
+
+  Future<void> navigateToPackageCells(ProductArrivalPackageEx packageEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => PackageCellsPage(packageEx: packageEx)
       )
     );
   }
@@ -94,51 +105,21 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
   Future<void> showStorageUnloadPointQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
-    String? result = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (BuildContext context) => ScanView(
-          child: Container(),
-          onRead: (String code) {
-            List<String> qrCodeData = code.split(' ');
-            String version = qrCodeData[0];
-
-            if (version != Strings.qrCodeVersion) return;
-            if (qrCodeData[3] == QRTypes.storageUnloadPoint.typeName) return Navigator.of(context).pop(qrCodeData[1]);
-          }
-        )
-      )
-    );
-
-    if (result == null) return;
-
-    vm.startUnload(result);
+    await SimpleQRScanDialog(
+      context: context,
+      qrType: QRType.storageUnloadPoint,
+      onScan: (qrCodeData) => vm.startUnload(qrCodeData[1])
+    ).show();
   }
 
   Future<void> showProductArrivalQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
-    String? result = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (BuildContext context) => ScanView(
-          child: Container(),
-          onRead: (String code) {
-            List<String> qrCodeData = code.split(' ');
-            String version = qrCodeData[0];
-
-            if (version != Strings.qrCodeVersion) return;
-            if (qrCodeData[3] == QRTypes.productArrival.typeName) return Navigator.of(context).pop(qrCodeData[4]);
-          }
-        )
-      )
-    );
-
-    if (result == null) return;
-
-    vm.markScanned(result);
+    await SimpleQRScanDialog(
+      context: context,
+      qrType: QRType.productArrival,
+      onScan: (qrCodeData) => vm.markScanned(qrCodeData[4])
+    ).show();
   }
 
   @override
@@ -306,8 +287,18 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           const Icon(Icons.hourglass_empty, color: Colors.yellow)
       );
 
+    Widget? trailing = package.acceptEnd == null || package.placed != null ?
+      null :
+      IconButton(icon: const Icon(Icons.archive), onPressed: () => navigateToPackageCells(packageEx));
+
+    Widget? subtitle = package.placed == null ?
+      null :
+      Text('Размещен: ${Format.dateTimeStr(package.placed)}', style: Style.listTileText);
+
     return ListTile(
       leading: leading,
+      trailing: trailing,
+      subtitle: subtitle,
       title: Text('${package.typeName} ${package.number}', style: Style.listTileText),
       onTap: package.acceptStart == null ? null : () => navigateToPackage(packageEx)
     );
