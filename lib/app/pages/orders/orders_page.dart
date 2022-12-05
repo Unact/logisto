@@ -89,26 +89,11 @@ class _OrdersViewState extends State<_OrdersView> {
   Future<void> showQRScan() async {
     OrdersViewModel vm = context.read<OrdersViewModel>();
 
-    String? result = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (BuildContext context) => ScanView(
-          child: Container(),
-          onRead: (String code) {
-            List<String> qrCodeData = code.split(' ');
-            String version = qrCodeData[0];
-
-            if (version != Strings.qrCodeVersion) return;
-            if (qrCodeData[3] == QRTypes.order.typeName) return Navigator.of(context).pop(qrCodeData[4]);
-          }
-        )
-      )
-    );
-
-    if (result == null) return;
-
-    await vm.findOrder(result);
+    await SimpleQRScanDialog(
+      context: context,
+      qrType: QRType.order,
+      onScan: (qrCodeData) => vm.findOrder(qrCodeData[4])
+    ).show();
   }
 
   @override

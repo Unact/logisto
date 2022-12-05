@@ -1,16 +1,16 @@
 part of 'entities.dart';
 
-class ApiProduct extends Equatable {
+class ApiStorageCell extends Equatable {
   final int id;
   final String name;
 
-  const ApiProduct({
+  const ApiStorageCell({
     required this.id,
     required this.name
   });
 
-  factory ApiProduct.fromJson(dynamic json) {
-    return ApiProduct(
+  factory ApiStorageCell.fromJson(dynamic json) {
+    return ApiStorageCell(
       id: json['id'],
       name: json['name']
     );

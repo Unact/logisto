@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiStorage {
+class ApiStorage extends Equatable {
   final int id;
   final String name;
   final int sequenceNumber;
@@ -26,4 +26,11 @@ class ApiStorage {
       sequenceNumber: sequenceNumber
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    sequenceNumber
+  ];
 }

@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiProductArrivalPackageType {
+class ApiProductArrivalPackageType extends Equatable {
   final int id;
   final String name;
 
@@ -22,4 +22,10 @@ class ApiProductArrivalPackageType {
       name: name
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name
+  ];
 }

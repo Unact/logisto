@@ -1,11 +1,12 @@
 part of 'entities.dart';
 
-class ApiProductArrivalPackage {
+class ApiProductArrivalPackage extends Equatable {
   final int id;
   final String number;
   final String typeName;
   final DateTime? acceptStart;
   final DateTime? acceptEnd;
+  final DateTime? placed;
   final List<ApiProductArrivalPackageLine> lines;
 
   const ApiProductArrivalPackage({
@@ -14,6 +15,7 @@ class ApiProductArrivalPackage {
     required this.typeName,
     this.acceptStart,
     this.acceptEnd,
+    this.placed,
     required this.lines,
   });
 
@@ -24,7 +26,19 @@ class ApiProductArrivalPackage {
       typeName: json['typeName'],
       acceptStart: Parsing.parseDate(json['acceptStart']),
       acceptEnd: Parsing.parseDate(json['acceptEnd']),
+      placed: Parsing.parseDate(json['placed']),
       lines: json['lines'].map<ApiProductArrivalPackageLine>((e) => ApiProductArrivalPackageLine.fromJson(e)).toList(),
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    number,
+    typeName,
+    acceptStart,
+    acceptEnd,
+    placed,
+    lines
+  ];
 }

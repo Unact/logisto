@@ -29,7 +29,7 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
       return;
     }
 
-    if (qrCodeData[3] != QRTypes.order.typeName) {
+    if (qrCodeData[3] != QRType.order.typeName) {
       emit(state.copyWith(status: OrderQRScanStateStatus.failure, message: 'QR код не от заказа'));
       return;
     }

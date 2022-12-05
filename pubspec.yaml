@@ -37,6 +37,7 @@ dependencies:
   permission_handler: ^8.1.4
   cupertino_icons: ^1.0.0
   flutter_typeahead: ^4.0.0
+  equatable: ^2.0.5
 
 dev_dependencies:
   drift_dev: ^1.5.2

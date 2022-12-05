@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiProductArrivalUnloadPackage {
+class ApiProductArrivalUnloadPackage extends Equatable {
   final int id;
   final int amount;
   final String typeName;
@@ -18,4 +18,11 @@ class ApiProductArrivalUnloadPackage {
       typeName: json['typeName']
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    amount,
+    typeName
+  ];
 }

@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiOrderLine {
+class ApiOrderLine extends Equatable {
   final int id;
   final String name;
   final int amount;
@@ -24,4 +24,13 @@ class ApiOrderLine {
       factAmount: json['factAmount'],
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    amount,
+    price,
+    factAmount
+  ];
 }

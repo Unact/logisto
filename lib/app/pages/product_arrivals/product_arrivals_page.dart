@@ -89,26 +89,11 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
   Future<void> showQRScan() async {
     ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
 
-    String? result = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (BuildContext context) => ScanView(
-          child: Container(),
-          onRead: (String code) {
-            List<String> qrCodeData = code.split(' ');
-            String version = qrCodeData[0];
-
-            if (version != Strings.qrCodeVersion) return;
-            if (qrCodeData[3] == QRTypes.productArrival.typeName) return Navigator.of(context).pop(qrCodeData[4]);
-          }
-        )
-      )
-    );
-
-    if (result == null) return;
-
-    await vm.findProductArrival(result);
+    await SimpleQRScanDialog(
+      context: context,
+      qrType: QRType.productArrival,
+      onScan: (qrCodeData) => vm.findProductArrival(qrCodeData[4])
+    ).show();
   }
 
   @override

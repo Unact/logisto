@@ -21,7 +21,7 @@ class PackageQRScanViewModel extends PageViewModel<PackageQRScanState, PackageQR
       return;
     }
 
-    if (qrCodeData[3] != QRTypes.productArrivalPackage.typeName) {
+    if (qrCodeData[3] != QRType.productArrivalPackage.typeName) {
       emit(state.copyWith(status: PackageQRScanStateStatus.failure, message: 'QR код не от места приемки'));
       return;
     }

@@ -1,10 +1,10 @@
 part of 'entities.dart';
 
-class ApiData {
-  List<ApiOrder> orders;
-  List<ApiStorage> storages;
-  List<ApiProductArrival> productArrivals;
-  List<ApiProductArrivalPackageType> productArrivalPackageTypes;
+class ApiData extends Equatable {
+  final List<ApiOrder> orders;
+  final List<ApiStorage> storages;
+  final List<ApiProductArrival> productArrivals;
+  final List<ApiProductArrivalPackageType> productArrivalPackageTypes;
 
   ApiData({
     required this.orders,
@@ -22,4 +22,12 @@ class ApiData {
         .map<ApiProductArrivalPackageType>((e) => ApiProductArrivalPackageType.fromJson(e)).toList(),
     );
   }
+
+  @override
+  List<Object> get props => [
+    orders,
+    storages,
+    productArrivals,
+    productArrivalPackageTypes
+  ];
 }

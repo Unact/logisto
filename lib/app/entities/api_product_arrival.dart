@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class ApiProductArrival {
+class ApiProductArrival extends Equatable {
   final int id;
   final String number;
   final DateTime arrivalDate;
@@ -65,10 +65,12 @@ class ApiProductArrival {
         typeName: e.typeName,
         acceptStart: e.acceptStart,
         acceptEnd: e.acceptEnd,
+        placed: e.placed
       );
       final lines = e.lines.map((line) => ProductArrivalPackageLine(
         id: line.id,
         productArrivalPackageId: e.id,
+        productId: line.productId,
         productName: line.productName,
         amount: line.amount
       )).toList();
@@ -92,4 +94,19 @@ class ApiProductArrival {
       productArrivalUnloadPackages
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    number,
+    arrivalDate,
+    unloadStart,
+    unloadEnd,
+    packages,
+    unloadPackages,
+    storage,
+    storeName,
+    sellerName,
+    statusName
+  ];
 }
