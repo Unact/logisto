@@ -24,7 +24,7 @@ class ApiData extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     orders,
     storages,
     productArrivals,

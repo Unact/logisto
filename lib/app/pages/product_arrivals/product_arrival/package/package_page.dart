@@ -63,7 +63,7 @@ class _PackageViewState extends State<_PackageView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('${package.typeName} ${package.number}'),
+            title: Text('${package.typeName} ${package.number}. Приемка'),
             actions: !state.inProgress || state.newLines.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept)]

@@ -21,16 +21,6 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     emit(state.copyWith(status: NewPackageCellStateStatus.dataLoaded, packageLineProducts: products));
   }
 
-  Future<List<ApiProduct>> findProductsByName(String name) async {
-    try {
-      return await _findProduct(name: name);
-    } on AppError catch(e) {
-      emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: e.message));
-
-      return [];
-    }
-  }
-
   Future<void> findAndSetProductByCode(String code) async {
     emit(state.copyWith(status: NewPackageCellStateStatus.inProgress));
 

@@ -44,7 +44,6 @@ class _NewPackageCellView extends StatefulWidget {
 class NewPackageCellViewState extends State<_NewPackageCellView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   late ThemeData theme = Theme.of(context);
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
@@ -66,6 +65,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
               child: ListBody(
                 children: <Widget>[
                   DropdownButtonFormField(
+                    focusNode: productFocus,
                     isExpanded: true,
                     menuMaxHeight: 200,
                     style: Style.listTileText,
@@ -109,7 +109,6 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             Navigator.of(context).pop();
             break;
           case NewPackageCellStateStatus.setProduct:
-            _nameController.text = state.product!.name;
             _progressDialog.close();
             amountFocus.requestFocus();
             break;

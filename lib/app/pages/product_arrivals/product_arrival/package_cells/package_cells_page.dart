@@ -66,7 +66,7 @@ class PackageCellsViewState extends State<_PackageCellsView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('${package.typeName} ${package.number}'),
+            title: Text('${package.typeName} ${package.number}. Размещение'),
             actions: state.newCells.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.placeProducts)]
