@@ -39,8 +39,6 @@ class _NewUnloadPackageView extends StatefulWidget {
 class NewUnloadPackageViewState extends State<_NewUnloadPackageView> {
   final TextEditingController _amountController = TextEditingController();
   FocusNode amountFocus = FocusNode();
-  ApiProduct? product;
-  int? amount;
 
   @override
   Widget build(BuildContext context) {
