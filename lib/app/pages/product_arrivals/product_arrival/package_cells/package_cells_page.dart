@@ -114,11 +114,22 @@ class PackageCellsViewState extends State<_PackageCellsView> {
 
   Widget _lineList(BuildContext context) {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
+    List<Widget> storageCellWidgets = vm.state.storageCellNames.map(((storageCellName) {
+      List<ProductArrivalPackageNewCell> newCells = vm.state.newCells
+        .where((e) => e.storageCellName == storageCellName).toList();
+
+      return ExpansionTile(
+        title: Text(storageCellName, style: const TextStyle(fontSize: 14)),
+        initiallyExpanded: true,
+        tilePadding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
+        children: newCells.map((packageEx) => _productArrivalPackageNewCellTile(context, packageEx)).toList()
+      );
+    })).toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
-      children: vm.state.newCells.map((packageEx) => _productArrivalPackageNewCellTile(context, packageEx)).toList()
+      children: storageCellWidgets
     );
   }
 
@@ -131,7 +142,6 @@ class PackageCellsViewState extends State<_PackageCellsView> {
       onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCell),
       child: ListTile(
         title: Text(newCell.productName, style: Style.listTileText),
-        subtitle: Text(newCell.storageCellName, style: Style.listTileText),
         trailing: Text(newCell.amount.toString(), style: Style.listTileText)
       )
     );

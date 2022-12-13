@@ -47,14 +47,16 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
-  ApiProduct? product;
-  int? amount;
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<NewPackageCellViewModel, NewPackageCellState>(
       builder: (context, state) {
         NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
+        String amount = vm.state.amount?.toString() ?? '';
+
+        _amountController.text = vm.state.amount?.toString() ?? '';
+        _amountController.selection = TextSelection.fromPosition(TextPosition(offset: amount.length));
 
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -95,10 +97,10 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text(Strings.ok),
+                child: const Text('Добавить'),
                 onPressed: vm.addProductArrivalPackageNewPackageCell,
               ),
-              TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop())
+              TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],
           )
         );
@@ -106,7 +108,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       listener: (context, state) async {
         switch (state.status) {
           case NewPackageCellStateStatus.lineAdded:
-            Navigator.of(context).pop();
+            productFocus.requestFocus();
             break;
           case NewPackageCellStateStatus.setProduct:
             _progressDialog.close();

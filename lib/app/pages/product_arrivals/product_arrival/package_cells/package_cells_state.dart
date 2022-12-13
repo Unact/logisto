@@ -24,6 +24,9 @@ class PackageCellsState {
   final ApiStorageCell? storageCell;
   final List<ProductArrivalPackageNewCell> newCells;
 
+  List<String> get storageCellNames => newCells.map((e) => e.storageCellName).toSet().toList()
+    ..sort((a, b) => a.compareTo(b));
+
   PackageCellsState copyWith({
     PackageCellsStateStatus? status,
     ProductArrivalPackageEx? packageEx,

@@ -79,9 +79,13 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
       amount: Value(state.amount!)
     );
 
-  await app.dataStore.productArrivalsDao.addProductArrivalPackageNewCell(cell);
+    await app.dataStore.productArrivalsDao.addProductArrivalPackageNewCell(cell);
 
-    emit(state.copyWith(status: NewPackageCellStateStatus.lineAdded));
+    emit(state.copyWith(
+      status: NewPackageCellStateStatus.lineAdded,
+      amount: const Optional.absent(),
+      product: const Optional.absent()
+    ));
   }
 
   Future<List<ApiProduct>> _findProduct({String? code, String? name}) async {
