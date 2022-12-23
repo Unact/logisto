@@ -31,6 +31,8 @@ class ProductArrivals extends Table {
   TextColumn get storeName => text()();
   TextColumn get sellerName => text()();
   TextColumn get statusName => text()();
+  TextColumn get orderTrackingNumber => text().nullable()();
+  TextColumn get comment => text().nullable()();
 }
 
 class ProductArrivalPackages extends Table {

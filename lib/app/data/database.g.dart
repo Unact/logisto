@@ -624,6 +624,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
   final String storeName;
   final String sellerName;
   final String statusName;
+  final String? orderTrackingNumber;
+  final String? comment;
   ProductArrival(
       {required this.id,
       required this.arrivalDate,
@@ -633,7 +635,9 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       this.storageId,
       required this.storeName,
       required this.sellerName,
-      required this.statusName});
+      required this.statusName,
+      this.orderTrackingNumber,
+      this.comment});
   factory ProductArrival.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return ProductArrival(
@@ -655,6 +659,10 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           .mapFromDatabaseResponse(data['${effectivePrefix}seller_name'])!,
       statusName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}status_name'])!,
+      orderTrackingNumber: const StringType().mapFromDatabaseResponse(
+          data['${effectivePrefix}order_tracking_number']),
+      comment: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}comment']),
     );
   }
   @override
@@ -675,6 +683,12 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
     map['store_name'] = Variable<String>(storeName);
     map['seller_name'] = Variable<String>(sellerName);
     map['status_name'] = Variable<String>(statusName);
+    if (!nullToAbsent || orderTrackingNumber != null) {
+      map['order_tracking_number'] = Variable<String?>(orderTrackingNumber);
+    }
+    if (!nullToAbsent || comment != null) {
+      map['comment'] = Variable<String?>(comment);
+    }
     return map;
   }
 
@@ -695,6 +709,12 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       storeName: Value(storeName),
       sellerName: Value(sellerName),
       statusName: Value(statusName),
+      orderTrackingNumber: orderTrackingNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orderTrackingNumber),
+      comment: comment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(comment),
     );
   }
 
@@ -711,6 +731,9 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       storeName: serializer.fromJson<String>(json['storeName']),
       sellerName: serializer.fromJson<String>(json['sellerName']),
       statusName: serializer.fromJson<String>(json['statusName']),
+      orderTrackingNumber:
+          serializer.fromJson<String?>(json['orderTrackingNumber']),
+      comment: serializer.fromJson<String?>(json['comment']),
     );
   }
   @override
@@ -726,6 +749,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
       'storeName': serializer.toJson<String>(storeName),
       'sellerName': serializer.toJson<String>(sellerName),
       'statusName': serializer.toJson<String>(statusName),
+      'orderTrackingNumber': serializer.toJson<String?>(orderTrackingNumber),
+      'comment': serializer.toJson<String?>(comment),
     };
   }
 
@@ -738,7 +763,9 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           int? storageId,
           String? storeName,
           String? sellerName,
-          String? statusName}) =>
+          String? statusName,
+          String? orderTrackingNumber,
+          String? comment}) =>
       ProductArrival(
         id: id ?? this.id,
         arrivalDate: arrivalDate ?? this.arrivalDate,
@@ -749,6 +776,8 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
         storeName: storeName ?? this.storeName,
         sellerName: sellerName ?? this.sellerName,
         statusName: statusName ?? this.statusName,
+        orderTrackingNumber: orderTrackingNumber ?? this.orderTrackingNumber,
+        comment: comment ?? this.comment,
       );
   @override
   String toString() {
@@ -761,14 +790,26 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           ..write('storageId: $storageId, ')
           ..write('storeName: $storeName, ')
           ..write('sellerName: $sellerName, ')
-          ..write('statusName: $statusName')
+          ..write('statusName: $statusName, ')
+          ..write('orderTrackingNumber: $orderTrackingNumber, ')
+          ..write('comment: $comment')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, arrivalDate, number, unloadStart,
-      unloadEnd, storageId, storeName, sellerName, statusName);
+  int get hashCode => Object.hash(
+      id,
+      arrivalDate,
+      number,
+      unloadStart,
+      unloadEnd,
+      storageId,
+      storeName,
+      sellerName,
+      statusName,
+      orderTrackingNumber,
+      comment);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -781,7 +822,9 @@ class ProductArrival extends DataClass implements Insertable<ProductArrival> {
           other.storageId == this.storageId &&
           other.storeName == this.storeName &&
           other.sellerName == this.sellerName &&
-          other.statusName == this.statusName);
+          other.statusName == this.statusName &&
+          other.orderTrackingNumber == this.orderTrackingNumber &&
+          other.comment == this.comment);
 }
 
 class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
@@ -794,6 +837,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
   final Value<String> storeName;
   final Value<String> sellerName;
   final Value<String> statusName;
+  final Value<String?> orderTrackingNumber;
+  final Value<String?> comment;
   const ProductArrivalsCompanion({
     this.id = const Value.absent(),
     this.arrivalDate = const Value.absent(),
@@ -804,6 +849,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     this.storeName = const Value.absent(),
     this.sellerName = const Value.absent(),
     this.statusName = const Value.absent(),
+    this.orderTrackingNumber = const Value.absent(),
+    this.comment = const Value.absent(),
   });
   ProductArrivalsCompanion.insert({
     this.id = const Value.absent(),
@@ -815,6 +862,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     required String storeName,
     required String sellerName,
     required String statusName,
+    this.orderTrackingNumber = const Value.absent(),
+    this.comment = const Value.absent(),
   })  : arrivalDate = Value(arrivalDate),
         number = Value(number),
         storeName = Value(storeName),
@@ -830,6 +879,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     Expression<String>? storeName,
     Expression<String>? sellerName,
     Expression<String>? statusName,
+    Expression<String?>? orderTrackingNumber,
+    Expression<String?>? comment,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -841,6 +892,9 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       if (storeName != null) 'store_name': storeName,
       if (sellerName != null) 'seller_name': sellerName,
       if (statusName != null) 'status_name': statusName,
+      if (orderTrackingNumber != null)
+        'order_tracking_number': orderTrackingNumber,
+      if (comment != null) 'comment': comment,
     });
   }
 
@@ -853,7 +907,9 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       Value<int?>? storageId,
       Value<String>? storeName,
       Value<String>? sellerName,
-      Value<String>? statusName}) {
+      Value<String>? statusName,
+      Value<String?>? orderTrackingNumber,
+      Value<String?>? comment}) {
     return ProductArrivalsCompanion(
       id: id ?? this.id,
       arrivalDate: arrivalDate ?? this.arrivalDate,
@@ -864,6 +920,8 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
       storeName: storeName ?? this.storeName,
       sellerName: sellerName ?? this.sellerName,
       statusName: statusName ?? this.statusName,
+      orderTrackingNumber: orderTrackingNumber ?? this.orderTrackingNumber,
+      comment: comment ?? this.comment,
     );
   }
 
@@ -897,6 +955,13 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
     if (statusName.present) {
       map['status_name'] = Variable<String>(statusName.value);
     }
+    if (orderTrackingNumber.present) {
+      map['order_tracking_number'] =
+          Variable<String?>(orderTrackingNumber.value);
+    }
+    if (comment.present) {
+      map['comment'] = Variable<String?>(comment.value);
+    }
     return map;
   }
 
@@ -911,7 +976,9 @@ class ProductArrivalsCompanion extends UpdateCompanion<ProductArrival> {
           ..write('storageId: $storageId, ')
           ..write('storeName: $storeName, ')
           ..write('sellerName: $sellerName, ')
-          ..write('statusName: $statusName')
+          ..write('statusName: $statusName, ')
+          ..write('orderTrackingNumber: $orderTrackingNumber, ')
+          ..write('comment: $comment')
           ..write(')'))
         .toString();
   }
@@ -974,6 +1041,17 @@ class $ProductArrivalsTable extends ProductArrivals
   late final GeneratedColumn<String?> statusName = GeneratedColumn<String?>(
       'status_name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _orderTrackingNumberMeta =
+      const VerificationMeta('orderTrackingNumber');
+  @override
+  late final GeneratedColumn<String?> orderTrackingNumber =
+      GeneratedColumn<String?>('order_tracking_number', aliasedName, true,
+          type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _commentMeta = const VerificationMeta('comment');
+  @override
+  late final GeneratedColumn<String?> comment = GeneratedColumn<String?>(
+      'comment', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -984,7 +1062,9 @@ class $ProductArrivalsTable extends ProductArrivals
         storageId,
         storeName,
         sellerName,
-        statusName
+        statusName,
+        orderTrackingNumber,
+        comment
       ];
   @override
   String get aliasedName => _alias ?? 'product_arrivals';
@@ -1047,6 +1127,16 @@ class $ProductArrivalsTable extends ProductArrivals
               data['status_name']!, _statusNameMeta));
     } else if (isInserting) {
       context.missing(_statusNameMeta);
+    }
+    if (data.containsKey('order_tracking_number')) {
+      context.handle(
+          _orderTrackingNumberMeta,
+          orderTrackingNumber.isAcceptableOrUnknown(
+              data['order_tracking_number']!, _orderTrackingNumberMeta));
+    }
+    if (data.containsKey('comment')) {
+      context.handle(_commentMeta,
+          comment.isAcceptableOrUnknown(data['comment']!, _commentMeta));
     }
     return context;
   }

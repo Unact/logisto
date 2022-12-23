@@ -12,6 +12,8 @@ class ApiProductArrival extends Equatable {
   final String storeName;
   final String sellerName;
   final String statusName;
+  final String? orderTrackingNumber;
+  final String? comment;
 
   const ApiProductArrival({
     required this.id,
@@ -24,7 +26,9 @@ class ApiProductArrival extends Equatable {
     required this.storage,
     required this.storeName,
     required this.sellerName,
-    required this.statusName
+    required this.statusName,
+    required this.orderTrackingNumber,
+    required this.comment
   });
 
   factory ApiProductArrival.fromJson(dynamic json) {
@@ -41,7 +45,9 @@ class ApiProductArrival extends Equatable {
       storage: ApiStorage.fromJson(json['storage']),
       storeName: json['storeName'],
       sellerName: json['sellerName'],
-      statusName: json['statusName']
+      statusName: json['statusName'],
+      orderTrackingNumber: json['orderTrackingNumber'],
+      comment: json['comment']
     );
   }
 
@@ -55,7 +61,9 @@ class ApiProductArrival extends Equatable {
       storageId: storage.id,
       storeName: storeName,
       sellerName: sellerName,
-      statusName: statusName
+      statusName: statusName,
+      orderTrackingNumber: orderTrackingNumber,
+      comment: comment
     );
     List<ProductArrivalPackageEx> productArrivalPackages = packages.map((e) {
       final productArrivalPackage = ProductArrivalPackage(
@@ -107,6 +115,8 @@ class ApiProductArrival extends Equatable {
     storage,
     storeName,
     sellerName,
-    statusName
+    statusName,
+    orderTrackingNumber,
+    comment
   ];
 }

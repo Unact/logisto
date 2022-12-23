@@ -183,6 +183,14 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           trailing: Text(vm.state.productArrival.storeName)
         ),
         InfoRow(
+          title: const Text('Номер заказа'),
+          trailing: Text(vm.state.productArrival.orderTrackingNumber ?? '')
+        ),
+        InfoRow(
+          title: const Text('Комментарий'),
+          trailing: ExpandingText(vm.state.productArrival.comment ?? '')
+        ),
+        InfoRow(
           title: const Text('Начало'),
           trailing: !vm.state.unloadStarted ?
             _unloadStartButton(context) :
