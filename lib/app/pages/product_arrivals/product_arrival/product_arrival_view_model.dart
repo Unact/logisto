@@ -1,6 +1,8 @@
 part of 'product_arrival_page.dart';
 
 class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, ProductArrivalStateStatus> {
+  Printer printer = Printer();
+
   ProductArrivalViewModel(BuildContext context, { required ProductArrivalEx productArrivalEx }) :
     super(context, ProductArrivalState(productArrivalEx: productArrivalEx));
 
@@ -51,6 +53,37 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     } on AppError catch(e) {
       emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: e.message));
     }
+  }
+
+  Future<void> printPackageStickers() async {
+    if (!await Permissions.hasBluetoothPermission()) {
+      emit(state.copyWith(message: 'Не разрешено соединение по Bluetooth', status: ProductArrivalStateStatus.failure));
+      return;
+    }
+
+    String labelCommand = state.productArrivalEx.packages.map((e) {
+      String formattedDate = Format.dateStr(state.productArrival.arrivalDate);
+      String command = '''
+        SIZE 2.8,4.61
+        GAP 0.18,0
+        CODEPAGE UTF-8
+        COUNTRY 061
+        DIRECTION 0
+        CLS
+        QRCODE 130,100,Q,10,A,0,M2,"${e.package.qr}"
+        TEXT 300,460,"5",0,1,1,2,"${e.package.number}"
+        TEXT 300,530,"3",0,1,1,2,"Приемка #${state.productArrival.number} от $formattedDate"
+        TEXT 300,560,"3",0,1,1,2,"Всего мест: ${state.productArrivalEx.packages.length}"
+        PRINT 1,1
+      ''';
+
+      return command;
+    }).toList().join('\n');
+
+    printer.printLabel(
+      labelCommand,
+      onError: (String error) => emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: error))
+    );
   }
 
   Future<void> startAccept(ProductArrivalPackageEx? packageEx) async {

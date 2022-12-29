@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '/app/data/database.dart';
 import '/app/constants/strings.dart';
@@ -14,6 +12,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/services/iboxpro.dart';
+import '/app/utils/permissions.dart';
 
 part 'accept_payment_state.dart';
 part 'accept_payment_view_model.dart';

@@ -71,6 +71,7 @@ class ApiProductArrival extends Equatable {
         productArrivalId: id,
         number: e.number,
         typeName: e.typeName,
+        qr: e.qr,
         acceptStart: e.acceptStart,
         acceptEnd: e.acceptEnd,
         placed: e.placed

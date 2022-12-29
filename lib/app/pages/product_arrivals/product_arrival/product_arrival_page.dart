@@ -11,7 +11,9 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
+import '/app/services/printer.dart';
 import '/app/utils/format.dart';
+import '/app/utils/permissions.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
 import 'new_unload_package/new_unload_package_page.dart';
@@ -200,7 +202,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           title: const Text('Конец'),
           trailing: vm.state.unloadInProgress ?
             _unloadWorkButtons(context) :
-            Text(Format.dateTimeStr(vm.state.productArrival.unloadEnd))
+            _unloadEndWidget(context)
         ),
         ExpansionTile(
           initiallyExpanded: vm.state.unloadInProgress,
@@ -282,6 +284,25 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         )
       ]
     );
+  }
+
+  Widget _unloadEndWidget(BuildContext context) {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+    List<Widget> children = [
+      Text(Format.dateTimeStr(vm.state.productArrival.unloadEnd))
+    ];
+
+    if (vm.state.unloadEnded && !vm.state.anyPackageAcceptStarted) {
+      children.add(IconButton(
+        icon: const Icon(Icons.print_sharp),
+        onPressed: vm.printPackageStickers,
+        tooltip: 'Распечатать места',
+        constraints: const BoxConstraints(),
+        padding: const EdgeInsets.only(left: 8)
+      ));
+    }
+
+    return Row(children: children);
   }
 
   Widget _productArrivalPackageTile(BuildContext context, ProductArrivalPackageEx packageEx) {

@@ -29,6 +29,7 @@ class ProductArrivalState {
   final bool scanned;
 
   ProductArrival get productArrival => productArrivalEx.productArrival;
+  bool get anyPackageAcceptStarted => productArrivalEx.packages.any((e) => e.package.acceptStart != null);
   bool get allPackagesAcceptStarted => productArrivalEx.packages.every((e) => e.package.acceptStart != null);
   bool get unloadStarted => productArrivalEx.productArrival.unloadStart != null;
   bool get unloadInProgress => unloadStarted && productArrivalEx.productArrival.unloadEnd == null;

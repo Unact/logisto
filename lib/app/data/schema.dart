@@ -41,6 +41,7 @@ class ProductArrivalPackages extends Table {
     .references(ProductArrivals, #id, onDelete: KeyAction.cascade)();
   TextColumn get number => text()();
   TextColumn get typeName => text()();
+  TextColumn get qr => text()();
   DateTimeColumn get acceptStart => dateTime().nullable()();
   DateTimeColumn get acceptEnd => dateTime().nullable()();
   DateTimeColumn get placed => dateTime().nullable()();

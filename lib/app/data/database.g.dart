@@ -1161,6 +1161,7 @@ class ProductArrivalPackage extends DataClass
   final int productArrivalId;
   final String number;
   final String typeName;
+  final String qr;
   final DateTime? acceptStart;
   final DateTime? acceptEnd;
   final DateTime? placed;
@@ -1169,6 +1170,7 @@ class ProductArrivalPackage extends DataClass
       required this.productArrivalId,
       required this.number,
       required this.typeName,
+      required this.qr,
       this.acceptStart,
       this.acceptEnd,
       this.placed});
@@ -1184,6 +1186,8 @@ class ProductArrivalPackage extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}number'])!,
       typeName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}type_name'])!,
+      qr: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}qr'])!,
       acceptStart: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}accept_start']),
       acceptEnd: const DateTimeType()
@@ -1199,6 +1203,7 @@ class ProductArrivalPackage extends DataClass
     map['product_arrival_id'] = Variable<int>(productArrivalId);
     map['number'] = Variable<String>(number);
     map['type_name'] = Variable<String>(typeName);
+    map['qr'] = Variable<String>(qr);
     if (!nullToAbsent || acceptStart != null) {
       map['accept_start'] = Variable<DateTime?>(acceptStart);
     }
@@ -1217,6 +1222,7 @@ class ProductArrivalPackage extends DataClass
       productArrivalId: Value(productArrivalId),
       number: Value(number),
       typeName: Value(typeName),
+      qr: Value(qr),
       acceptStart: acceptStart == null && nullToAbsent
           ? const Value.absent()
           : Value(acceptStart),
@@ -1236,6 +1242,7 @@ class ProductArrivalPackage extends DataClass
       productArrivalId: serializer.fromJson<int>(json['productArrivalId']),
       number: serializer.fromJson<String>(json['number']),
       typeName: serializer.fromJson<String>(json['typeName']),
+      qr: serializer.fromJson<String>(json['qr']),
       acceptStart: serializer.fromJson<DateTime?>(json['acceptStart']),
       acceptEnd: serializer.fromJson<DateTime?>(json['acceptEnd']),
       placed: serializer.fromJson<DateTime?>(json['placed']),
@@ -1249,6 +1256,7 @@ class ProductArrivalPackage extends DataClass
       'productArrivalId': serializer.toJson<int>(productArrivalId),
       'number': serializer.toJson<String>(number),
       'typeName': serializer.toJson<String>(typeName),
+      'qr': serializer.toJson<String>(qr),
       'acceptStart': serializer.toJson<DateTime?>(acceptStart),
       'acceptEnd': serializer.toJson<DateTime?>(acceptEnd),
       'placed': serializer.toJson<DateTime?>(placed),
@@ -1260,6 +1268,7 @@ class ProductArrivalPackage extends DataClass
           int? productArrivalId,
           String? number,
           String? typeName,
+          String? qr,
           DateTime? acceptStart,
           DateTime? acceptEnd,
           DateTime? placed}) =>
@@ -1268,6 +1277,7 @@ class ProductArrivalPackage extends DataClass
         productArrivalId: productArrivalId ?? this.productArrivalId,
         number: number ?? this.number,
         typeName: typeName ?? this.typeName,
+        qr: qr ?? this.qr,
         acceptStart: acceptStart ?? this.acceptStart,
         acceptEnd: acceptEnd ?? this.acceptEnd,
         placed: placed ?? this.placed,
@@ -1279,6 +1289,7 @@ class ProductArrivalPackage extends DataClass
           ..write('productArrivalId: $productArrivalId, ')
           ..write('number: $number, ')
           ..write('typeName: $typeName, ')
+          ..write('qr: $qr, ')
           ..write('acceptStart: $acceptStart, ')
           ..write('acceptEnd: $acceptEnd, ')
           ..write('placed: $placed')
@@ -1287,8 +1298,8 @@ class ProductArrivalPackage extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, productArrivalId, number, typeName, acceptStart, acceptEnd, placed);
+  int get hashCode => Object.hash(id, productArrivalId, number, typeName, qr,
+      acceptStart, acceptEnd, placed);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1297,6 +1308,7 @@ class ProductArrivalPackage extends DataClass
           other.productArrivalId == this.productArrivalId &&
           other.number == this.number &&
           other.typeName == this.typeName &&
+          other.qr == this.qr &&
           other.acceptStart == this.acceptStart &&
           other.acceptEnd == this.acceptEnd &&
           other.placed == this.placed);
@@ -1308,6 +1320,7 @@ class ProductArrivalPackagesCompanion
   final Value<int> productArrivalId;
   final Value<String> number;
   final Value<String> typeName;
+  final Value<String> qr;
   final Value<DateTime?> acceptStart;
   final Value<DateTime?> acceptEnd;
   final Value<DateTime?> placed;
@@ -1316,6 +1329,7 @@ class ProductArrivalPackagesCompanion
     this.productArrivalId = const Value.absent(),
     this.number = const Value.absent(),
     this.typeName = const Value.absent(),
+    this.qr = const Value.absent(),
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
     this.placed = const Value.absent(),
@@ -1325,17 +1339,20 @@ class ProductArrivalPackagesCompanion
     required int productArrivalId,
     required String number,
     required String typeName,
+    required String qr,
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
     this.placed = const Value.absent(),
   })  : productArrivalId = Value(productArrivalId),
         number = Value(number),
-        typeName = Value(typeName);
+        typeName = Value(typeName),
+        qr = Value(qr);
   static Insertable<ProductArrivalPackage> custom({
     Expression<int>? id,
     Expression<int>? productArrivalId,
     Expression<String>? number,
     Expression<String>? typeName,
+    Expression<String>? qr,
     Expression<DateTime?>? acceptStart,
     Expression<DateTime?>? acceptEnd,
     Expression<DateTime?>? placed,
@@ -1345,6 +1362,7 @@ class ProductArrivalPackagesCompanion
       if (productArrivalId != null) 'product_arrival_id': productArrivalId,
       if (number != null) 'number': number,
       if (typeName != null) 'type_name': typeName,
+      if (qr != null) 'qr': qr,
       if (acceptStart != null) 'accept_start': acceptStart,
       if (acceptEnd != null) 'accept_end': acceptEnd,
       if (placed != null) 'placed': placed,
@@ -1356,6 +1374,7 @@ class ProductArrivalPackagesCompanion
       Value<int>? productArrivalId,
       Value<String>? number,
       Value<String>? typeName,
+      Value<String>? qr,
       Value<DateTime?>? acceptStart,
       Value<DateTime?>? acceptEnd,
       Value<DateTime?>? placed}) {
@@ -1364,6 +1383,7 @@ class ProductArrivalPackagesCompanion
       productArrivalId: productArrivalId ?? this.productArrivalId,
       number: number ?? this.number,
       typeName: typeName ?? this.typeName,
+      qr: qr ?? this.qr,
       acceptStart: acceptStart ?? this.acceptStart,
       acceptEnd: acceptEnd ?? this.acceptEnd,
       placed: placed ?? this.placed,
@@ -1385,6 +1405,9 @@ class ProductArrivalPackagesCompanion
     if (typeName.present) {
       map['type_name'] = Variable<String>(typeName.value);
     }
+    if (qr.present) {
+      map['qr'] = Variable<String>(qr.value);
+    }
     if (acceptStart.present) {
       map['accept_start'] = Variable<DateTime?>(acceptStart.value);
     }
@@ -1404,6 +1427,7 @@ class ProductArrivalPackagesCompanion
           ..write('productArrivalId: $productArrivalId, ')
           ..write('number: $number, ')
           ..write('typeName: $typeName, ')
+          ..write('qr: $qr, ')
           ..write('acceptStart: $acceptStart, ')
           ..write('acceptEnd: $acceptEnd, ')
           ..write('placed: $placed')
@@ -1443,6 +1467,11 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
   late final GeneratedColumn<String?> typeName = GeneratedColumn<String?>(
       'type_name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _qrMeta = const VerificationMeta('qr');
+  @override
+  late final GeneratedColumn<String?> qr = GeneratedColumn<String?>(
+      'qr', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _acceptStartMeta =
       const VerificationMeta('acceptStart');
   @override
@@ -1460,8 +1489,16 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
       'placed', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, productArrivalId, number, typeName, acceptStart, acceptEnd, placed];
+  List<GeneratedColumn> get $columns => [
+        id,
+        productArrivalId,
+        number,
+        typeName,
+        qr,
+        acceptStart,
+        acceptEnd,
+        placed
+      ];
   @override
   String get aliasedName => _alias ?? 'product_arrival_packages';
   @override
@@ -1494,6 +1531,11 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
           typeName.isAcceptableOrUnknown(data['type_name']!, _typeNameMeta));
     } else if (isInserting) {
       context.missing(_typeNameMeta);
+    }
+    if (data.containsKey('qr')) {
+      context.handle(_qrMeta, qr.isAcceptableOrUnknown(data['qr']!, _qrMeta));
+    } else if (isInserting) {
+      context.missing(_qrMeta);
     }
     if (data.containsKey('accept_start')) {
       context.handle(
