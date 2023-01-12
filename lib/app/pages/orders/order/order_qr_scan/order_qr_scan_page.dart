@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '/app/data/database.dart';
 import '/app/constants/qr_types.dart';
 import '/app/constants/strings.dart';
+import '/app/constants/style.dart';
+import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
@@ -52,14 +53,14 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
                   'Заказ ${vm.state.order.trackingNumber}',
-                  style: const TextStyle(color: Colors.white, fontSize: 20)
+                  style: Style.qrScanTitleText
                 )
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
                   'Мест ${vm.state.orderPackageScanned.where((el) => el).length}/${vm.state.order.packages}',
-                  style: const TextStyle(color: Colors.white, fontSize: 20)
+                  style: Style.qrScanTitleText
                 )
               )
             ]

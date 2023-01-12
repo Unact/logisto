@@ -86,26 +86,42 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     );
   }
 
-  Future<void> startAccept(ProductArrivalPackageEx? packageEx) async {
+  Future<void> markProductArrivalPackageScanned(ProductArrivalPackageEx? packageEx) async {
     if (packageEx == null) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Место не найдено'));
+      emit(state.copyWith(
+        status: ProductArrivalStateStatus.productArrivalPackageScanFail,
+        message: 'Место не найдено'
+      ));
       return;
     }
 
     if (packageEx.package.acceptEnd != null) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Приемка места уже завершена'));
+      emit(state.copyWith(
+        status: ProductArrivalStateStatus.productArrivalPackageScanFail,
+        message: 'Приемка места уже завершена'
+      ));
       return;
     }
 
     if (packageEx.package.acceptStart != null) {
-      emit(state.copyWith(status: ProductArrivalStateStatus.failure, message: 'Приемка места уже начата'));
+      emit(state.copyWith(
+        status: ProductArrivalStateStatus.productArrivalPackageScanFail,
+        message: 'Приемка места уже начата'
+      ));
       return;
     }
 
+    emit(state.copyWith(
+      status: ProductArrivalStateStatus.productArrivalPackageScanSuccess,
+      scannedProductArrivalPackageEx: packageEx
+    ));
+  }
+
+  Future<void> startAccept(String storageAcceptPointIdStr) async {
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _startAccept(packageEx);
+      await _startAccept(state.scannedProductArrivalPackageEx!, int.parse(storageAcceptPointIdStr));
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало приемки'));
     } on AppError catch(e) {
@@ -136,10 +152,10 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
-  void markScanned(String number) {
+  void markProductArrivalScanned(String number) {
     if (number != state.productArrival.number) {
       emit(state.copyWith(
-        status: ProductArrivalStateStatus.productArrivalScanFailed,
+        status: ProductArrivalStateStatus.productArrivalScanFail,
         message: 'Отсканирована другая приемка'
       ));
       return;
@@ -189,10 +205,11 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
   }
 
-  Future<void> _startAccept(ProductArrivalPackageEx productArrivalEx) async {
+  Future<void> _startAccept(ProductArrivalPackageEx productArrivalEx, int storageAcceptPointId) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginPackageAccept(
-        id: productArrivalEx.package.id
+        id: productArrivalEx.package.id,
+        storageAcceptPointId: storageAcceptPointId
       );
 
       await _saveProductArrival(newApiProductArrival);

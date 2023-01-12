@@ -72,20 +72,6 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> showPackageQRScan() async {
-    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
-
-    ProductArrivalPackageEx? packageEx = await Navigator.push<ProductArrivalPackageEx>(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => PackageQRScanPage(packages: vm.state.productArrivalEx.packages),
-        fullscreenDialog: true
-      )
-    );
-
-    await vm.startAccept(packageEx);
-  }
-
   Future<void> showNewPackageDialog() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
@@ -104,13 +90,39 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     );
   }
 
+  Future<void> showProductArrivalPackageQRScan() async {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    ProductArrivalPackageEx? packageEx = await Navigator.push<ProductArrivalPackageEx>(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => PackageQRScanPage(packages: vm.state.productArrivalEx.packages),
+        fullscreenDialog: true
+      )
+    );
+
+    await vm.markProductArrivalPackageScanned(packageEx);
+  }
+
   Future<void> showStorageUnloadPointQRScan() async {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     await SimpleQRScanDialog(
+      child: const Text('Отсканируйте точку разгрузки', style: Style.qrScanTitleText),
       context: context,
       qrType: QRType.storageUnloadPoint,
       onScan: (qrCodeData) => vm.startUnload(qrCodeData[1])
+    ).show();
+  }
+
+  Future<void> showStorageAcceptPointQRScan() async {
+    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
+
+    await SimpleQRScanDialog(
+      child: const Text('Отсканируйте точку приемки', style: Style.qrScanTitleText),
+      context: context,
+      qrType: QRType.storageAcceptPoint,
+      onScan: (qrCodeData) => vm.startAccept(qrCodeData[1])
     ).show();
   }
 
@@ -118,9 +130,10 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     await SimpleQRScanDialog(
+      child: const Text('Отсканируйте разгрузку', style: Style.qrScanTitleText),
       context: context,
       qrType: QRType.productArrival,
-      onScan: (qrCodeData) => vm.markScanned(qrCodeData[4])
+      onScan: (qrCodeData) => vm.markProductArrivalScanned(qrCodeData[4])
     ).show();
   }
 
@@ -135,9 +148,8 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           body: _dataList(context),
           floatingActionButton: state.allPackagesAcceptStarted ? null : FloatingActionButton(
             child: const Icon(Icons.qr_code_scanner),
-            onPressed: showPackageQRScan,
-            tooltip: 'Сканировать QR код',
-
+            onPressed: showProductArrivalPackageQRScan,
+            tooltip: 'Начать приемку',
           )
         );
       },
@@ -146,7 +158,14 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           case ProductArrivalStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case ProductArrivalStateStatus.productArrivalScanFailed:
+          case ProductArrivalStateStatus.productArrivalScanSuccess:
+            await showStorageUnloadPointQRScan();
+            break;
+          case ProductArrivalStateStatus.productArrivalPackageScanSuccess:
+            await showStorageAcceptPointQRScan();
+            break;
+          case ProductArrivalStateStatus.productArrivalPackageScanFail:
+          case ProductArrivalStateStatus.productArrivalScanFail:
             showMessage(state.message);
             break;
           case ProductArrivalStateStatus.success:
@@ -227,21 +246,9 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
   }
 
   Widget _unloadStartButton(BuildContext context) {
-    ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
-
-    if (!vm.state.scanned) {
-      return IconButton(
-        icon: const Icon(Icons.qr_code),
-        onPressed: showProductArrivalQRScan,
-        constraints: const BoxConstraints(),
-        tooltip: 'Начать разгрузку',
-        padding: EdgeInsets.zero
-      );
-    }
-
     return IconButton(
-      icon: const Icon(Icons.start),
-      onPressed: showStorageUnloadPointQRScan,
+      icon: const Icon(Icons.qr_code),
+      onPressed: showProductArrivalQRScan,
       constraints: const BoxConstraints(),
       tooltip: 'Начать разгрузку',
       padding: EdgeInsets.zero
