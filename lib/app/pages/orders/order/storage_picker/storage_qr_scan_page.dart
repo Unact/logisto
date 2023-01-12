@@ -38,7 +38,7 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте склад', style: TextStyle(color: Colors.white, fontSize: 20))
+                child: const Text('Отсканируйте склад', style: Style.qrScanTitleText)
               )
             ]
           ),

@@ -224,12 +224,14 @@ class Api {
   }
 
   Future<ApiProductArrival> productArrivalsBeginPackageAccept({
-    required int id
+    required int id,
+    required int storageAcceptPointId
   }) async {
     final productArrivalData = await _sendRequest((dio) => dio.post(
       'v1/logisto/product_arrivals/begin_package_accept',
       data: {
-        'id': id
+        'id': id,
+        'storageAcceptPointId': storageAcceptPointId
       }
     ));
 

@@ -159,7 +159,7 @@ class NewLineViewState extends State<_NewLineView> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте позицию', style: TextStyle(color: Colors.white, fontSize: 20))
+                child: const Text('Отсканируйте позицию', style: Style.qrScanTitleText)
               )
             ]
           ),

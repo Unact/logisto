@@ -7,7 +7,9 @@ enum ProductArrivalStateStatus {
   success,
   failure,
   productArrivalScanSuccess,
-  productArrivalScanFailed
+  productArrivalScanFail,
+  productArrivalPackageScanSuccess,
+  productArrivalPackageScanFail
 }
 
 class ProductArrivalState {
@@ -17,7 +19,8 @@ class ProductArrivalState {
     this.message = '',
     this.newPackages = const [],
     this.newUnloadPackages = const [],
-    this.scanned = false
+    this.scanned = false,
+    this.scannedProductArrivalPackageEx
   });
 
   final ProductArrivalStateStatus status;
@@ -27,6 +30,7 @@ class ProductArrivalState {
   final List<ProductArrivalNewUnloadPackage> newUnloadPackages;
 
   final bool scanned;
+  final ProductArrivalPackageEx? scannedProductArrivalPackageEx;
 
   ProductArrival get productArrival => productArrivalEx.productArrival;
   bool get anyPackageAcceptStarted => productArrivalEx.packages.any((e) => e.package.acceptStart != null);
@@ -41,7 +45,8 @@ class ProductArrivalState {
     String? message,
     List<ProductArrivalNewPackage>? newPackages,
     List<ProductArrivalNewUnloadPackage>? newUnloadPackages,
-    bool? scanned
+    bool? scanned,
+    ProductArrivalPackageEx? scannedProductArrivalPackageEx
   }) {
     return ProductArrivalState(
       status: status ?? this.status,
@@ -49,7 +54,8 @@ class ProductArrivalState {
       message: message ?? this.message,
       newPackages: newPackages ?? this.newPackages,
       newUnloadPackages: newUnloadPackages ?? this.newUnloadPackages,
-      scanned: scanned ?? this.scanned
+      scanned: scanned ?? this.scanned,
+      scannedProductArrivalPackageEx: scannedProductArrivalPackageEx ?? this.scannedProductArrivalPackageEx
     );
   }
 }
