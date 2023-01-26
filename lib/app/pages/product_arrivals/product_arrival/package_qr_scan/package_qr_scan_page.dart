@@ -52,7 +52,7 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте место приемки', style: Style.qrScanTitleText)
+                child: const Text('Отсканируйте место пересчета', style: Style.qrScanTitleText)
               )
             ]
           ),
