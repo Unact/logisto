@@ -119,7 +119,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     ProductArrivalViewModel vm = context.read<ProductArrivalViewModel>();
 
     await SimpleQRScanDialog(
-      child: const Text('Отсканируйте точку приемки', style: Style.qrScanTitleText),
+      child: const Text('Отсканируйте место пересчета', style: Style.qrScanTitleText),
       context: context,
       qrType: QRType.storageAcceptPoint,
       onScan: (qrCodeData) => vm.startAccept(qrCodeData[1])
