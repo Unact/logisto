@@ -77,11 +77,11 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
                       suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
                     ),
                     value: vm.state.product,
-                    items: vm.state.packageLineProducts.map((e) => DropdownMenuItem<ApiProduct>(
+                    items: vm.state.packageLineProducts.map((e) => DropdownMenuItem<Product>(
                       value: e,
                       child: Text(e.name, style: Style.listTileText.merge(theme.textTheme.labelMedium))
                     )).toList(),
-                    onChanged: (ApiProduct? newVal) => newVal != null ? vm.setProduct(newVal) : null
+                    onChanged: (Product? newVal) => newVal != null ? vm.setProduct(newVal) : null
                   ),
                   TextFormField(
                     focusNode: amountFocus,

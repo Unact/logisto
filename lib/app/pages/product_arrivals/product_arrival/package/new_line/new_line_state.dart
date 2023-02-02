@@ -22,14 +22,14 @@ class NewLineState {
   final NewLineStateStatus status;
   final String message;
   final ProductArrivalPackageEx packageEx;
-  final ApiProduct? product;
+  final Product? product;
   final int? amount;
 
   NewLineState copyWith({
     NewLineStateStatus? status,
     ProductArrivalPackageEx? packageEx,
     String? message,
-    Optional<ApiProduct>? product,
+    Optional<Product>? product,
     Optional<int>? amount
   }) {
     return NewLineState(

@@ -21,6 +21,14 @@ class ApiCredentials extends Table {
   TextColumn get url => text()();
 }
 
+class Products extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get article => text().nullable()();
+  TextColumn get barcodeCode => text().nullable()();
+  TextColumn get barcodeType => text().nullable()();
+}
+
 class ProductArrivals extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get arrivalDate => dateTime()();
@@ -64,8 +72,8 @@ class ProductArrivalPackageLines extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productArrivalPackageId => integer()
     .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
-  IntColumn get productId => integer()();
-  TextColumn get productName => text()();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
   IntColumn get amount => integer()();
 }
 
@@ -73,8 +81,8 @@ class ProductArrivalPackageNewLines extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productArrivalPackageId => integer()
     .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
-  IntColumn get productId => integer()();
-  TextColumn get productName => text()();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
   IntColumn get amount => integer()();
 }
 
@@ -82,8 +90,8 @@ class ProductArrivalPackageNewCells extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productArrivalPackageId => integer()
     .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
-  IntColumn get productId => integer()();
-  TextColumn get productName => text()();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
   IntColumn get storageCellId => integer()();
   TextColumn get storageCellName => text()();
   IntColumn get amount => integer()();

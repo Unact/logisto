@@ -51,11 +51,14 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         List<ProductArrivalEx> productArrivalExs = data.productArrivals.map((e) => e.toDatabaseEnt()).toList();
         List<OrderEx> orderEx = data.orders.map((e) => e.toDatabaseEnt()).toList();
         List<ProductArrival> productArrivals = productArrivalExs.map((e) => e.productArrival).toList();
-        List<ProductArrivalPackageEx> productArrivalPackageEx = productArrivalExs
+        List<ProductArrivalPackageEx> productArrivalPackagesEx = productArrivalExs
           .map((e) => e.packages).expand((e) => e).toList();
-        List<ProductArrivalPackage> productArrivalPackages = productArrivalPackageEx.map((e) => e.package).toList();
-        List<ProductArrivalPackageLine> productArrivalPackageLines = productArrivalPackageEx
+        List<ProductArrivalPackage> productArrivalPackages = productArrivalPackagesEx.map((e) => e.package).toList();
+        List<ProductArrivalPackageLineEx> productArrivalPackageLinesEx = productArrivalPackagesEx
           .map((e) => e.packageLines).expand((e) => e).toList();
+        List<ProductArrivalPackageLine> productArrivalPackageLines = productArrivalPackageLinesEx
+          .map((e) => e.line).toList();
+        List<Product> products = productArrivalPackageLinesEx.map((e) => e.product).toList();
         List<ProductArrivalUnloadPackage> productArrivalUnloadPackages = productArrivalExs
           .map((e) => e.unloadPackages).expand((e) => e).toList();
         List<ProductArrivalPackageType> productArrivalPackageTypes = data.productArrivalPackageTypes
@@ -72,6 +75,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         await dataStore.ordersDao.loadOrders(orders);
         await dataStore.ordersDao.loadOrderLines(orderLines);
         await dataStore.storagesDao.loadStorages(storages);
+        await dataStore.productArrivalsDao.loadProducts(products);
         await dataStore.productArrivalsDao.loadProductArrivals(productArrivals);
         await dataStore.productArrivalsDao.loadProductArrivalPackages(productArrivalPackages);
         await dataStore.productArrivalsDao.loadProductArrivalUnloadPackages(productArrivalUnloadPackages);

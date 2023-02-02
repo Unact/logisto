@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quiver/iterables.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
@@ -10,6 +11,9 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
+import '/app/services/printer.dart';
+import '/app/utils/format.dart';
+import '/app/utils/permissions.dart';
 import '/app/widgets/widgets.dart';
 import 'new_line/new_line_page.dart';
 
@@ -64,7 +68,7 @@ class _PackageViewState extends State<_PackageView> {
         return Scaffold(
           appBar: AppBar(
             title: Text('${package.typeName} ${package.number}. Приемка'),
-            actions: !state.inProgress || state.newLines.isEmpty ?
+            actions: !state.inProgress || state.newLineExList.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept)]
           ),
@@ -96,7 +100,7 @@ class _PackageViewState extends State<_PackageView> {
     List<Widget> lineWidgets = vm.state.packageEx.packageLines.map(
       (packageEx) => _productArrivalPackageLineTile(context, packageEx)
     ).toList();
-    List<Widget> newLineWidgets = vm.state.newLines.map(
+    List<Widget> newLineWidgets = vm.state.newLineExList.map(
       (packageEx) => _productArrivalPackageNewLineTile(context, packageEx)
     ).toList();
 
@@ -110,23 +114,30 @@ class _PackageViewState extends State<_PackageView> {
     );
   }
 
-  Widget _productArrivalPackageLineTile(BuildContext context, ProductArrivalPackageLine line) {
+  Widget _productArrivalPackageLineTile(BuildContext context, ProductArrivalPackageLineEx lineEx) {
     return ListTile(
-      title: Text(line.productName, style: Style.listTileText),
-      trailing: Text(line.amount.toString(), style: Style.listTileText)
+      title: Text(lineEx.product.name, style: Style.listTileText),
+      trailing: Text(lineEx.line.amount.toString(), style: Style.listTileText)
     );
   }
 
-  Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLine newLine) {
+  Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLineEx newLineEx) {
     PackageViewModel vm = context.read<PackageViewModel>();
 
     return Dismissible(
-      key: Key(newLine.hashCode.toString()),
+      key: Key(newLineEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.deleteProductArrivalPackageNewLine(newLine),
+      onDismissed: (direction) => vm.deleteProductArrivalPackageNewLine(newLineEx),
       child: ListTile(
-        title: Text(newLine.productName, style: Style.listTileText),
-        trailing: Text(newLine.amount.toString(), style: Style.listTileText)
+        leading: IconButton(
+          icon: const Icon(Icons.print_sharp),
+          onPressed: () => vm.printProductSticker(newLineEx),
+          tooltip: 'Распечатать места',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(left: 8)
+        ),
+        title: Text(newLineEx.product.name, style: Style.listTileText),
+        trailing: Text(newLineEx.line.amount.toString(), style: Style.listTileText)
       )
     );
   }

@@ -13,13 +13,15 @@ class PackageState {
     this.status = PackageStateStatus.initial,
     required this.packageEx,
     this.message = '',
-    this.newLines = const []
+    this.newLineExList = const [],
+    this.user
   });
 
   final PackageStateStatus status;
   final ProductArrivalPackageEx packageEx;
   final String message;
-  final List<ProductArrivalPackageNewLine> newLines;
+  final List<ProductArrivalPackageNewLineEx> newLineExList;
+  final User? user;
 
   bool get inProgress => packageEx.package.acceptStart != null && packageEx.package.acceptEnd == null;
 
@@ -27,13 +29,15 @@ class PackageState {
     PackageStateStatus? status,
     ProductArrivalPackageEx? packageEx,
     String? message,
-    List<ProductArrivalPackageNewLine>? newLines
+    List<ProductArrivalPackageNewLineEx>? newLineExList,
+    User? user
   }) {
     return PackageState(
       status: status ?? this.status,
       packageEx: packageEx ?? this.packageEx,
       message: message ?? this.message,
-      newLines: newLines ?? this.newLines
+      newLineExList: newLineExList ?? this.newLineExList,
+      user: user ?? this.user
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +20,7 @@ part 'users_dao.dart';
 @DriftDatabase(
   tables: [
     Users,
+    Products,
     ProductArrivals,
     ProductArrivalPackages,
     ProductArrivalUnloadPackages,
@@ -92,7 +94,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

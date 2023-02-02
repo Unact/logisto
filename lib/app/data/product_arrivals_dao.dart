@@ -2,6 +2,7 @@ part of 'database.dart';
 
 @DriftAccessor(
   tables: [
+    Products,
     ProductArrivals,
     ProductArrivalPackages,
     ProductArrivalUnloadPackages,
@@ -15,6 +16,13 @@ part of 'database.dart';
 )
 class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductArrivalsDaoMixin {
   ProductArrivalsDao(AppDataStore db) : super(db);
+
+  Future<void> loadProducts(List<Product> list) async {
+    await batch((batch) {
+      batch.deleteWhere(products, (row) => const Constant(true));
+      batch.insertAll(products, list);
+    });
+  }
 
   Future<void> loadProductArrivals(List<ProductArrival> list) async {
     await batch((batch) {
@@ -51,20 +59,24 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     });
   }
 
+  Future<void> addProduct(Product product) async {
+    await into(products).insert(product, mode: InsertMode.insertOrIgnore);
+  }
+
   Future<void> addProductArrivalNewPackage(ProductArrivalNewPackagesCompanion newPackage) async {
-    await into(productArrivalNewPackages).insert(newPackage);
+    await into(productArrivalNewPackages).insert(newPackage, mode: InsertMode.insertOrIgnore);
   }
 
   Future<void> addProductArrivalPackageNewLine(ProductArrivalPackageNewLinesCompanion newLine) async {
-    await into(productArrivalPackageNewLines).insert(newLine);
+    await into(productArrivalPackageNewLines).insert(newLine, mode: InsertMode.insertOrIgnore);
   }
 
   Future<void> addProductArrivalPackageNewCell(ProductArrivalPackageNewCellsCompanion newCell) async {
-    await into(productArrivalPackageNewCells).insert(newCell);
+    await into(productArrivalPackageNewCells).insert(newCell, mode: InsertMode.insertOrIgnore);
   }
 
   Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) async {
-    await into(productArrivalNewUnloadPackages).insert(newUnloadPackage);
+    await into(productArrivalNewUnloadPackages).insert(newUnloadPackage, mode: InsertMode.insertOrIgnore);
   }
 
   Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) async {
@@ -105,9 +117,9 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
   Future<void> updateProductArrivalEx(ProductArrivalEx productArrivalEx) async {
     await (delete(productArrivals)..where((tbl) => tbl.id.equals(productArrivalEx.productArrival.id))).go();
     await upsertProductArrival(productArrivalEx.productArrival.id, productArrivalEx.productArrival.toCompanion(false));
-    await Future.forEach<ProductArrivalPackageLine>(
+    await Future.forEach<ProductArrivalPackageLineEx>(
       productArrivalEx.packages.map((e) => e.packageLines).expand((e) => e),
-      (e) => upsertProductArrivalPackageLine(e.id, e.toCompanion(false))
+      (e) => upsertProductArrivalPackageLine(e.line.id, e.line.toCompanion(false))
     );
     await Future.forEach<ProductArrivalPackageEx>(
       productArrivalEx.packages,
@@ -146,18 +158,34 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     ).get();
   }
 
-  Future<List<ProductArrivalPackageNewLine>> getProductArrivalPackageNewLines(int productArrivalPackageId) async {
-    return (
-      select(productArrivalPackageNewLines)
-      ..where((e)=> e.productArrivalPackageId.equals(productArrivalPackageId))
-    ).get();
+  Future<List<ProductArrivalPackageNewLineEx>> getProductArrivalPackageNewLinesEx(int productArrivalPackageId) async {
+    final packageNewLinesQuery = select(productArrivalPackageNewLines)
+      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageNewLines.productId))])
+      ..where(productArrivalPackageNewLines.productArrivalPackageId.equals(productArrivalPackageId))
+      ..orderBy([OrderingTerm(expression: products.name)]);
+    final packageNewLinesRes = await packageNewLinesQuery.get();
+
+    return packageNewLinesRes.map((packageLine) {
+      return ProductArrivalPackageNewLineEx(
+        packageLine.readTable(productArrivalPackageNewLines),
+        packageLine.readTable(products)
+      );
+    }).toList();
   }
 
-  Future<List<ProductArrivalPackageNewCell>> getProductArrivalPackageNewCells(int productArrivalPackageId) async {
-    return (
-      select(productArrivalPackageNewCells)
-      ..where((e)=> e.productArrivalPackageId.equals(productArrivalPackageId))
-    ).get();
+  Future<List<ProductArrivalPackageNewCellEx>> getProductArrivalPackageNewCellsEx(int productArrivalPackageId) async {
+    final packageNewCellsQuery = select(productArrivalPackageNewCells)
+      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageNewCells.productId))])
+      ..where(productArrivalPackageNewCells.productArrivalPackageId.equals(productArrivalPackageId))
+      ..orderBy([OrderingTerm(expression: products.name)]);
+    final packageNewCellsRes = await packageNewCellsQuery.get();
+
+    return packageNewCellsRes.map((packageLine) {
+      return ProductArrivalPackageNewCellEx(
+        packageLine.readTable(productArrivalPackageNewCells),
+        packageLine.readTable(products)
+      );
+    }).toList();
   }
 
   Future<List<ProductArrivalNewUnloadPackage>> getProductArrivalNewUnloadPackages(int productArrivalId) async {
@@ -183,17 +211,25 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
       select(productArrivalUnloadPackages)..orderBy([(u) => OrderingTerm(expression: u.typeName)])
     ).get();
     final productArrivalPackageLinesRes = await (
-      select(productArrivalPackageLines)..orderBy([(u) => OrderingTerm(expression: u.productName)])
+      select(productArrivalPackageLines)
+      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
+      ..orderBy([OrderingTerm(expression: products.name)])
     ).get();
 
     return productArrivalsRes.map((productArrival) {
       final productArrivalPackages = productArrivalPackagesRes
         .where((e) => e.productArrivalId == productArrival.readTable(productArrivals).id)
         .map((e) {
-          return ProductArrivalPackageEx(
-            e,
-            productArrivalPackageLinesRes.where((line) => line.productArrivalPackageId == e.id).toList()
-          );
+          final packageLinesRows = productArrivalPackageLinesRes
+            .where((line) => line.readTable(productArrivalPackageLines).productArrivalPackageId == e.id)
+            .map((line) {
+              return ProductArrivalPackageLineEx(
+                line.readTable(productArrivalPackageLines),
+                line.readTable(products)
+              );
+            }).toList();
+
+          return ProductArrivalPackageEx(e, packageLinesRows);
         })
         .toList();
       final productArrivalUnloadPackages = productArrivalUnloadPackagesRes
@@ -209,24 +245,31 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
   }
 
   Future<ProductArrivalEx> getProductArrivalEx(int id) async {
-    return (await _getProductArrivalEx(productArrivals.id.equals(id)))!;
+    return (await _getProductArrivalEx(productArrivals.id.equals(id))).first;
   }
 
   Future<ProductArrivalEx?> getProductArrivalExByNumber(String number) async {
-    return _getProductArrivalEx(productArrivals.number.equals(number));
+    return(await _getProductArrivalEx(productArrivals.number.equals(number))).firstOrNull;
   }
 
   Future<ProductArrivalPackageEx> getProductArrivalPackageEx(int id) async {
-    final productArrivalPackageRow = await (select(productArrivalPackages)..where((t) => t.id.equals(id))).getSingle();
-    final productArrivalPackageLinesQuery = select(productArrivalPackageLines)
-      ..where((t) => t.productArrivalPackageId.equals(productArrivalPackageRow.id))
-      ..orderBy([(u) => OrderingTerm(expression: u.productName)]);
-    final productArrivalPackageLinesRows = await productArrivalPackageLinesQuery.get();
+    final packageRow = await (select(productArrivalPackages)..where((t) => t.id.equals(id))).getSingle();
+    final packageLinesQuery = select(productArrivalPackageLines)
+      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
+      ..where(productArrivalPackageLines.productArrivalPackageId.equals(packageRow.id))
+      ..orderBy([OrderingTerm(expression: products.name)]);
+    final packageLinesRes = await packageLinesQuery.get();
+    final packageLinesRows = packageLinesRes.map((packageLine) {
+      return ProductArrivalPackageLineEx(
+        packageLine.readTable(productArrivalPackageLines),
+        packageLine.readTable(products)
+      );
+    }).toList();
 
-    return ProductArrivalPackageEx(productArrivalPackageRow, productArrivalPackageLinesRows);
+    return ProductArrivalPackageEx(packageRow, packageLinesRows);
   }
 
-  Future<ProductArrivalEx?> _getProductArrivalEx(Expression<bool> whereExp) async {
+  Future<List<ProductArrivalEx>> _getProductArrivalEx(Expression<bool> whereExp) async {
     final productArrivalsQuery = select(productArrivals)
       .join([innerJoin(storages, storages.id.equalsExp(productArrivals.storageId))])
       ..orderBy([
@@ -234,33 +277,48 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
         OrderingTerm(expression: productArrivals.arrivalDate)
       ])
       ..where(whereExp);
-    final productArrivalRow = await productArrivalsQuery.getSingleOrNull();
+    final productArrivalRows = await productArrivalsQuery.get();
 
-    if (productArrivalRow == null) return null;
-
-    final id = productArrivalRow.readTable(productArrivals).id;
     final productArrivalPackagesQuery = select(productArrivalPackages)
-      ..where((t) => t.productArrivalId.equals(id))
+      ..where((t) => t.productArrivalId.isIn(productArrivalRows.map((e) => e.readTable(productArrivals).id)))
       ..orderBy([(u) => OrderingTerm(expression: u.id)]);
-    final productArrivalPackagesRows = await productArrivalPackagesQuery.get();
+    final productArrivalPackagesRes = await productArrivalPackagesQuery.get();
     final productArrivalUnloadPackagesQuery = select(productArrivalUnloadPackages)
-      ..where((t) => t.productArrivalId.equals(id))
+      ..where((t) => t.productArrivalId.isIn(productArrivalRows.map((e) => e.readTable(productArrivals).id)))
       ..orderBy([(u) => OrderingTerm(expression: u.typeName)]);
     final productArrivalUnloadPackagesRows = await productArrivalUnloadPackagesQuery.get();
     final productArrivalPackageLinesQuery = select(productArrivalPackageLines)
-      ..where((t) => t.productArrivalPackageId.isIn(productArrivalPackagesRows.map((e) => e.id)))
-      ..orderBy([(u) => OrderingTerm(expression: u.productName)]);
-    final productArrivalPackageLinesRows = await productArrivalPackageLinesQuery.get();
+      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
+      ..where(productArrivalPackageLines.productArrivalPackageId.isIn(productArrivalPackagesRes.map((e) => e.id)))
+      ..orderBy([OrderingTerm(expression: products.name)]);
+    final productArrivalPackageLinesRes = await productArrivalPackageLinesQuery.get();
+    final productArrivalPackageLinesRows = productArrivalPackageLinesRes.map((packageLine) {
+      return ProductArrivalPackageLineEx(
+        packageLine.readTable(productArrivalPackageLines),
+        packageLine.readTable(products)
+      );
+    }).toList();
+    final productArrivalPackagesRows = productArrivalPackagesRes.map((e) => ProductArrivalPackageEx(
+      e,
+      productArrivalPackageLinesRows.where((lineEx) => lineEx.line.productArrivalPackageId == e.id).toList()
+    )).toList();
 
-    return ProductArrivalEx(
-      productArrivalRow.readTable(productArrivals),
-      productArrivalRow.readTable(storages),
-      productArrivalPackagesRows.map((e) => ProductArrivalPackageEx(
-        e,
-        productArrivalPackageLinesRows.where((line) => line.productArrivalPackageId == e.id).toList()
-      )).toList(),
-      productArrivalUnloadPackagesRows
-    );
+    return productArrivalRows.map((productArrivalRow) {
+      final productArrival = productArrivalRow.readTable(productArrivals);
+      final packages = productArrivalPackagesRows
+        .where((packageEx) => packageEx.package.productArrivalId == productArrival.id)
+        .toList();
+      final unloadPackages = productArrivalUnloadPackagesRows
+        .where((unloadPackage) => unloadPackage.productArrivalId == productArrival.id)
+        .toList();
+
+      return ProductArrivalEx(
+        productArrival,
+        productArrivalRow.readTable(storages),
+        packages,
+        unloadPackages
+      );
+    }).toList();
   }
 }
 
@@ -275,7 +333,28 @@ class ProductArrivalEx {
 
 class ProductArrivalPackageEx {
   final ProductArrivalPackage package;
-  final List<ProductArrivalPackageLine> packageLines;
+  final List<ProductArrivalPackageLineEx> packageLines;
 
   ProductArrivalPackageEx(this.package, this.packageLines);
+}
+
+class ProductArrivalPackageLineEx {
+  ProductArrivalPackageLine line;
+  Product product;
+
+  ProductArrivalPackageLineEx(this.line, this.product);
+}
+
+class ProductArrivalPackageNewLineEx {
+  ProductArrivalPackageNewLine line;
+  Product product;
+
+  ProductArrivalPackageNewLineEx(this.line, this.product);
+}
+
+class ProductArrivalPackageNewCellEx {
+  final ProductArrivalPackageNewCell newCell;
+  final Product product;
+
+  ProductArrivalPackageNewCellEx(this.newCell, this.product);
 }

@@ -22,9 +22,9 @@ class PackageCellsState {
   final ProductArrivalPackageEx packageEx;
   final String message;
   final ApiStorageCell? storageCell;
-  final List<ProductArrivalPackageNewCell> newCells;
+  final List<ProductArrivalPackageNewCellEx> newCells;
 
-  List<String> get storageCellNames => newCells.map((e) => e.storageCellName).toSet().toList()
+  List<String> get storageCellNames => newCells.map((e) => e.newCell.storageCellName).toSet().toList()
     ..sort((a, b) => a.compareTo(b));
 
   PackageCellsState copyWith({
@@ -32,7 +32,7 @@ class PackageCellsState {
     ProductArrivalPackageEx? packageEx,
     String? message,
     Optional<ApiStorageCell>? storageCell,
-    List<ProductArrivalPackageNewCell>? newCells
+    List<ProductArrivalPackageNewCellEx>? newCells
   }) {
     return PackageCellsState(
       status: status ?? this.status,

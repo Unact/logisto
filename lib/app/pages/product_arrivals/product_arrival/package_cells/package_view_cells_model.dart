@@ -21,7 +21,7 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     emit(state.copyWith(
       status: PackageCellsStateStatus.dataLoaded,
       packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
-      newCells: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewCells(productArrivalPackageId)
+      newCells: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewCellsEx(productArrivalPackageId)
     ));
   }
 
@@ -46,17 +46,26 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     }
   }
 
-  Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCell packageNewCell) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewCell(packageNewCell);
+  Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCellEx packageNewCellEx) async {
+    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
   }
 
-  Future<void> _placeProducts(ProductArrivalPackageEx packageEx, List<ProductArrivalPackageNewCell> newCells) async {
+  Future<void> printProductSticker(ProductArrivalPackageNewCellEx packageNewCellEx) async {
+
+  }
+
+  Future<void> _placeProducts(
+    ProductArrivalPackageEx packageEx,
+    List<ProductArrivalPackageNewCellEx> newCellsEx
+  ) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsPlacePackageProducts(
         id: packageEx.package.id,
-        cells: newCells.map(
-          (e) => { 'storageCellId': e.storageCellId, 'productId': e.productId, 'amount': e.amount }
-        ).toList()
+        cells: newCellsEx.map((e) => {
+          'storageCellId': e.newCell.storageCellId,
+          'productId': e.newCell.productId,
+          'amount': e.newCell.amount
+        }).toList()
       );
 
       await app.dataStore.productArrivalsDao.clearProductArrivalPackageNewCells();

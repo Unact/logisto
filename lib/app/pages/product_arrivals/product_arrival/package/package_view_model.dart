@@ -1,6 +1,8 @@
 part of 'package_page.dart';
 
 class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
+  Printer printer = Printer();
+
   PackageViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
     super(context, PackageState(packageEx: packageEx));
 
@@ -21,16 +23,25 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
 
     emit(state.copyWith(
       status: PackageStateStatus.dataLoaded,
+      user: await app.dataStore.usersDao.getUser(),
       packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
-      newLines: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLines(productArrivalPackageId)
+      newLineExList: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLinesEx(productArrivalPackageId)
     ));
+  }
+
+  Future<void> printProductSticker(ProductArrivalPackageNewLineEx newLineEx) async {
+    await printProduct(newLineEx.product);
+  }
+
+  Future<void> printProduct(Product product) async {
+
   }
 
   Future<void> endAccept() async {
     emit(state.copyWith(status: PackageStateStatus.inProgress));
 
     try {
-      await _endAccept(state.packageEx, state.newLines);
+      await _endAccept(state.packageEx, state.newLineExList);
 
       emit(state.copyWith(status: PackageStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -38,15 +49,15 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
     }
   }
 
-  Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLine packageNewLine) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewLine(packageNewLine);
+  Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLineEx packageNewLineEx) async {
+    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewLine(packageNewLineEx.line);
   }
 
-  Future<void> _endAccept(ProductArrivalPackageEx packageEx, List<ProductArrivalPackageNewLine> newLines) async {
+  Future<void> _endAccept(ProductArrivalPackageEx packageEx, List<ProductArrivalPackageNewLineEx> newLineExList) async {
     try {
       ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishPackageAccept(
         id: packageEx.package.id,
-        lines: newLines.map((e) => { 'productId': e.productId, 'amount': e.amount }).toList()
+        lines: newLineExList.map((e) => { 'productId': e.product.id, 'amount': e.line.amount }).toList()
       );
 
       await app.dataStore.productArrivalsDao.clearProductArrivalPackageNewLines();

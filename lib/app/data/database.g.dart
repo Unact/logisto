@@ -406,6 +406,300 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       const JsonIntListConverter();
 }
 
+class Product extends DataClass implements Insertable<Product> {
+  final int id;
+  final String name;
+  final String? article;
+  final String? barcodeCode;
+  final String? barcodeType;
+  Product(
+      {required this.id,
+      required this.name,
+      this.article,
+      this.barcodeCode,
+      this.barcodeType});
+  factory Product.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return Product(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      article: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}article']),
+      barcodeCode: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}barcode_code']),
+      barcodeType: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}barcode_type']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || article != null) {
+      map['article'] = Variable<String?>(article);
+    }
+    if (!nullToAbsent || barcodeCode != null) {
+      map['barcode_code'] = Variable<String?>(barcodeCode);
+    }
+    if (!nullToAbsent || barcodeType != null) {
+      map['barcode_type'] = Variable<String?>(barcodeType);
+    }
+    return map;
+  }
+
+  ProductsCompanion toCompanion(bool nullToAbsent) {
+    return ProductsCompanion(
+      id: Value(id),
+      name: Value(name),
+      article: article == null && nullToAbsent
+          ? const Value.absent()
+          : Value(article),
+      barcodeCode: barcodeCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcodeCode),
+      barcodeType: barcodeType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcodeType),
+    );
+  }
+
+  factory Product.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Product(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      article: serializer.fromJson<String?>(json['article']),
+      barcodeCode: serializer.fromJson<String?>(json['barcodeCode']),
+      barcodeType: serializer.fromJson<String?>(json['barcodeType']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'article': serializer.toJson<String?>(article),
+      'barcodeCode': serializer.toJson<String?>(barcodeCode),
+      'barcodeType': serializer.toJson<String?>(barcodeType),
+    };
+  }
+
+  Product copyWith(
+          {int? id,
+          String? name,
+          String? article,
+          String? barcodeCode,
+          String? barcodeType}) =>
+      Product(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        article: article ?? this.article,
+        barcodeCode: barcodeCode ?? this.barcodeCode,
+        barcodeType: barcodeType ?? this.barcodeType,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Product(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('article: $article, ')
+          ..write('barcodeCode: $barcodeCode, ')
+          ..write('barcodeType: $barcodeType')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, article, barcodeCode, barcodeType);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Product &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.article == this.article &&
+          other.barcodeCode == this.barcodeCode &&
+          other.barcodeType == this.barcodeType);
+}
+
+class ProductsCompanion extends UpdateCompanion<Product> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> article;
+  final Value<String?> barcodeCode;
+  final Value<String?> barcodeType;
+  const ProductsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.article = const Value.absent(),
+    this.barcodeCode = const Value.absent(),
+    this.barcodeType = const Value.absent(),
+  });
+  ProductsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.article = const Value.absent(),
+    this.barcodeCode = const Value.absent(),
+    this.barcodeType = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<Product> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String?>? article,
+    Expression<String?>? barcodeCode,
+    Expression<String?>? barcodeType,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (article != null) 'article': article,
+      if (barcodeCode != null) 'barcode_code': barcodeCode,
+      if (barcodeType != null) 'barcode_type': barcodeType,
+    });
+  }
+
+  ProductsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String?>? article,
+      Value<String?>? barcodeCode,
+      Value<String?>? barcodeType}) {
+    return ProductsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      article: article ?? this.article,
+      barcodeCode: barcodeCode ?? this.barcodeCode,
+      barcodeType: barcodeType ?? this.barcodeType,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (article.present) {
+      map['article'] = Variable<String?>(article.value);
+    }
+    if (barcodeCode.present) {
+      map['barcode_code'] = Variable<String?>(barcodeCode.value);
+    }
+    if (barcodeType.present) {
+      map['barcode_type'] = Variable<String?>(barcodeType.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('article: $article, ')
+          ..write('barcodeCode: $barcodeCode, ')
+          ..write('barcodeType: $barcodeType')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _articleMeta = const VerificationMeta('article');
+  @override
+  late final GeneratedColumn<String?> article = GeneratedColumn<String?>(
+      'article', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _barcodeCodeMeta =
+      const VerificationMeta('barcodeCode');
+  @override
+  late final GeneratedColumn<String?> barcodeCode = GeneratedColumn<String?>(
+      'barcode_code', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _barcodeTypeMeta =
+      const VerificationMeta('barcodeType');
+  @override
+  late final GeneratedColumn<String?> barcodeType = GeneratedColumn<String?>(
+      'barcode_type', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, article, barcodeCode, barcodeType];
+  @override
+  String get aliasedName => _alias ?? 'products';
+  @override
+  String get actualTableName => 'products';
+  @override
+  VerificationContext validateIntegrity(Insertable<Product> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('article')) {
+      context.handle(_articleMeta,
+          article.isAcceptableOrUnknown(data['article']!, _articleMeta));
+    }
+    if (data.containsKey('barcode_code')) {
+      context.handle(
+          _barcodeCodeMeta,
+          barcodeCode.isAcceptableOrUnknown(
+              data['barcode_code']!, _barcodeCodeMeta));
+    }
+    if (data.containsKey('barcode_type')) {
+      context.handle(
+          _barcodeTypeMeta,
+          barcodeType.isAcceptableOrUnknown(
+              data['barcode_type']!, _barcodeTypeMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Product map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return Product.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductsTable createAlias(String alias) {
+    return $ProductsTable(attachedDatabase, alias);
+  }
+}
+
 class Storage extends DataClass implements Insertable<Storage> {
   final int id;
   final String name;
@@ -2014,13 +2308,11 @@ class ProductArrivalPackageLine extends DataClass
   final int id;
   final int productArrivalPackageId;
   final int productId;
-  final String productName;
   final int amount;
   ProductArrivalPackageLine(
       {required this.id,
       required this.productArrivalPackageId,
       required this.productId,
-      required this.productName,
       required this.amount});
   factory ProductArrivalPackageLine.fromData(Map<String, dynamic> data,
       {String? prefix}) {
@@ -2032,8 +2324,6 @@ class ProductArrivalPackageLine extends DataClass
           data['${effectivePrefix}product_arrival_package_id'])!,
       productId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
-      productName: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
       amount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
     );
@@ -2044,7 +2334,6 @@ class ProductArrivalPackageLine extends DataClass
     map['id'] = Variable<int>(id);
     map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
     map['product_id'] = Variable<int>(productId);
-    map['product_name'] = Variable<String>(productName);
     map['amount'] = Variable<int>(amount);
     return map;
   }
@@ -2054,7 +2343,6 @@ class ProductArrivalPackageLine extends DataClass
       id: Value(id),
       productArrivalPackageId: Value(productArrivalPackageId),
       productId: Value(productId),
-      productName: Value(productName),
       amount: Value(amount),
     );
   }
@@ -2067,7 +2355,6 @@ class ProductArrivalPackageLine extends DataClass
       productArrivalPackageId:
           serializer.fromJson<int>(json['productArrivalPackageId']),
       productId: serializer.fromJson<int>(json['productId']),
-      productName: serializer.fromJson<String>(json['productName']),
       amount: serializer.fromJson<int>(json['amount']),
     );
   }
@@ -2079,7 +2366,6 @@ class ProductArrivalPackageLine extends DataClass
       'productArrivalPackageId':
           serializer.toJson<int>(productArrivalPackageId),
       'productId': serializer.toJson<int>(productId),
-      'productName': serializer.toJson<String>(productName),
       'amount': serializer.toJson<int>(amount),
     };
   }
@@ -2088,14 +2374,12 @@ class ProductArrivalPackageLine extends DataClass
           {int? id,
           int? productArrivalPackageId,
           int? productId,
-          String? productName,
           int? amount}) =>
       ProductArrivalPackageLine(
         id: id ?? this.id,
         productArrivalPackageId:
             productArrivalPackageId ?? this.productArrivalPackageId,
         productId: productId ?? this.productId,
-        productName: productName ?? this.productName,
         amount: amount ?? this.amount,
       );
   @override
@@ -2104,7 +2388,6 @@ class ProductArrivalPackageLine extends DataClass
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -2112,7 +2395,7 @@ class ProductArrivalPackageLine extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, productArrivalPackageId, productId, productName, amount);
+      Object.hash(id, productArrivalPackageId, productId, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2120,7 +2403,6 @@ class ProductArrivalPackageLine extends DataClass
           other.id == this.id &&
           other.productArrivalPackageId == this.productArrivalPackageId &&
           other.productId == this.productId &&
-          other.productName == this.productName &&
           other.amount == this.amount);
 }
 
@@ -2129,30 +2411,25 @@ class ProductArrivalPackageLinesCompanion
   final Value<int> id;
   final Value<int> productArrivalPackageId;
   final Value<int> productId;
-  final Value<String> productName;
   final Value<int> amount;
   const ProductArrivalPackageLinesCompanion({
     this.id = const Value.absent(),
     this.productArrivalPackageId = const Value.absent(),
     this.productId = const Value.absent(),
-    this.productName = const Value.absent(),
     this.amount = const Value.absent(),
   });
   ProductArrivalPackageLinesCompanion.insert({
     this.id = const Value.absent(),
     required int productArrivalPackageId,
     required int productId,
-    required String productName,
     required int amount,
   })  : productArrivalPackageId = Value(productArrivalPackageId),
         productId = Value(productId),
-        productName = Value(productName),
         amount = Value(amount);
   static Insertable<ProductArrivalPackageLine> custom({
     Expression<int>? id,
     Expression<int>? productArrivalPackageId,
     Expression<int>? productId,
-    Expression<String>? productName,
     Expression<int>? amount,
   }) {
     return RawValuesInsertable({
@@ -2160,7 +2437,6 @@ class ProductArrivalPackageLinesCompanion
       if (productArrivalPackageId != null)
         'product_arrival_package_id': productArrivalPackageId,
       if (productId != null) 'product_id': productId,
-      if (productName != null) 'product_name': productName,
       if (amount != null) 'amount': amount,
     });
   }
@@ -2169,14 +2445,12 @@ class ProductArrivalPackageLinesCompanion
       {Value<int>? id,
       Value<int>? productArrivalPackageId,
       Value<int>? productId,
-      Value<String>? productName,
       Value<int>? amount}) {
     return ProductArrivalPackageLinesCompanion(
       id: id ?? this.id,
       productArrivalPackageId:
           productArrivalPackageId ?? this.productArrivalPackageId,
       productId: productId ?? this.productId,
-      productName: productName ?? this.productName,
       amount: amount ?? this.amount,
     );
   }
@@ -2194,9 +2468,6 @@ class ProductArrivalPackageLinesCompanion
     if (productId.present) {
       map['product_id'] = Variable<int>(productId.value);
     }
-    if (productName.present) {
-      map['product_name'] = Variable<String>(productName.value);
-    }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
     }
@@ -2209,7 +2480,6 @@ class ProductArrivalPackageLinesCompanion
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -2243,13 +2513,9 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
   @override
   late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
       'product_id', aliasedName, false,
-      type: const IntType(), requiredDuringInsert: true);
-  final VerificationMeta _productNameMeta =
-      const VerificationMeta('productName');
-  @override
-  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
-      'product_name', aliasedName, false,
-      type: const StringType(), requiredDuringInsert: true);
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
   final VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
@@ -2257,7 +2523,7 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
       type: const IntType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, productArrivalPackageId, productId, productName, amount];
+      [id, productArrivalPackageId, productId, amount];
   @override
   String get aliasedName => _alias ?? 'product_arrival_package_lines';
   @override
@@ -2285,14 +2551,6 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
           productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
     } else if (isInserting) {
       context.missing(_productIdMeta);
-    }
-    if (data.containsKey('product_name')) {
-      context.handle(
-          _productNameMeta,
-          productName.isAcceptableOrUnknown(
-              data['product_name']!, _productNameMeta));
-    } else if (isInserting) {
-      context.missing(_productNameMeta);
     }
     if (data.containsKey('amount')) {
       context.handle(_amountMeta,
@@ -2620,13 +2878,11 @@ class ProductArrivalPackageNewLine extends DataClass
   final int id;
   final int productArrivalPackageId;
   final int productId;
-  final String productName;
   final int amount;
   ProductArrivalPackageNewLine(
       {required this.id,
       required this.productArrivalPackageId,
       required this.productId,
-      required this.productName,
       required this.amount});
   factory ProductArrivalPackageNewLine.fromData(Map<String, dynamic> data,
       {String? prefix}) {
@@ -2638,8 +2894,6 @@ class ProductArrivalPackageNewLine extends DataClass
           data['${effectivePrefix}product_arrival_package_id'])!,
       productId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
-      productName: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
       amount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
     );
@@ -2650,7 +2904,6 @@ class ProductArrivalPackageNewLine extends DataClass
     map['id'] = Variable<int>(id);
     map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
     map['product_id'] = Variable<int>(productId);
-    map['product_name'] = Variable<String>(productName);
     map['amount'] = Variable<int>(amount);
     return map;
   }
@@ -2660,7 +2913,6 @@ class ProductArrivalPackageNewLine extends DataClass
       id: Value(id),
       productArrivalPackageId: Value(productArrivalPackageId),
       productId: Value(productId),
-      productName: Value(productName),
       amount: Value(amount),
     );
   }
@@ -2673,7 +2925,6 @@ class ProductArrivalPackageNewLine extends DataClass
       productArrivalPackageId:
           serializer.fromJson<int>(json['productArrivalPackageId']),
       productId: serializer.fromJson<int>(json['productId']),
-      productName: serializer.fromJson<String>(json['productName']),
       amount: serializer.fromJson<int>(json['amount']),
     );
   }
@@ -2685,7 +2936,6 @@ class ProductArrivalPackageNewLine extends DataClass
       'productArrivalPackageId':
           serializer.toJson<int>(productArrivalPackageId),
       'productId': serializer.toJson<int>(productId),
-      'productName': serializer.toJson<String>(productName),
       'amount': serializer.toJson<int>(amount),
     };
   }
@@ -2694,14 +2944,12 @@ class ProductArrivalPackageNewLine extends DataClass
           {int? id,
           int? productArrivalPackageId,
           int? productId,
-          String? productName,
           int? amount}) =>
       ProductArrivalPackageNewLine(
         id: id ?? this.id,
         productArrivalPackageId:
             productArrivalPackageId ?? this.productArrivalPackageId,
         productId: productId ?? this.productId,
-        productName: productName ?? this.productName,
         amount: amount ?? this.amount,
       );
   @override
@@ -2710,7 +2958,6 @@ class ProductArrivalPackageNewLine extends DataClass
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -2718,7 +2965,7 @@ class ProductArrivalPackageNewLine extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, productArrivalPackageId, productId, productName, amount);
+      Object.hash(id, productArrivalPackageId, productId, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2726,7 +2973,6 @@ class ProductArrivalPackageNewLine extends DataClass
           other.id == this.id &&
           other.productArrivalPackageId == this.productArrivalPackageId &&
           other.productId == this.productId &&
-          other.productName == this.productName &&
           other.amount == this.amount);
 }
 
@@ -2735,30 +2981,25 @@ class ProductArrivalPackageNewLinesCompanion
   final Value<int> id;
   final Value<int> productArrivalPackageId;
   final Value<int> productId;
-  final Value<String> productName;
   final Value<int> amount;
   const ProductArrivalPackageNewLinesCompanion({
     this.id = const Value.absent(),
     this.productArrivalPackageId = const Value.absent(),
     this.productId = const Value.absent(),
-    this.productName = const Value.absent(),
     this.amount = const Value.absent(),
   });
   ProductArrivalPackageNewLinesCompanion.insert({
     this.id = const Value.absent(),
     required int productArrivalPackageId,
     required int productId,
-    required String productName,
     required int amount,
   })  : productArrivalPackageId = Value(productArrivalPackageId),
         productId = Value(productId),
-        productName = Value(productName),
         amount = Value(amount);
   static Insertable<ProductArrivalPackageNewLine> custom({
     Expression<int>? id,
     Expression<int>? productArrivalPackageId,
     Expression<int>? productId,
-    Expression<String>? productName,
     Expression<int>? amount,
   }) {
     return RawValuesInsertable({
@@ -2766,7 +3007,6 @@ class ProductArrivalPackageNewLinesCompanion
       if (productArrivalPackageId != null)
         'product_arrival_package_id': productArrivalPackageId,
       if (productId != null) 'product_id': productId,
-      if (productName != null) 'product_name': productName,
       if (amount != null) 'amount': amount,
     });
   }
@@ -2775,14 +3015,12 @@ class ProductArrivalPackageNewLinesCompanion
       {Value<int>? id,
       Value<int>? productArrivalPackageId,
       Value<int>? productId,
-      Value<String>? productName,
       Value<int>? amount}) {
     return ProductArrivalPackageNewLinesCompanion(
       id: id ?? this.id,
       productArrivalPackageId:
           productArrivalPackageId ?? this.productArrivalPackageId,
       productId: productId ?? this.productId,
-      productName: productName ?? this.productName,
       amount: amount ?? this.amount,
     );
   }
@@ -2800,9 +3038,6 @@ class ProductArrivalPackageNewLinesCompanion
     if (productId.present) {
       map['product_id'] = Variable<int>(productId.value);
     }
-    if (productName.present) {
-      map['product_name'] = Variable<String>(productName.value);
-    }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
     }
@@ -2815,7 +3050,6 @@ class ProductArrivalPackageNewLinesCompanion
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -2850,13 +3084,9 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
   @override
   late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
       'product_id', aliasedName, false,
-      type: const IntType(), requiredDuringInsert: true);
-  final VerificationMeta _productNameMeta =
-      const VerificationMeta('productName');
-  @override
-  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
-      'product_name', aliasedName, false,
-      type: const StringType(), requiredDuringInsert: true);
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
   final VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
@@ -2864,7 +3094,7 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
       type: const IntType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, productArrivalPackageId, productId, productName, amount];
+      [id, productArrivalPackageId, productId, amount];
   @override
   String get aliasedName => _alias ?? 'product_arrival_package_new_lines';
   @override
@@ -2892,14 +3122,6 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
           productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
     } else if (isInserting) {
       context.missing(_productIdMeta);
-    }
-    if (data.containsKey('product_name')) {
-      context.handle(
-          _productNameMeta,
-          productName.isAcceptableOrUnknown(
-              data['product_name']!, _productNameMeta));
-    } else if (isInserting) {
-      context.missing(_productNameMeta);
     }
     if (data.containsKey('amount')) {
       context.handle(_amountMeta,
@@ -2930,7 +3152,6 @@ class ProductArrivalPackageNewCell extends DataClass
   final int id;
   final int productArrivalPackageId;
   final int productId;
-  final String productName;
   final int storageCellId;
   final String storageCellName;
   final int amount;
@@ -2938,7 +3159,6 @@ class ProductArrivalPackageNewCell extends DataClass
       {required this.id,
       required this.productArrivalPackageId,
       required this.productId,
-      required this.productName,
       required this.storageCellId,
       required this.storageCellName,
       required this.amount});
@@ -2952,8 +3172,6 @@ class ProductArrivalPackageNewCell extends DataClass
           data['${effectivePrefix}product_arrival_package_id'])!,
       productId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
-      productName: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}product_name'])!,
       storageCellId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}storage_cell_id'])!,
       storageCellName: const StringType().mapFromDatabaseResponse(
@@ -2968,7 +3186,6 @@ class ProductArrivalPackageNewCell extends DataClass
     map['id'] = Variable<int>(id);
     map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
     map['product_id'] = Variable<int>(productId);
-    map['product_name'] = Variable<String>(productName);
     map['storage_cell_id'] = Variable<int>(storageCellId);
     map['storage_cell_name'] = Variable<String>(storageCellName);
     map['amount'] = Variable<int>(amount);
@@ -2980,7 +3197,6 @@ class ProductArrivalPackageNewCell extends DataClass
       id: Value(id),
       productArrivalPackageId: Value(productArrivalPackageId),
       productId: Value(productId),
-      productName: Value(productName),
       storageCellId: Value(storageCellId),
       storageCellName: Value(storageCellName),
       amount: Value(amount),
@@ -2995,7 +3211,6 @@ class ProductArrivalPackageNewCell extends DataClass
       productArrivalPackageId:
           serializer.fromJson<int>(json['productArrivalPackageId']),
       productId: serializer.fromJson<int>(json['productId']),
-      productName: serializer.fromJson<String>(json['productName']),
       storageCellId: serializer.fromJson<int>(json['storageCellId']),
       storageCellName: serializer.fromJson<String>(json['storageCellName']),
       amount: serializer.fromJson<int>(json['amount']),
@@ -3009,7 +3224,6 @@ class ProductArrivalPackageNewCell extends DataClass
       'productArrivalPackageId':
           serializer.toJson<int>(productArrivalPackageId),
       'productId': serializer.toJson<int>(productId),
-      'productName': serializer.toJson<String>(productName),
       'storageCellId': serializer.toJson<int>(storageCellId),
       'storageCellName': serializer.toJson<String>(storageCellName),
       'amount': serializer.toJson<int>(amount),
@@ -3020,7 +3234,6 @@ class ProductArrivalPackageNewCell extends DataClass
           {int? id,
           int? productArrivalPackageId,
           int? productId,
-          String? productName,
           int? storageCellId,
           String? storageCellName,
           int? amount}) =>
@@ -3029,7 +3242,6 @@ class ProductArrivalPackageNewCell extends DataClass
         productArrivalPackageId:
             productArrivalPackageId ?? this.productArrivalPackageId,
         productId: productId ?? this.productId,
-        productName: productName ?? this.productName,
         storageCellId: storageCellId ?? this.storageCellId,
         storageCellName: storageCellName ?? this.storageCellName,
         amount: amount ?? this.amount,
@@ -3040,7 +3252,6 @@ class ProductArrivalPackageNewCell extends DataClass
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('storageCellId: $storageCellId, ')
           ..write('storageCellName: $storageCellName, ')
           ..write('amount: $amount')
@@ -3050,7 +3261,7 @@ class ProductArrivalPackageNewCell extends DataClass
 
   @override
   int get hashCode => Object.hash(id, productArrivalPackageId, productId,
-      productName, storageCellId, storageCellName, amount);
+      storageCellId, storageCellName, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3058,7 +3269,6 @@ class ProductArrivalPackageNewCell extends DataClass
           other.id == this.id &&
           other.productArrivalPackageId == this.productArrivalPackageId &&
           other.productId == this.productId &&
-          other.productName == this.productName &&
           other.storageCellId == this.storageCellId &&
           other.storageCellName == this.storageCellName &&
           other.amount == this.amount);
@@ -3069,7 +3279,6 @@ class ProductArrivalPackageNewCellsCompanion
   final Value<int> id;
   final Value<int> productArrivalPackageId;
   final Value<int> productId;
-  final Value<String> productName;
   final Value<int> storageCellId;
   final Value<String> storageCellName;
   final Value<int> amount;
@@ -3077,7 +3286,6 @@ class ProductArrivalPackageNewCellsCompanion
     this.id = const Value.absent(),
     this.productArrivalPackageId = const Value.absent(),
     this.productId = const Value.absent(),
-    this.productName = const Value.absent(),
     this.storageCellId = const Value.absent(),
     this.storageCellName = const Value.absent(),
     this.amount = const Value.absent(),
@@ -3086,13 +3294,11 @@ class ProductArrivalPackageNewCellsCompanion
     this.id = const Value.absent(),
     required int productArrivalPackageId,
     required int productId,
-    required String productName,
     required int storageCellId,
     required String storageCellName,
     required int amount,
   })  : productArrivalPackageId = Value(productArrivalPackageId),
         productId = Value(productId),
-        productName = Value(productName),
         storageCellId = Value(storageCellId),
         storageCellName = Value(storageCellName),
         amount = Value(amount);
@@ -3100,7 +3306,6 @@ class ProductArrivalPackageNewCellsCompanion
     Expression<int>? id,
     Expression<int>? productArrivalPackageId,
     Expression<int>? productId,
-    Expression<String>? productName,
     Expression<int>? storageCellId,
     Expression<String>? storageCellName,
     Expression<int>? amount,
@@ -3110,7 +3315,6 @@ class ProductArrivalPackageNewCellsCompanion
       if (productArrivalPackageId != null)
         'product_arrival_package_id': productArrivalPackageId,
       if (productId != null) 'product_id': productId,
-      if (productName != null) 'product_name': productName,
       if (storageCellId != null) 'storage_cell_id': storageCellId,
       if (storageCellName != null) 'storage_cell_name': storageCellName,
       if (amount != null) 'amount': amount,
@@ -3121,7 +3325,6 @@ class ProductArrivalPackageNewCellsCompanion
       {Value<int>? id,
       Value<int>? productArrivalPackageId,
       Value<int>? productId,
-      Value<String>? productName,
       Value<int>? storageCellId,
       Value<String>? storageCellName,
       Value<int>? amount}) {
@@ -3130,7 +3333,6 @@ class ProductArrivalPackageNewCellsCompanion
       productArrivalPackageId:
           productArrivalPackageId ?? this.productArrivalPackageId,
       productId: productId ?? this.productId,
-      productName: productName ?? this.productName,
       storageCellId: storageCellId ?? this.storageCellId,
       storageCellName: storageCellName ?? this.storageCellName,
       amount: amount ?? this.amount,
@@ -3150,9 +3352,6 @@ class ProductArrivalPackageNewCellsCompanion
     if (productId.present) {
       map['product_id'] = Variable<int>(productId.value);
     }
-    if (productName.present) {
-      map['product_name'] = Variable<String>(productName.value);
-    }
     if (storageCellId.present) {
       map['storage_cell_id'] = Variable<int>(storageCellId.value);
     }
@@ -3171,7 +3370,6 @@ class ProductArrivalPackageNewCellsCompanion
           ..write('id: $id, ')
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
-          ..write('productName: $productName, ')
           ..write('storageCellId: $storageCellId, ')
           ..write('storageCellName: $storageCellName, ')
           ..write('amount: $amount')
@@ -3208,13 +3406,9 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
   @override
   late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
       'product_id', aliasedName, false,
-      type: const IntType(), requiredDuringInsert: true);
-  final VerificationMeta _productNameMeta =
-      const VerificationMeta('productName');
-  @override
-  late final GeneratedColumn<String?> productName = GeneratedColumn<String?>(
-      'product_name', aliasedName, false,
-      type: const StringType(), requiredDuringInsert: true);
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
   final VerificationMeta _storageCellIdMeta =
       const VerificationMeta('storageCellId');
   @override
@@ -3237,7 +3431,6 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
         id,
         productArrivalPackageId,
         productId,
-        productName,
         storageCellId,
         storageCellName,
         amount
@@ -3269,14 +3462,6 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
           productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
     } else if (isInserting) {
       context.missing(_productIdMeta);
-    }
-    if (data.containsKey('product_name')) {
-      context.handle(
-          _productNameMeta,
-          productName.isAcceptableOrUnknown(
-              data['product_name']!, _productNameMeta));
-    } else if (isInserting) {
-      context.missing(_productNameMeta);
     }
     if (data.containsKey('storage_cell_id')) {
       context.handle(
@@ -5304,6 +5489,7 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final $UsersTable users = $UsersTable(this);
+  late final $ProductsTable products = $ProductsTable(this);
   late final $StoragesTable storages = $StoragesTable(this);
   late final $ProductArrivalsTable productArrivals =
       $ProductArrivalsTable(this);
@@ -5340,6 +5526,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         users,
+        products,
         storages,
         productArrivals,
         productArrivalPackages,
@@ -5371,6 +5558,7 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
       attachedDatabase.productArrivalPackages;
   $ProductArrivalUnloadPackagesTable get productArrivalUnloadPackages =>
       attachedDatabase.productArrivalUnloadPackages;
+  $ProductsTable get products => attachedDatabase.products;
   $ProductArrivalPackageLinesTable get productArrivalPackageLines =>
       attachedDatabase.productArrivalPackageLines;
   $ProductArrivalPackageTypesTable get productArrivalPackageTypes =>

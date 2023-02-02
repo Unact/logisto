@@ -115,8 +115,8 @@ class PackageCellsViewState extends State<_PackageCellsView> {
   Widget _lineList(BuildContext context) {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
     List<Widget> storageCellWidgets = vm.state.storageCellNames.map(((storageCellName) {
-      List<ProductArrivalPackageNewCell> newCells = vm.state.newCells
-        .where((e) => e.storageCellName == storageCellName).toList();
+      List<ProductArrivalPackageNewCellEx> newCells = vm.state.newCells
+        .where((e) => e.newCell.storageCellName == storageCellName).toList();
 
       return ExpansionTile(
         title: Text(storageCellName, style: const TextStyle(fontSize: 14)),
@@ -133,16 +133,23 @@ class PackageCellsViewState extends State<_PackageCellsView> {
     );
   }
 
-  Widget _productArrivalPackageNewCellTile(BuildContext context, ProductArrivalPackageNewCell newCell) {
+  Widget _productArrivalPackageNewCellTile(BuildContext context, ProductArrivalPackageNewCellEx newCellEx) {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
 
     return Dismissible(
-      key: Key(newCell.hashCode.toString()),
+      key: Key(newCellEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCell),
+      onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCellEx),
       child: ListTile(
-        title: Text(newCell.productName, style: Style.listTileText),
-        trailing: Text(newCell.amount.toString(), style: Style.listTileText)
+        leading: IconButton(
+          icon: const Icon(Icons.print_sharp),
+          onPressed: () => vm.printProductSticker(newCellEx),
+          tooltip: 'Распечатать места',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(left: 8)
+        ),
+        title: Text(newCellEx.product.name, style: Style.listTileText),
+        trailing: Text(newCellEx.newCell.amount.toString(), style: Style.listTileText)
       )
     );
   }
