@@ -10,6 +10,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
@@ -143,7 +144,7 @@ class PackageCellsViewState extends State<_PackageCellsView> {
       child: ListTile(
         leading: IconButton(
           icon: const Icon(Icons.print_sharp),
-          onPressed: () => vm.printProductSticker(newCellEx),
+          onPressed: () => vm.printProductLabel(newCellEx.product),
           tooltip: 'Распечатать места',
           constraints: const BoxConstraints(),
           padding: const EdgeInsets.only(left: 8)

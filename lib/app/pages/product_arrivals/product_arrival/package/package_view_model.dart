@@ -1,8 +1,6 @@
 part of 'package_page.dart';
 
 class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
-  Printer printer = Printer();
-
   PackageViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
     super(context, PackageState(packageEx: packageEx));
 
@@ -29,12 +27,10 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
     ));
   }
 
-  Future<void> printProductSticker(ProductArrivalPackageNewLineEx newLineEx) async {
-    await printProduct(newLineEx.product);
-  }
-
-  Future<void> printProduct(Product product) async {
-
+  Future<void> printProductLabel(Product product) async {
+    ProductLabel(product: product, user: state.user!).print(
+      onError: (String error) => emit(state.copyWith(status: PackageStateStatus.failure, message: error))
+    );
   }
 
   Future<void> endAccept() async {

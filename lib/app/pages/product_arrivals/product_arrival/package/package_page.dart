@@ -3,17 +3,14 @@ import 'dart:async';
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quiver/iterables.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
-import '/app/services/printer.dart';
-import '/app/utils/format.dart';
-import '/app/utils/permissions.dart';
 import '/app/widgets/widgets.dart';
 import 'new_line/new_line_page.dart';
 
@@ -131,8 +128,8 @@ class _PackageViewState extends State<_PackageView> {
       child: ListTile(
         leading: IconButton(
           icon: const Icon(Icons.print_sharp),
-          onPressed: () => vm.printProductSticker(newLineEx),
-          tooltip: 'Распечатать места',
+          onPressed: () => vm.printProductLabel(newLineEx.product),
+          tooltip: 'Распечатать этикетку',
           constraints: const BoxConstraints(),
           padding: const EdgeInsets.only(left: 8)
         ),

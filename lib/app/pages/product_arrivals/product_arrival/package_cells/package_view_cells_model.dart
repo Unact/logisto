@@ -20,6 +20,7 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
 
     emit(state.copyWith(
       status: PackageCellsStateStatus.dataLoaded,
+      user: await app.dataStore.usersDao.getUser(),
       packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
       newCells: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewCellsEx(productArrivalPackageId)
     ));
@@ -50,8 +51,10 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
   }
 
-  Future<void> printProductSticker(ProductArrivalPackageNewCellEx packageNewCellEx) async {
-
+  Future<void> printProductLabel(Product product) async {
+    ProductLabel(product: product, user: state.user!).print(
+      onError: (String error) => emit(state.copyWith(status: PackageCellsStateStatus.failure, message: error))
+    );
   }
 
   Future<void> _placeProducts(

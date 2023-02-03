@@ -16,6 +16,7 @@ class PackageCellsState {
     this.message = '',
     this.storageCell,
     this.newCells = const [],
+    this.user,
   });
 
   final PackageCellsStateStatus status;
@@ -23,6 +24,7 @@ class PackageCellsState {
   final String message;
   final ApiStorageCell? storageCell;
   final List<ProductArrivalPackageNewCellEx> newCells;
+  final User? user;
 
   List<String> get storageCellNames => newCells.map((e) => e.newCell.storageCellName).toSet().toList()
     ..sort((a, b) => a.compareTo(b));
@@ -32,14 +34,16 @@ class PackageCellsState {
     ProductArrivalPackageEx? packageEx,
     String? message,
     Optional<ApiStorageCell>? storageCell,
-    List<ProductArrivalPackageNewCellEx>? newCells
+    List<ProductArrivalPackageNewCellEx>? newCells,
+    User? user
   }) {
     return PackageCellsState(
       status: status ?? this.status,
       packageEx: packageEx ?? this.packageEx,
       message: message ?? this.message,
       storageCell: storageCell != null ? storageCell.orNull : this.storageCell,
-      newCells: newCells ?? this.newCells
+      newCells: newCells ?? this.newCells,
+      user: user ?? this.user
     );
   }
 }

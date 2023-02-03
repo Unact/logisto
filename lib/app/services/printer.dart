@@ -5,7 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as blue;
 import 'package:flutter_bluetooth_basic/flutter_bluetooth_basic.dart';
 
+import '/app/utils/permissions.dart';
+
 class Printer {
+  static const int kPaperWidth = 560;
   static final BluetoothManager _bluetoothManager = BluetoothManager.instance;
   static const String _printerNamePostfix = 'XP-P323B';
   final Duration _scanTimeout = const Duration(seconds: 2);
@@ -17,6 +20,12 @@ class Printer {
   Future<void> printLabel(String labelCommand, { required Function onError }) async {
     if (!await blue.FlutterBluePlus.instance.isOn) {
       onError.call('Не включен Bluetooth');
+
+      return;
+    }
+
+    if (!await Permissions.hasBluetoothPermission()) {
+      onError.call('Не разрешено соединение по Bluetooth');
 
       return;
     }

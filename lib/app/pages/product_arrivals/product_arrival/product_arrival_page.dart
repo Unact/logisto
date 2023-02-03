@@ -9,11 +9,10 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/labels/product_arrival_packages_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
-import '/app/services/printer.dart';
 import '/app/utils/format.dart';
-import '/app/utils/permissions.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
 import 'new_unload_package/new_unload_package_page.dart';
@@ -302,7 +301,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     if (vm.state.unloadEnded && !vm.state.anyPackageAcceptStarted) {
       children.add(IconButton(
         icon: const Icon(Icons.print_sharp),
-        onPressed: vm.printPackageStickers,
+        onPressed: vm.printPackagesLabel,
         tooltip: 'Распечатать места',
         constraints: const BoxConstraints(),
         padding: const EdgeInsets.only(left: 8)
