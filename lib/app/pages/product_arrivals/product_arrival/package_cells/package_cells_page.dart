@@ -10,6 +10,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
@@ -55,6 +56,50 @@ class PackageCellsViewState extends State<_PackageCellsView> {
       qrType: QRType.storageCell,
       onScan: (qrCodeData) => vm.setCell(qrCodeData[1], qrCodeData[4])
     ).show();
+  }
+
+  Future<void> showProductLabelPrintDialog(Product product) async {
+    PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
+    int? amount;
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              alignment: Alignment.topCenter,
+              title: const Text('Укажите кол-во этикеток'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    onChanged: (newAmount) => setState(() => amount = int.tryParse(newAmount)),
+                    decoration: const InputDecoration(labelText: 'Кол-во'),
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: amount != null && amount! > 0 ? () => Navigator.of(context).pop(true) : null,
+                  child: const Text('Подтвердить')
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Отменить')
+                )
+              ]
+            );
+          }
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    await vm.printProductLabel(product, amount!);
   }
 
   @override
@@ -115,8 +160,8 @@ class PackageCellsViewState extends State<_PackageCellsView> {
   Widget _lineList(BuildContext context) {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
     List<Widget> storageCellWidgets = vm.state.storageCellNames.map(((storageCellName) {
-      List<ProductArrivalPackageNewCell> newCells = vm.state.newCells
-        .where((e) => e.storageCellName == storageCellName).toList();
+      List<ProductArrivalPackageNewCellEx> newCells = vm.state.newCells
+        .where((e) => e.newCell.storageCellName == storageCellName).toList();
 
       return ExpansionTile(
         title: Text(storageCellName, style: const TextStyle(fontSize: 14)),
@@ -133,16 +178,23 @@ class PackageCellsViewState extends State<_PackageCellsView> {
     );
   }
 
-  Widget _productArrivalPackageNewCellTile(BuildContext context, ProductArrivalPackageNewCell newCell) {
+  Widget _productArrivalPackageNewCellTile(BuildContext context, ProductArrivalPackageNewCellEx newCellEx) {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
 
     return Dismissible(
-      key: Key(newCell.hashCode.toString()),
+      key: Key(newCellEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCell),
+      onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCellEx),
       child: ListTile(
-        title: Text(newCell.productName, style: Style.listTileText),
-        trailing: Text(newCell.amount.toString(), style: Style.listTileText)
+        leading: IconButton(
+          icon: const Icon(Icons.print_sharp),
+          onPressed: () => showProductLabelPrintDialog(newCellEx.product),
+          tooltip: 'Распечатать места',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(left: 8)
+        ),
+        title: Text(newCellEx.product.name, style: Style.listTileText),
+        trailing: Text(newCellEx.newCell.amount.toString(), style: Style.listTileText)
       )
     );
   }

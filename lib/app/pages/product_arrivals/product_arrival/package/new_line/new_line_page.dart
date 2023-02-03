@@ -86,7 +86,7 @@ class NewLineViewState extends State<_NewLineView> {
                       );
                     },
                     suggestionsCallback: (String pattern) => vm.findProductsByName(pattern),
-                    itemBuilder: (BuildContext ctx, ApiProduct suggestion) {
+                    itemBuilder: (BuildContext ctx, Product suggestion) {
                       return ListTile(
                         isThreeLine: false,
                         title: Text(suggestion.name, style: Theme.of(context).textTheme.caption)

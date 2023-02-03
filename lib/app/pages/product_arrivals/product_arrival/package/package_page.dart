@@ -8,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
@@ -54,6 +55,50 @@ class _PackageViewState extends State<_PackageView> {
     );
   }
 
+  Future<void> showProductLabelPrintDialog(Product product) async {
+    PackageViewModel vm = context.read<PackageViewModel>();
+    int? amount;
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              alignment: Alignment.topCenter,
+              title: const Text('Укажите кол-во этикеток'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    onChanged: (newAmount) => setState(() => amount = int.tryParse(newAmount)),
+                    decoration: const InputDecoration(labelText: 'Кол-во'),
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: amount != null && amount! > 0 ? () => Navigator.of(context).pop(true) : null,
+                  child: const Text('Подтвердить')
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Отменить')
+                )
+              ]
+            );
+          }
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    await vm.printProductLabel(product, amount!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PackageViewModel, PackageState>(
@@ -64,7 +109,7 @@ class _PackageViewState extends State<_PackageView> {
         return Scaffold(
           appBar: AppBar(
             title: Text('${package.typeName} ${package.number}. Приемка'),
-            actions: !state.inProgress || state.newLines.isEmpty ?
+            actions: !state.inProgress || state.newLineExList.isEmpty ?
               [] :
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.endAccept)]
           ),
@@ -96,7 +141,7 @@ class _PackageViewState extends State<_PackageView> {
     List<Widget> lineWidgets = vm.state.packageEx.packageLines.map(
       (packageEx) => _productArrivalPackageLineTile(context, packageEx)
     ).toList();
-    List<Widget> newLineWidgets = vm.state.newLines.map(
+    List<Widget> newLineWidgets = vm.state.newLineExList.map(
       (packageEx) => _productArrivalPackageNewLineTile(context, packageEx)
     ).toList();
 
@@ -110,23 +155,37 @@ class _PackageViewState extends State<_PackageView> {
     );
   }
 
-  Widget _productArrivalPackageLineTile(BuildContext context, ProductArrivalPackageLine line) {
+  Widget _productArrivalPackageLineTile(BuildContext context, ProductArrivalPackageLineEx lineEx) {
     return ListTile(
-      title: Text(line.productName, style: Style.listTileText),
-      trailing: Text(line.amount.toString(), style: Style.listTileText)
+      leading: IconButton(
+        icon: const Icon(Icons.print_sharp),
+        onPressed: () => showProductLabelPrintDialog(lineEx.product),
+        tooltip: 'Распечатать этикетку',
+        constraints: const BoxConstraints(),
+        padding: const EdgeInsets.only(left: 8)
+      ),
+      title: Text(lineEx.product.name, style: Style.listTileText),
+      trailing: Text(lineEx.line.amount.toString(), style: Style.listTileText)
     );
   }
 
-  Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLine newLine) {
+  Widget _productArrivalPackageNewLineTile(BuildContext context, ProductArrivalPackageNewLineEx newLineEx) {
     PackageViewModel vm = context.read<PackageViewModel>();
 
     return Dismissible(
-      key: Key(newLine.hashCode.toString()),
+      key: Key(newLineEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.deleteProductArrivalPackageNewLine(newLine),
+      onDismissed: (direction) => vm.deleteProductArrivalPackageNewLine(newLineEx),
       child: ListTile(
-        title: Text(newLine.productName, style: Style.listTileText),
-        trailing: Text(newLine.amount.toString(), style: Style.listTileText)
+        leading: IconButton(
+          icon: const Icon(Icons.print_sharp),
+          onPressed: () => showProductLabelPrintDialog(newLineEx.product),
+          tooltip: 'Распечатать этикетку',
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.only(left: 8)
+        ),
+        title: Text(newLineEx.product.name, style: Style.listTileText),
+        trailing: Text(newLineEx.line.amount.toString(), style: Style.listTileText)
       )
     );
   }

@@ -76,13 +76,23 @@ class ApiProductArrival extends Equatable {
         acceptEnd: e.acceptEnd,
         placed: e.placed
       );
-      final lines = e.lines.map((line) => ProductArrivalPackageLine(
-        id: line.id,
-        productArrivalPackageId: e.id,
-        productId: line.productId,
-        productName: line.productName,
-        amount: line.amount
-      )).toList();
+      final lines = e.lines.map((line) {
+        final product = Product(
+          id: line.product.id,
+          name: line.product.name,
+          article: line.product.article,
+          barcodeCode: line.product.barcodeCode,
+          barcodeType: line.product.barcodeType,
+        );
+        final productArrivalPackageLine = ProductArrivalPackageLine(
+            id: line.id,
+            productArrivalPackageId: e.id,
+            productId: product.id,
+            amount: line.amount
+          );
+
+        return ProductArrivalPackageLineEx(productArrivalPackageLine, product);
+    }).toList();
 
       return ProductArrivalPackageEx(productArrivalPackage, lines);
     }).toList();

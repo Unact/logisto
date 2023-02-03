@@ -14,9 +14,7 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
 
   @override
   Future<void> loadData() async {
-    List<ApiProduct> products = state.packageEx.packageLines.map(
-      (e) => ApiProduct(id: e.productId, name: e.productName)
-    ).toSet().toList();
+    List<Product> products = state.packageEx.packageLines.map((e) => e.product).toSet().toList();
 
     emit(state.copyWith(status: NewPackageCellStateStatus.dataLoaded, packageLineProducts: products));
   }
@@ -25,14 +23,14 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     emit(state.copyWith(status: NewPackageCellStateStatus.inProgress));
 
     try {
-      List<ApiProduct> products = await _findProduct(code: code);
+      List<Product> products = await _findProduct(code: code);
 
       if (products.isEmpty) {
         emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Не найден товар'));
         return;
       }
 
-      ApiProduct product = products.first;
+      Product product = products.first;
 
       if (!state.packageLineProducts.contains(product)) {
         emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Товар не принимался'));
@@ -45,7 +43,7 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     }
   }
 
-  void setProduct(ApiProduct product) {
+  void setProduct(Product product) {
     emit(state.copyWith(
       status: NewPackageCellStateStatus.setProduct,
       product: Optional.fromNullable(product))
@@ -72,7 +70,6 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
 
     ProductArrivalPackageNewCellsCompanion cell = ProductArrivalPackageNewCellsCompanion(
       productArrivalPackageId: Value(state.packageEx.package.id),
-      productName: Value(state.product!.name),
       productId: Value(state.product!.id),
       storageCellId: Value(state.storageCell.id),
       storageCellName: Value(state.storageCell.name),
@@ -88,9 +85,17 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     ));
   }
 
-  Future<List<ApiProduct>> _findProduct({String? code, String? name}) async {
+  Future<List<Product>> _findProduct({String? code, String? name}) async {
     try {
-      return await Api(dataStore: app.dataStore).productArrivalFindProduct(code: code, name: name);
+      List<ApiProduct> apiProducts =  await Api(dataStore: app.dataStore)
+        .productArrivalFindProduct(code: code, name: name);
+      List<Product> products = apiProducts.map((e) => e.toDatabaseEnt()).toList();
+
+      await app.dataStore.transaction(() async {
+        await Future.wait(products.map((e) => app.dataStore.productArrivalsDao.addProduct(e)));
+      });
+
+      return products;
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
