@@ -26,7 +26,7 @@ class ProductLabel {
 
     String formattedDate = Format.dateTimeStr(DateTime.now());
     String wrappedName = Format.wrapLine(product.name, 35).asMap().entries.map((entry) {
-      return 'TEXT 10,${40 + 30 * entry.key},"3",0,1,1,"${entry.value}"';
+      return 'TEXT 10,${80 + 30 * entry.key},"3",0,1,1,"${entry.value}"';
     }).join('\n');
     String article = product.article ?? '';
     int articleLen = ((Printer.kPaperWidth - (100 * article.length/8))/2).ceil();
@@ -39,8 +39,8 @@ class ProductLabel {
       DIRECTION 0
       CLS
       $wrappedName
-      TEXT ${articleLen < 0 ? 0 : articleLen},200,"0",0,10,10,"$article"
-      BARCODE 50,300,"$barcodeType",200,2,0,5,2,"${product.barcodeCode}"
+      TEXT ${articleLen < 0 ? 0 : articleLen},400,"0",0,10,10,"$article"
+      BARCODE 50,500,"$barcodeType",200,2,0,5,2,"${product.barcodeCode}"
       TEXT 10,900,"2",0,1,1,"$formattedDate ${user.username}"
       PRINT 1,1
     ''';
