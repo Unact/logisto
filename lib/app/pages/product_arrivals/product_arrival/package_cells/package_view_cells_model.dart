@@ -51,8 +51,9 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
   }
 
-  Future<void> printProductLabel(Product product) async {
+  Future<void> printProductLabel(Product product, int amount) async {
     ProductLabel(product: product, user: state.user!).print(
+      amount: amount,
       onError: (String error) => emit(state.copyWith(status: PackageCellsStateStatus.failure, message: error))
     );
   }

@@ -58,6 +58,50 @@ class PackageCellsViewState extends State<_PackageCellsView> {
     ).show();
   }
 
+  Future<void> showProductLabelPrintDialog(Product product) async {
+    PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
+    int? amount;
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              alignment: Alignment.topCenter,
+              title: const Text('Укажите кол-во этикеток'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    onChanged: (newAmount) => setState(() => amount = int.tryParse(newAmount)),
+                    decoration: const InputDecoration(labelText: 'Кол-во'),
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: amount != null && amount! > 0 ? () => Navigator.of(context).pop(true) : null,
+                  child: const Text('Подтвердить')
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Отменить')
+                )
+              ]
+            );
+          }
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    await vm.printProductLabel(product, amount!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PackageCellsViewModel, PackageCellsState>(
@@ -144,7 +188,7 @@ class PackageCellsViewState extends State<_PackageCellsView> {
       child: ListTile(
         leading: IconButton(
           icon: const Icon(Icons.print_sharp),
-          onPressed: () => vm.printProductLabel(newCellEx.product),
+          onPressed: () => showProductLabelPrintDialog(newCellEx.product),
           tooltip: 'Распечатать места',
           constraints: const BoxConstraints(),
           padding: const EdgeInsets.only(left: 8)

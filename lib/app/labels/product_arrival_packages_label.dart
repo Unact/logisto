@@ -10,7 +10,10 @@ class ProductArrivalPackagesLabel {
     required this.productArrivalEx
   });
 
-  Future<void> print({ required Function onError }) async {
+  Future<void> print({
+    required Function onError,
+    int amount = 1
+  }) async {
     String labelCommand = productArrivalEx.packages.map((e) {
       String formattedDate = Format.dateStr(productArrivalEx.productArrival.arrivalDate);
       String command = '''
@@ -24,7 +27,7 @@ class ProductArrivalPackagesLabel {
         TEXT 300,460,"5",0,1,1,2,"${e.package.number}"
         TEXT 300,530,"3",0,1,1,2,"Приемка #${productArrivalEx.productArrival.number} от $formattedDate"
         TEXT 300,560,"3",0,1,1,2,"Всего мест: ${productArrivalEx.packages.length}"
-        PRINT 1,1
+        PRINT 1,$amount
       ''';
 
       return command;

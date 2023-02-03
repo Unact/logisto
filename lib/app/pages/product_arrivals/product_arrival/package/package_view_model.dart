@@ -27,8 +27,9 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
     ));
   }
 
-  Future<void> printProductLabel(Product product) async {
+  Future<void> printProductLabel(Product product, int amount) async {
     ProductLabel(product: product, user: state.user!).print(
+      amount: amount,
       onError: (String error) => emit(state.copyWith(status: PackageStateStatus.failure, message: error))
     );
   }

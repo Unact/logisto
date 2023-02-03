@@ -12,7 +12,10 @@ class ProductLabel {
     required this.user
   });
 
-  Future<void> print({ required Function onError }) async {
+  Future<void> print({
+    required Function onError,
+    int amount = 1
+  }) async {
     String? barcodeType;
 
     switch (product.barcodeType) {
@@ -42,7 +45,7 @@ class ProductLabel {
       TEXT ${articleLen < 0 ? 0 : articleLen},400,"0",0,10,10,"$article"
       BARCODE 50,500,"$barcodeType",200,2,0,5,2,"${product.barcodeCode}"
       TEXT 10,900,"2",0,1,1,"$formattedDate ${user.username}"
-      PRINT 1,1
+      PRINT 1,$amount
     ''';
 
     _printer.printLabel(labelCommand, onError: onError);
