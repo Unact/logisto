@@ -20,63 +20,63 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
   Future<void> loadProducts(List<Product> list) async {
     await batch((batch) {
       batch.deleteWhere(products, (row) => const Constant(true));
-      batch.insertAll(products, list);
+      batch.insertAll(products, list, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadProductArrivals(List<ProductArrival> list) async {
     await batch((batch) {
       batch.deleteWhere(productArrivals, (row) => const Constant(true));
-      batch.insertAll(productArrivals, list);
+      batch.insertAll(productArrivals, list, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadProductArrivalPackages(List<ProductArrivalPackage> packageList) async {
     await batch((batch) {
       batch.deleteWhere(productArrivalPackages, (row) => const Constant(true));
-      batch.insertAll(productArrivalPackages, packageList);
+      batch.insertAll(productArrivalPackages, packageList, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadProductArrivalPackageTypes(List<ProductArrivalPackageType> packageTypeList) async {
     await batch((batch) {
       batch.deleteWhere(productArrivalPackageTypes, (row) => const Constant(true));
-      batch.insertAll(productArrivalPackageTypes, packageTypeList);
+      batch.insertAll(productArrivalPackageTypes, packageTypeList, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadProductArrivalPackageLines(List<ProductArrivalPackageLine> lineList) async {
     await batch((batch) {
       batch.deleteWhere(productArrivalPackageLines, (row) => const Constant(true));
-      batch.insertAll(productArrivalPackageLines, lineList);
+      batch.insertAll(productArrivalPackageLines, lineList, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadProductArrivalUnloadPackages(List<ProductArrivalUnloadPackage> unloadPackageList) async {
     await batch((batch) {
       batch.deleteWhere(productArrivalUnloadPackages, (row) => const Constant(true));
-      batch.insertAll(productArrivalUnloadPackages, unloadPackageList);
+      batch.insertAll(productArrivalUnloadPackages, unloadPackageList, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> addProduct(Product product) async {
-    await into(products).insert(product, mode: InsertMode.insertOrIgnore);
+    await into(products).insert(product, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> addProductArrivalNewPackage(ProductArrivalNewPackagesCompanion newPackage) async {
-    await into(productArrivalNewPackages).insert(newPackage, mode: InsertMode.insertOrIgnore);
+    await into(productArrivalNewPackages).insert(newPackage, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> addProductArrivalPackageNewLine(ProductArrivalPackageNewLinesCompanion newLine) async {
-    await into(productArrivalPackageNewLines).insert(newLine, mode: InsertMode.insertOrIgnore);
+    await into(productArrivalPackageNewLines).insert(newLine, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> addProductArrivalPackageNewCell(ProductArrivalPackageNewCellsCompanion newCell) async {
-    await into(productArrivalPackageNewCells).insert(newCell, mode: InsertMode.insertOrIgnore);
+    await into(productArrivalPackageNewCells).insert(newCell, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) async {
-    await into(productArrivalNewUnloadPackages).insert(newUnloadPackage, mode: InsertMode.insertOrIgnore);
+    await into(productArrivalNewUnloadPackages).insert(newUnloadPackage, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) async {
