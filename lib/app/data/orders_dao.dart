@@ -9,14 +9,14 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   Future<void> loadOrders(List<Order> orderList) async {
     await batch((batch) {
       batch.deleteWhere(orders, (row) => const Constant(true));
-      batch.insertAll(orders, orderList);
+      batch.insertAll(orders, orderList, mode: InsertMode.insertOrReplace);
     });
   }
 
   Future<void> loadOrderLines(List<OrderLine> orderLineList) async {
     await batch((batch) {
       batch.deleteWhere(orderLines, (row) => const Constant(true));
-      batch.insertAll(orderLines, orderLineList);
+      batch.insertAll(orderLines, orderLineList, mode: InsertMode.insertOrReplace);
     });
   }
 

@@ -11,13 +11,13 @@ class StoragesDao extends DatabaseAccessor<AppDataStore> with _$StoragesDaoMixin
   }
 
   Future<void> addStorage(Storage storage) async {
-    await into(storages).insert(storage, mode: InsertMode.insertOrIgnore);
+    await into(storages).insert(storage, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> loadStorages(List<Storage> storageList) async {
     await batch((batch) {
       batch.deleteWhere(storages, (row) => const Constant(true));
-      batch.insertAll(storages, storageList);
+      batch.insertAll(storages, storageList, mode: InsertMode.insertOrReplace);
     });
   }
 

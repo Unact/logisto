@@ -14,7 +14,7 @@ class UsersDao extends DatabaseAccessor<AppDataStore> with _$UsersDaoMixin {
   Future<int> loadUser(User user) async {
     return transaction(() async {
       await delete(users).go();
-      return await into(users).insert(user);
+      return await into(users).insert(user, mode: InsertMode.insertOrReplace);
     });
   }
 }
