@@ -7,6 +7,7 @@ part 'api_data.dart';
 part 'api_order_line.dart';
 part 'api_order.dart';
 part 'api_payment_credentials.dart';
+part 'api_product_arrival_line.dart';
 part 'api_product_arrival_package.dart';
 part 'api_product_arrival_package_line.dart';
 part 'api_product_arrival_package_type.dart';

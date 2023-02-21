@@ -1862,6 +1862,308 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
   }
 }
 
+class ProductArrivalLine extends DataClass
+    implements Insertable<ProductArrivalLine> {
+  final int id;
+  final int productArrivalId;
+  final int productId;
+  final int amount;
+  final bool enumeratePiece;
+  ProductArrivalLine(
+      {required this.id,
+      required this.productArrivalId,
+      required this.productId,
+      required this.amount,
+      required this.enumeratePiece});
+  factory ProductArrivalLine.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalLine(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+      enumeratePiece: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}enumerate_piece'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_id'] = Variable<int>(productArrivalId);
+    map['product_id'] = Variable<int>(productId);
+    map['amount'] = Variable<int>(amount);
+    map['enumerate_piece'] = Variable<bool>(enumeratePiece);
+    return map;
+  }
+
+  ProductArrivalLinesCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalLinesCompanion(
+      id: Value(id),
+      productArrivalId: Value(productArrivalId),
+      productId: Value(productId),
+      amount: Value(amount),
+      enumeratePiece: Value(enumeratePiece),
+    );
+  }
+
+  factory ProductArrivalLine.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalLine(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalId: serializer.fromJson<int>(json['productArrivalId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      amount: serializer.fromJson<int>(json['amount']),
+      enumeratePiece: serializer.fromJson<bool>(json['enumeratePiece']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalId': serializer.toJson<int>(productArrivalId),
+      'productId': serializer.toJson<int>(productId),
+      'amount': serializer.toJson<int>(amount),
+      'enumeratePiece': serializer.toJson<bool>(enumeratePiece),
+    };
+  }
+
+  ProductArrivalLine copyWith(
+          {int? id,
+          int? productArrivalId,
+          int? productId,
+          int? amount,
+          bool? enumeratePiece}) =>
+      ProductArrivalLine(
+        id: id ?? this.id,
+        productArrivalId: productArrivalId ?? this.productArrivalId,
+        productId: productId ?? this.productId,
+        amount: amount ?? this.amount,
+        enumeratePiece: enumeratePiece ?? this.enumeratePiece,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalLine(')
+          ..write('id: $id, ')
+          ..write('productArrivalId: $productArrivalId, ')
+          ..write('productId: $productId, ')
+          ..write('amount: $amount, ')
+          ..write('enumeratePiece: $enumeratePiece')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productArrivalId, productId, amount, enumeratePiece);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalLine &&
+          other.id == this.id &&
+          other.productArrivalId == this.productArrivalId &&
+          other.productId == this.productId &&
+          other.amount == this.amount &&
+          other.enumeratePiece == this.enumeratePiece);
+}
+
+class ProductArrivalLinesCompanion extends UpdateCompanion<ProductArrivalLine> {
+  final Value<int> id;
+  final Value<int> productArrivalId;
+  final Value<int> productId;
+  final Value<int> amount;
+  final Value<bool> enumeratePiece;
+  const ProductArrivalLinesCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.enumeratePiece = const Value.absent(),
+  });
+  ProductArrivalLinesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalId,
+    required int productId,
+    required int amount,
+    required bool enumeratePiece,
+  })  : productArrivalId = Value(productArrivalId),
+        productId = Value(productId),
+        amount = Value(amount),
+        enumeratePiece = Value(enumeratePiece);
+  static Insertable<ProductArrivalLine> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalId,
+    Expression<int>? productId,
+    Expression<int>? amount,
+    Expression<bool>? enumeratePiece,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalId != null) 'product_arrival_id': productArrivalId,
+      if (productId != null) 'product_id': productId,
+      if (amount != null) 'amount': amount,
+      if (enumeratePiece != null) 'enumerate_piece': enumeratePiece,
+    });
+  }
+
+  ProductArrivalLinesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalId,
+      Value<int>? productId,
+      Value<int>? amount,
+      Value<bool>? enumeratePiece}) {
+    return ProductArrivalLinesCompanion(
+      id: id ?? this.id,
+      productArrivalId: productArrivalId ?? this.productArrivalId,
+      productId: productId ?? this.productId,
+      amount: amount ?? this.amount,
+      enumeratePiece: enumeratePiece ?? this.enumeratePiece,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalId.present) {
+      map['product_arrival_id'] = Variable<int>(productArrivalId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (enumeratePiece.present) {
+      map['enumerate_piece'] = Variable<bool>(enumeratePiece.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalLinesCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalId: $productArrivalId, ')
+          ..write('productId: $productId, ')
+          ..write('amount: $amount, ')
+          ..write('enumeratePiece: $enumeratePiece')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalLinesTable extends ProductArrivalLines
+    with TableInfo<$ProductArrivalLinesTable, ProductArrivalLine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalLinesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalIdMeta =
+      const VerificationMeta('productArrivalId');
+  @override
+  late final GeneratedColumn<int?> productArrivalId = GeneratedColumn<int?>(
+      'product_arrival_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints:
+          'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _enumeratePieceMeta =
+      const VerificationMeta('enumeratePiece');
+  @override
+  late final GeneratedColumn<bool?> enumeratePiece = GeneratedColumn<bool?>(
+      'enumerate_piece', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (enumerate_piece IN (0, 1))');
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalId, productId, amount, enumeratePiece];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_lines';
+  @override
+  String get actualTableName => 'product_arrival_lines';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductArrivalLine> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_id')) {
+      context.handle(
+          _productArrivalIdMeta,
+          productArrivalId.isAcceptableOrUnknown(
+              data['product_arrival_id']!, _productArrivalIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('enumerate_piece')) {
+      context.handle(
+          _enumeratePieceMeta,
+          enumeratePiece.isAcceptableOrUnknown(
+              data['enumerate_piece']!, _enumeratePieceMeta));
+    } else if (isInserting) {
+      context.missing(_enumeratePieceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalLine map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductArrivalLine.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalLinesTable createAlias(String alias) {
+    return $ProductArrivalLinesTable(attachedDatabase, alias);
+  }
+}
+
 class ProductArrivalUnloadPackage extends DataClass
     implements Insertable<ProductArrivalUnloadPackage> {
   final int id;
@@ -6710,6 +7012,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $ProductArrivalsTable(this);
   late final $ProductArrivalPackagesTable productArrivalPackages =
       $ProductArrivalPackagesTable(this);
+  late final $ProductArrivalLinesTable productArrivalLines =
+      $ProductArrivalLinesTable(this);
   late final $ProductArrivalUnloadPackagesTable productArrivalUnloadPackages =
       $ProductArrivalUnloadPackagesTable(this);
   late final $ProductArrivalPackageTypesTable productArrivalPackageTypes =
@@ -6756,6 +7060,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         storages,
         productArrivals,
         productArrivalPackages,
+        productArrivalLines,
         productArrivalUnloadPackages,
         productArrivalPackageTypes,
         productArrivalPackageLines,
@@ -6788,6 +7093,8 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
   $ProductArrivalsTable get productArrivals => attachedDatabase.productArrivals;
   $ProductArrivalPackagesTable get productArrivalPackages =>
       attachedDatabase.productArrivalPackages;
+  $ProductArrivalLinesTable get productArrivalLines =>
+      attachedDatabase.productArrivalLines;
   $ProductArrivalUnloadPackagesTable get productArrivalUnloadPackages =>
       attachedDatabase.productArrivalUnloadPackages;
   $ProductArrivalPackageLinesTable get productArrivalPackageLines =>

@@ -183,7 +183,7 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 24),
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 112),
       children: [
         InfoRow(
           title: const Text('Статус'),
@@ -238,6 +238,12 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
             ...vm.state.newPackages.map((e) => _productArrivalNewPackageTile(context, e)),
             ...vm.state.productArrivalEx.packages.map((e) => _productArrivalPackageTile(context, e))
           ]
+        ),
+        ExpansionTile(
+          initiallyExpanded: !vm.state.unloadStarted,
+          title: const Text('Позиции', style: Style.listTileTitleText),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+          children: vm.state.productArrivalEx.lines.map((e) => _productArrivalLineTile(context, e)).toList()
         ),
       ]
     );
@@ -370,6 +376,24 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
         title: Text(newUnloadPackage.typeName, style: Style.listTileText),
         trailing: Text(newUnloadPackage.amount.toString(), style: Style.listTileText),
       )
+    );
+  }
+
+  Widget _productArrivalLineTile(BuildContext context, ProductArrivalLineEx lineEx) {
+    Widget? leading;
+
+    if (lineEx.line.enumeratePiece) {
+      leading = const Tooltip(
+        child: Icon(Icons.priority_high, color: Colors.red),
+        message: 'Поштучный пересчет',
+        triggerMode: TooltipTriggerMode.tap
+      );
+    }
+
+    return ListTile(
+      leading: leading,
+      title: Text(lineEx.product.name, style: Style.listTileText),
+      trailing: Text(lineEx.line.amount.toString(), style: Style.listTileText),
     );
   }
 }
