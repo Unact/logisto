@@ -14,6 +14,7 @@ class ApiProductArrival extends Equatable {
   final String statusName;
   final String? orderTrackingNumber;
   final String? comment;
+  final List<ApiProductArrivalLine> lines;
 
   const ApiProductArrival({
     required this.id,
@@ -28,7 +29,8 @@ class ApiProductArrival extends Equatable {
     required this.sellerName,
     required this.statusName,
     required this.orderTrackingNumber,
-    required this.comment
+    required this.comment,
+    required this.lines
   });
 
   factory ApiProductArrival.fromJson(dynamic json) {
@@ -47,7 +49,8 @@ class ApiProductArrival extends Equatable {
       sellerName: json['sellerName'],
       statusName: json['statusName'],
       orderTrackingNumber: json['orderTrackingNumber'],
-      comment: json['comment']
+      comment: json['comment'],
+      lines: json['lines'].map<ApiProductArrivalLine>((e) => ApiProductArrivalLine.fromJson(e)).toList(),
     );
   }
 
@@ -65,6 +68,24 @@ class ApiProductArrival extends Equatable {
       orderTrackingNumber: orderTrackingNumber,
       comment: comment
     );
+    List<ProductArrivalLineEx> productArrivalLines = lines.map((e) {
+        final product = Product(
+          id: e.product.id,
+          name: e.product.name,
+          article: e.product.article,
+          barcodeCode: e.product.barcodeCode,
+          barcodeType: e.product.barcodeType,
+        );
+        final line = ProductArrivalLine(
+            id: e.id,
+            productArrivalId: id,
+            productId: product.id,
+            amount: e.amount,
+            enumeratePiece: e.enumeratePiece
+          );
+
+        return ProductArrivalLineEx(line, product);
+    }).toList();
     List<ProductArrivalPackageEx> productArrivalPackages = packages.map((e) {
       final productArrivalPackage = ProductArrivalPackage(
         id: e.id,
@@ -108,6 +129,7 @@ class ApiProductArrival extends Equatable {
 
     return ProductArrivalEx(
       productArrival,
+      productArrivalLines,
       dbStorage,
       productArrivalPackages,
       productArrivalUnloadPackages
@@ -128,6 +150,7 @@ class ApiProductArrival extends Equatable {
     sellerName,
     statusName,
     orderTrackingNumber,
-    comment
+    comment,
+    lines
   ];
 }

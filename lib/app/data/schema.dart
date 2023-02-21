@@ -43,6 +43,16 @@ class ProductArrivals extends Table {
   TextColumn get comment => text().nullable()();
 }
 
+class ProductArrivalLines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalId => integer()
+    .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amount => integer()();
+  BoolColumn get enumeratePiece => boolean()();
+}
+
 class ProductArrivalPackages extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productArrivalId => integer()
