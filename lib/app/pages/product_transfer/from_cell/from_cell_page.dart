@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
