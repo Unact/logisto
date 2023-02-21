@@ -6,13 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/qr_types.dart';
-import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package_cell/new_package_cell_page.dart';
 
@@ -161,7 +159,7 @@ class PackageCellsViewState extends State<_PackageCellsView> {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
     List<Widget> storageCellWidgets = vm.state.storageCellNames.map(((storageCellName) {
       List<ProductArrivalPackageNewCellEx> newCells = vm.state.newCells
-        .where((e) => e.newCell.storageCellName == storageCellName).toList();
+        .where((e) => e.storageCell.name == storageCellName).toList();
 
       return ExpansionTile(
         title: Text(storageCellName, style: const TextStyle(fontSize: 14)),

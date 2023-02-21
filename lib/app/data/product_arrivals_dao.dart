@@ -17,13 +17,6 @@ part of 'database.dart';
 class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductArrivalsDaoMixin {
   ProductArrivalsDao(AppDataStore db) : super(db);
 
-  Future<void> loadProducts(List<Product> list) async {
-    await batch((batch) {
-      batch.deleteWhere(products, (row) => const Constant(true));
-      batch.insertAll(products, list, mode: InsertMode.insertOrReplace);
-    });
-  }
-
   Future<void> loadProductArrivals(List<ProductArrival> list) async {
     await batch((batch) {
       batch.deleteWhere(productArrivals, (row) => const Constant(true));
@@ -57,10 +50,6 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
       batch.deleteWhere(productArrivalUnloadPackages, (row) => const Constant(true));
       batch.insertAll(productArrivalUnloadPackages, unloadPackageList, mode: InsertMode.insertOrReplace);
     });
-  }
-
-  Future<void> addProduct(Product product) async {
-    await into(products).insert(product, mode: InsertMode.insertOrReplace);
   }
 
   Future<void> addProductArrivalNewPackage(ProductArrivalNewPackagesCompanion newPackage) async {
@@ -175,7 +164,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
 
   Future<List<ProductArrivalPackageNewCellEx>> getProductArrivalPackageNewCellsEx(int productArrivalPackageId) async {
     final packageNewCellsQuery = select(productArrivalPackageNewCells)
-      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageNewCells.productId))])
+      .join([
+        innerJoin(products, products.id.equalsExp(productArrivalPackageNewCells.productId)),
+        innerJoin(storageCells, storageCells.id.equalsExp(productArrivalPackageNewCells.storageCellId))
+      ])
       ..where(productArrivalPackageNewCells.productArrivalPackageId.equals(productArrivalPackageId))
       ..orderBy([OrderingTerm(expression: products.name)]);
     final packageNewCellsRes = await packageNewCellsQuery.get();
@@ -183,7 +175,8 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     return packageNewCellsRes.map((packageLine) {
       return ProductArrivalPackageNewCellEx(
         packageLine.readTable(productArrivalPackageNewCells),
-        packageLine.readTable(products)
+        packageLine.readTable(products),
+        packageLine.readTable(storageCells)
       );
     }).toList();
   }
@@ -355,6 +348,7 @@ class ProductArrivalPackageNewLineEx {
 class ProductArrivalPackageNewCellEx {
   final ProductArrivalPackageNewCell newCell;
   final Product product;
+  final StorageCell storageCell;
 
-  ProductArrivalPackageNewCellEx(this.newCell, this.product);
+  ProductArrivalPackageNewCellEx(this.newCell, this.product, this.storageCell);
 }

@@ -22,18 +22,18 @@ class PackageCellsState {
   final PackageCellsStateStatus status;
   final ProductArrivalPackageEx packageEx;
   final String message;
-  final ApiStorageCell? storageCell;
+  final StorageCell? storageCell;
   final List<ProductArrivalPackageNewCellEx> newCells;
   final User? user;
 
-  List<String> get storageCellNames => newCells.map((e) => e.newCell.storageCellName).toSet().toList()
+  List<String> get storageCellNames => newCells.map((e) => e.storageCell.name).toSet().toList()
     ..sort((a, b) => a.compareTo(b));
 
   PackageCellsState copyWith({
     PackageCellsStateStatus? status,
     ProductArrivalPackageEx? packageEx,
     String? message,
-    Optional<ApiStorageCell>? storageCell,
+    Optional<StorageCell>? storageCell,
     List<ProductArrivalPackageNewCellEx>? newCells,
     User? user
   }) {

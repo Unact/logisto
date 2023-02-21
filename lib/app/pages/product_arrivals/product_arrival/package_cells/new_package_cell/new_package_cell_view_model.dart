@@ -5,7 +5,7 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     BuildContext context,
     {
       required ProductArrivalPackageEx packageEx,
-      required ApiStorageCell storageCell
+      required StorageCell storageCell
     }
   ) : super(context, NewPackageCellState(packageEx: packageEx, storageCell: storageCell));
 
@@ -23,7 +23,7 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
     emit(state.copyWith(status: NewPackageCellStateStatus.inProgress));
 
     try {
-      List<Product> products = await _findProduct(code: code);
+      List<Product> products = await store.productsRepo.findProduct(code: code);
 
       if (products.isEmpty) {
         emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Не найден товар'));
@@ -72,35 +72,15 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
       productArrivalPackageId: Value(state.packageEx.package.id),
       productId: Value(state.product!.id),
       storageCellId: Value(state.storageCell.id),
-      storageCellName: Value(state.storageCell.name),
       amount: Value(state.amount!)
     );
 
-    await app.dataStore.productArrivalsDao.addProductArrivalPackageNewCell(cell);
+    await store.productArrivalsRepo.addProductArrivalPackageNewCell(cell);
 
     emit(state.copyWith(
       status: NewPackageCellStateStatus.lineAdded,
       amount: const Optional.absent(),
       product: const Optional.absent()
     ));
-  }
-
-  Future<List<Product>> _findProduct({String? code, String? name}) async {
-    try {
-      List<ApiProduct> apiProducts =  await Api(dataStore: app.dataStore)
-        .productArrivalFindProduct(code: code, name: name);
-      List<Product> products = apiProducts.map((e) => e.toDatabaseEnt()).toList();
-
-      await app.dataStore.transaction(() async {
-        await Future.wait(products.map((e) => app.dataStore.productArrivalsDao.addProduct(e)));
-      });
-
-      return products;
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
   }
 }

@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/style.dart';
@@ -12,74 +13,94 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
-part 'new_package_cell_state.dart';
-part 'new_package_cell_view_model.dart';
+part 'from_cell_state.dart';
+part 'from_cell_view_model.dart';
 
-class NewPackageCellPage extends StatelessWidget {
-  final ProductArrivalPackageEx packageEx;
+class FromCellPage extends StatelessWidget {
+  final ProductTransferEx productTransferEx;
   final StorageCell storageCell;
 
-  NewPackageCellPage({
-    required this.packageEx,
+  FromCellPage({
+    required this.productTransferEx,
     required this.storageCell,
     Key? key
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NewPackageCellViewModel>(
-      create: (context) => NewPackageCellViewModel(context, packageEx: packageEx, storageCell: storageCell),
-      child: ScaffoldMessenger(child: _NewPackageCellView()),
+    return BlocProvider<FromCellViewModel>(
+      create: (context) => FromCellViewModel(context, productTransferEx: productTransferEx, storageCell: storageCell),
+      child: ScaffoldMessenger(child: _FromCellView()),
     );
   }
 }
 
-class _NewPackageCellView extends StatefulWidget {
+class _FromCellView extends StatefulWidget {
   @override
-  NewPackageCellViewState createState() => NewPackageCellViewState();
+  FromCellViewState createState() => FromCellViewState();
 }
 
-class NewPackageCellViewState extends State<_NewPackageCellView> {
+class FromCellViewState extends State<_FromCellView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   late ThemeData theme = Theme.of(context);
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
+  ApiProduct? product;
+  int? amount;
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NewPackageCellViewModel, NewPackageCellState>(
+    return BlocConsumer<FromCellViewModel, FromCellState>(
       builder: (context, state) {
-        NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
+        FromCellViewModel vm = context.read<FromCellViewModel>();
         String amount = vm.state.amount?.toString() ?? '';
+        String name = state.product?.name ?? '';
 
-        _amountController.text = vm.state.amount?.toString() ?? '';
+        _amountController.text = amount;
         _amountController.selection = TextSelection.fromPosition(TextPosition(offset: amount.length));
+
+        _nameController.text = name;
+        _nameController.selection = TextSelection.fromPosition(TextPosition(offset: name.length));
 
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: AlertDialog(
             alignment: Alignment.topCenter,
-            title: Text('Ячейка ${state.storageCell.name}'),
+            title: const Text('Новая позиция'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
-                  DropdownButtonFormField(
-                    focusNode: productFocus,
-                    isExpanded: true,
-                    menuMaxHeight: 200,
-                    style: Style.listTileText,
-                    decoration: InputDecoration(
-                      labelText: 'Товар',
-                      labelStyle: Style.listTileText,
-                      suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
+                  TypeAheadField(
+                    hideOnError: true,
+                    minCharsForSuggestions: 5,
+                    textFieldConfiguration: TextFieldConfiguration(
+                      style: Style.listTileText,
+                      autofocus: true,
+                      focusNode: productFocus,
+                      controller: _nameController,
+                      autocorrect: false,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        labelText: 'Товар',
+                        suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
+                      )
                     ),
-                    value: vm.state.product,
-                    items: vm.state.packageLineProducts.map((e) => DropdownMenuItem<Product>(
-                      value: e,
-                      child: Text(e.name, style: Style.listTileText.merge(theme.textTheme.labelMedium))
-                    )).toList(),
-                    onChanged: (Product? newVal) => newVal != null ? vm.setProduct(newVal) : null
+                    noItemsFoundBuilder: (BuildContext ctx) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text('Ничего не найдено', style: TextStyle(color: theme.disabledColor)),
+                      );
+                    },
+                    suggestionsCallback: (String pattern) => vm.findProductsByName(pattern),
+                    itemBuilder: (BuildContext ctx, Product suggestion) {
+                      return ListTile(
+                        isThreeLine: false,
+                        title: Text(suggestion.name, style: Theme.of(context).textTheme.caption)
+                      );
+                    },
+                    onSuggestionSelected: vm.setProduct
                   ),
                   TextFormField(
                     focusNode: amountFocus,
@@ -96,7 +117,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             actions: <Widget>[
               TextButton(
                 child: const Text('Добавить'),
-                onPressed: vm.addProductArrivalPackageNewPackageCell,
+                onPressed: vm.addProductTransferFromCell,
               ),
               TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],
@@ -105,25 +126,26 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case NewPackageCellStateStatus.lineAdded:
+          case FromCellStateStatus.cellAdded:
             productFocus.requestFocus();
             break;
-          case NewPackageCellStateStatus.setProduct:
+          case FromCellStateStatus.setProduct:
             _progressDialog.close();
             amountFocus.requestFocus();
             break;
-          case NewPackageCellStateStatus.inProgress:
+          case FromCellStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case NewPackageCellStateStatus.success:
-          case NewPackageCellStateStatus.failure:
+          case FromCellStateStatus.success:
+          case FromCellStateStatus.failure:
             showMessage(state.message);
             _progressDialog.close();
             break;
           default:
             break;
         }
-      },);
+      }
+    );
   }
 
   void showMessage(String message) {
@@ -131,7 +153,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
   }
 
   Future<void> _onScan() async {
-    NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
+    FromCellViewModel vm = context.read<FromCellViewModel>();
 
     FocusScope.of(context).unfocus();
 

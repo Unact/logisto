@@ -8,7 +8,7 @@ import 'app/constants/strings.dart';
 import 'app/pages/landing/landing_page.dart';
 
 void main() async {
-  App app = await App.init();
+  await App.init();
 
   runZonedGuarded<Future<void>>(() async {
     runApp(MaterialApp(
@@ -31,6 +31,6 @@ void main() async {
       ]
     ));
   }, (Object error, StackTrace stackTrace) {
-    app.reportError(error, stackTrace);
+    App.reportError(error, stackTrace);
   });
 }

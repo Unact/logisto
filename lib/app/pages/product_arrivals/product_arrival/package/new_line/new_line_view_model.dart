@@ -12,7 +12,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
 
   Future<List<Product>> findProductsByName(String name) async {
     try {
-      return await _findProduct(name: name);
+      return await store.productsRepo.findProduct(name: name);
     } on AppError catch(e) {
       emit(state.copyWith(status: NewLineStateStatus.failure, message: e.message));
 
@@ -24,7 +24,7 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
     emit(state.copyWith(status: NewLineStateStatus.inProgress));
 
     try {
-      List<Product> products = await _findProduct(code: code);
+      List<Product> products = await store.productsRepo.findProduct(code: code);
 
       if (products.isEmpty) {
         emit(state.copyWith(status: NewLineStateStatus.failure, message: 'Не найден товар'));
@@ -68,27 +68,8 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
       amount: Value(state.amount!)
     );
 
-    await app.dataStore.productArrivalsDao.addProductArrivalPackageNewLine(line);
+    await store.productArrivalsRepo.addProductArrivalPackageNewLine(line);
 
     emit(state.copyWith(status: NewLineStateStatus.lineAdded));
-  }
-
-  Future<List<Product>> _findProduct({String? code, String? name}) async {
-    try {
-      List<ApiProduct> apiProducts =  await Api(dataStore: app.dataStore)
-        .productArrivalFindProduct(code: code, name: name);
-      List<Product> products = apiProducts.map((e) => e.toDatabaseEnt()).toList();
-
-      await app.dataStore.transaction(() async {
-        await Future.wait(products.map((e) => app.dataStore.productArrivalsDao.addProduct(e)));
-      });
-
-      return products;
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
   }
 }

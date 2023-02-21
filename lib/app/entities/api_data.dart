@@ -5,12 +5,14 @@ class ApiData extends Equatable {
   final List<ApiStorage> storages;
   final List<ApiProductArrival> productArrivals;
   final List<ApiProductArrivalPackageType> productArrivalPackageTypes;
+  final List<ApiProductStore> productStores;
 
   ApiData({
     required this.orders,
     required this.storages,
     required this.productArrivals,
-    required this.productArrivalPackageTypes
+    required this.productArrivalPackageTypes,
+    required this.productStores
   });
 
   factory ApiData.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class ApiData extends Equatable {
       productArrivals: json['productArrivals'].map<ApiProductArrival>((e) => ApiProductArrival.fromJson(e)).toList(),
       productArrivalPackageTypes: json['productArrivalPackageTypes']
         .map<ApiProductArrivalPackageType>((e) => ApiProductArrivalPackageType.fromJson(e)).toList(),
+      productStores: json['productStores'].map<ApiProductStore>((e) => ApiProductStore.fromJson(e)).toList(),
     );
   }
 
@@ -28,6 +31,7 @@ class ApiData extends Equatable {
     orders,
     storages,
     productArrivals,
-    productArrivalPackageTypes
+    productArrivalPackageTypes,
+    productStores
   ];
 }

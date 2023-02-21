@@ -21,9 +21,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(
       status: InfoStateStatus.dataLoaded,
       newVersionAvailable: await app.newVersionAvailable,
-      orderExList: await app.dataStore.ordersDao.getOrderExList(),
-      productArrivalExList: await app.dataStore.productArrivalsDao.getProductPackageExList(),
-      user: await app.dataStore.usersDao.getUser()
+      orderExList: await store.ordersRepo.getOrderExList(),
+      productArrivalExList: await store.productArrivalsRepo.getProductPackageExList(),
+      user: await store.usersRepo.getUser(),
+      productTransferEx: Optional.fromNullable(await store.productTransfersRepo.getCurrentTransfer())
     ));
   }
 
@@ -33,8 +34,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress, loading: true));
 
     try {
-      await app.loadUserData();
-      await _getData();
+      await store.usersRepo.loadUserData();
+      await store.loadData();
 
       emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены', loading: false));
     } on AppError catch(e) {
@@ -42,51 +43,16 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> _getData() async {
-    try {
-      ApiData data = await Api(dataStore: app.dataStore).loadOrders();
-      AppDataStore dataStore = app.dataStore;
-
-      await dataStore.transaction(() async {
-        List<ProductArrivalEx> productArrivalExs = data.productArrivals.map((e) => e.toDatabaseEnt()).toList();
-        List<OrderEx> orderEx = data.orders.map((e) => e.toDatabaseEnt()).toList();
-        List<ProductArrival> productArrivals = productArrivalExs.map((e) => e.productArrival).toList();
-        List<ProductArrivalPackageEx> productArrivalPackagesEx = productArrivalExs
-          .map((e) => e.packages).expand((e) => e).toList();
-        List<ProductArrivalPackage> productArrivalPackages = productArrivalPackagesEx.map((e) => e.package).toList();
-        List<ProductArrivalPackageLineEx> productArrivalPackageLinesEx = productArrivalPackagesEx
-          .map((e) => e.packageLines).expand((e) => e).toList();
-        List<ProductArrivalPackageLine> productArrivalPackageLines = productArrivalPackageLinesEx
-          .map((e) => e.line).toList();
-        List<Product> products = productArrivalPackageLinesEx.map((e) => e.product).toList();
-        List<ProductArrivalUnloadPackage> productArrivalUnloadPackages = productArrivalExs
-          .map((e) => e.unloadPackages).expand((e) => e).toList();
-        List<ProductArrivalPackageType> productArrivalPackageTypes = data.productArrivalPackageTypes
-          .map((e) => e.toDatabaseEnt()).toList();
-        List<Order> orders = orderEx.map((e) => e.order).toList();
-        List<OrderLine> orderLines = orderEx.map((e) => e.lines).expand((e) => e).toList();
-        List<Storage> storages = (
-          orderEx.map((e) => e.storageTo).whereType<Storage>().toList() +
-          orderEx.map((e) => e.storageFrom).whereType<Storage>().toList() +
-          productArrivalExs.map((e) => e.storage).whereType<Storage>().toList() +
-          data.storages.map((e) => e.toDatabaseEnt()).toList()
-        ).toSet().toList();
-
-        await dataStore.ordersDao.loadOrders(orders);
-        await dataStore.ordersDao.loadOrderLines(orderLines);
-        await dataStore.storagesDao.loadStorages(storages);
-        await dataStore.productArrivalsDao.loadProducts(products);
-        await dataStore.productArrivalsDao.loadProductArrivals(productArrivals);
-        await dataStore.productArrivalsDao.loadProductArrivalPackages(productArrivalPackages);
-        await dataStore.productArrivalsDao.loadProductArrivalUnloadPackages(productArrivalUnloadPackages);
-        await dataStore.productArrivalsDao.loadProductArrivalPackageLines(productArrivalPackageLines);
-        await dataStore.productArrivalsDao.loadProductArrivalPackageTypes(productArrivalPackageTypes);
-      });
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
+  Future<void> startTransfer() async {
+    if (state.productTransferEx != null) {
+      emit(state.copyWith(status: InfoStateStatus.startTransfer));
+      return;
     }
+
+    await store.productTransfersRepo.addProductTransfer(const ProductTransfersCompanion(gatherFinished: Value(false)));
+    emit(state.copyWith(
+      status: InfoStateStatus.startTransfer,
+      productTransferEx: Optional.fromNullable(await store.productTransfersRepo.getCurrentTransfer())
+    ));
   }
 }

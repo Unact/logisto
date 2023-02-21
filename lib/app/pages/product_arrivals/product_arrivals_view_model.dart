@@ -8,14 +8,14 @@ class ProductArrivalsViewModel extends PageViewModel<ProductArrivalsState, Produ
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.productArrivals
+    dataStore.productArrivals
   ]);
 
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
       status: ProductArrivalsStateStatus.dataLoaded,
-      productArrivalExList: await app.dataStore.productArrivalsDao.getProductPackageExList()
+      productArrivalExList: await store.productArrivalsRepo.getProductPackageExList()
     ));
   }
 
@@ -23,7 +23,7 @@ class ProductArrivalsViewModel extends PageViewModel<ProductArrivalsState, Produ
     emit(state.copyWith(status: ProductArrivalsStateStatus.inProgress));
 
     try {
-      ProductArrivalEx? orderEx = await _findProductArrival(number);
+      ProductArrivalEx? orderEx = await store.productArrivalsRepo.findProductArrival(number);
 
       emit(state.copyWith(
         status: ProductArrivalsStateStatus.success,
@@ -34,27 +34,5 @@ class ProductArrivalsViewModel extends PageViewModel<ProductArrivalsState, Produ
     }
 
     return null;
-  }
-
-  Future<ProductArrivalEx> _findProductArrival(String number) async {
-    try {
-      ProductArrivalEx? productArrivalEx = await app.dataStore.productArrivalsDao.getProductArrivalExByNumber(number);
-      if (productArrivalEx != null) return productArrivalEx;
-
-      ApiProductArrival apiProductArrival = await Api(dataStore: app.dataStore).findProductArrival(number: number);
-      productArrivalEx = apiProductArrival.toDatabaseEnt();
-
-      await app.dataStore.transaction(() async {
-        await app.dataStore.productArrivalsDao.updateProductArrivalEx(productArrivalEx!);
-        await app.dataStore.storagesDao.addStorage(productArrivalEx.storage);
-      });
-
-      return productArrivalEx;
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
   }
 }

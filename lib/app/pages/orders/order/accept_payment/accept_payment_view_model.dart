@@ -58,7 +58,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
     emit(state.copyWith(message: 'Установление связи с сервером', status: AcceptPaymentStateStatus.gettingCredentials));
 
     try {
-      ApiPaymentCredentials credentials = await _getApiPaymentCredentials();
+      ApiPaymentCredentials credentials = await store.getApiPaymentCredentials();
 
       await _apiLogin(credentials.login, credentials.password);
     } on AppError catch(e) {
@@ -136,7 +136,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
     ));
 
     try {
-      await _acceptPayment(transaction);
+      await store.ordersRepo.acceptPayment(state.order, transaction);
 
       emit(state.copyWith(message: 'Оплата успешно сохранена', status: AcceptPaymentStateStatus.finished));
     } on AppError catch(e) {
@@ -144,34 +144,6 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
         message: 'Ошибка при сохранении оплаты ${e.message}',
         status: AcceptPaymentStateStatus.failure
       ));
-    }
-  }
-
-  Future<void> _acceptPayment(Map<dynamic, dynamic>? transaction) async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptPayment(
-        id: state.order.id,
-        summ: state.order.paySum,
-        transaction: transaction
-      );
-
-      await app.dataStore.ordersDao.upsertOrder(state.order.id, newOrder.toDatabaseEnt().order.toCompanion(false));
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<ApiPaymentCredentials> _getApiPaymentCredentials() async {
-    try {
-      return await Api(dataStore: app.dataStore).getPaymentCredentials();
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
     }
   }
 }

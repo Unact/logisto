@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -10,22 +9,20 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:stack_trace/stack_trace.dart';
 
-import 'constants/strings.dart';
-import 'entities/entities.dart';
-import 'services/api.dart';
+import 'repositories/app_store.dart';
 import 'data/database.dart';
 
 class App {
   final bool isDebug;
   final String version;
   final String buildNumber;
-  final AppDataStore dataStore;
+  final AppStore store;
 
   App._({
     required this.isDebug,
     required this.version,
     required this.buildNumber,
-    required this.dataStore
+    required this.store
   }) {
     _instance = this;
   }
@@ -45,8 +42,13 @@ class App {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await FkUserAgent.init();
 
-    AppDataStore dataStore = AppDataStore(logStatements: isDebug);
-    await _initSentry(dsn: const String.fromEnvironment('LOGISTO_SENTRY_DSN'), capture: !isDebug, dataStore: dataStore);
+    AppStore repository = AppStore(dataStore: AppDataStore(logStatements: isDebug));
+
+    await _initSentry(
+      dsn: const String.fromEnvironment('LOGISTO_SENTRY_DSN'),
+      capture: !isDebug,
+      repository: repository
+    );
     _intFlogs(isDebug: isDebug);
 
     FLog.info(text: 'App Initialized');
@@ -55,19 +57,21 @@ class App {
       isDebug: isDebug,
       version: packageInfo.version,
       buildNumber: packageInfo.buildNumber,
-      dataStore: dataStore
+      store: repository
     );
   }
 
+  AppDataStore get dataStore => store.dataStore;
+
   Future<bool> get newVersionAvailable async {
-    String remoteVersion = (await dataStore.usersDao.getUser()).version;
+    String remoteVersion = (await store.usersRepo.getUser()).version;
 
     return Version.parse(remoteVersion) > Version.parse(version);
   }
 
   String get fullVersion => version + '+' + buildNumber;
 
-  Future<void> reportError(dynamic error, dynamic stackTrace) async {
+  static Future<void> reportError(dynamic error, dynamic stackTrace) async {
     Frame methodFrame = Trace.current().frames.length > 1 ? Trace.current().frames[1] : Trace.current().frames[0];
 
     FLog.error(
@@ -80,46 +84,6 @@ class App {
     debugPrint(error.toString());
     debugPrint(stackTrace.toString());
     await Sentry.captureException(error, stackTrace: stackTrace);
-  }
-
-  Future<void> loadUserData() async {
-    try {
-      ApiUserData userData = await Api(dataStore: dataStore).getUserData();
-
-      await dataStore.usersDao.loadUser(userData.toDatabaseEnt());
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> login(String url, String login, String password) async {
-    try {
-      await Api(dataStore: dataStore).login(url: url, login: login, password: password);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-
-    await loadUserData();
-    await dataStore.updatePref(PrefsCompanion(lastLogin: Value(DateTime.now())));
-  }
-
-  Future<void> logout() async {
-    try {
-      await Api(dataStore: dataStore).logout();
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-
-    await dataStore.clearData();
   }
 
   static void _intFlogs({
@@ -138,7 +102,7 @@ class App {
   static Future<void> _initSentry({
     required String dsn,
     required bool capture,
-    required AppDataStore dataStore
+    required AppStore repository
   }) async {
     if (!capture) return;
 
@@ -146,7 +110,7 @@ class App {
       (options) {
         options.dsn = dsn;
         options.beforeSend = (SentryEvent event, {dynamic hint}) async {
-          User user = await dataStore.usersDao.getUser();
+          User user = await repository.usersRepo.getUser();
 
           return event.copyWith(user: SentryUser(
             id: user.id.toString(),

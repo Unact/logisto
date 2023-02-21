@@ -9,12 +9,12 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.productArrivals,
-    app.dataStore.productArrivalPackages,
-    app.dataStore.productArrivalUnloadPackages,
-    app.dataStore.productArrivalPackageLines,
-    app.dataStore.productArrivalNewPackages,
-    app.dataStore.productArrivalNewUnloadPackages,
+    dataStore.productArrivals,
+    dataStore.productArrivalPackages,
+    dataStore.productArrivalUnloadPackages,
+    dataStore.productArrivalPackageLines,
+    dataStore.productArrivalNewPackages,
+    dataStore.productArrivalNewUnloadPackages,
   ]);
 
   @override
@@ -23,9 +23,9 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
 
     emit(state.copyWith(
       status: ProductArrivalStateStatus.dataLoaded,
-      productArrivalEx: await app.dataStore.productArrivalsDao.getProductArrivalEx(productArrivalId),
-      newPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewPackages(productArrivalId),
-      newUnloadPackages: await app.dataStore.productArrivalsDao.getProductArrivalNewUnloadPackages(productArrivalId),
+      productArrivalEx: await store.productArrivalsRepo.getProductArrivalEx(productArrivalId),
+      newPackages: await store.productArrivalsRepo.getProductArrivalNewPackages(productArrivalId),
+      newUnloadPackages: await store.productArrivalsRepo.getProductArrivalNewUnloadPackages(productArrivalId),
     ));
   }
 
@@ -33,7 +33,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _startUnload(state.productArrivalEx, int.parse(storageUnloadPointIdStr));
+      await store.productArrivalsRepo.startUnload(state.productArrivalEx, int.parse(storageUnloadPointIdStr));
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
     } on AppError catch(e) {
@@ -45,7 +45,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _endUnload(state.productArrivalEx, state.newPackages, state.newUnloadPackages);
+      await store.productArrivalsRepo.endUnload(state.productArrivalEx, state.newPackages, state.newUnloadPackages);
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -94,7 +94,10 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await _startAccept(state.scannedProductArrivalPackageEx!, int.parse(storageAcceptPointIdStr));
+      await store.productArrivalsRepo.startAccept(
+        state.scannedProductArrivalPackageEx!,
+        int.parse(storageAcceptPointIdStr)
+      );
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало приемки'));
     } on AppError catch(e) {
@@ -103,11 +106,11 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
   }
 
   Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalNewPackage(newPackage);
+    await store.productArrivalsRepo.deleteProductArrivalNewPackage(newPackage);
   }
 
   Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
+    await store.productArrivalsRepo.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
   }
 
   Future<void> copyUnloadPackages() async {
@@ -120,7 +123,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
           number: const Value(Strings.undefinedNumber)
         );
 
-        await app.dataStore.productArrivalsDao.addProductArrivalNewPackage(package);
+        await store.productArrivalsRepo.addProductArrivalNewPackage(package);
       }
     }
   }
@@ -135,71 +138,5 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     }
 
     emit(state.copyWith(scanned: true, status: ProductArrivalStateStatus.productArrivalScanSuccess));
-  }
-
-  Future<void> _startUnload(ProductArrivalEx productArrivalEx, int storageUnloadPointId) async {
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginUnload(
-        id: productArrivalEx.productArrival.id,
-        storageUnloadPointId: storageUnloadPointId
-      );
-
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _endUnload(
-    ProductArrivalEx productArrivalEx,
-    List<ProductArrivalNewPackage> newPackages,
-    List<ProductArrivalNewUnloadPackage> newUnloadPackages
-  ) async {
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishUnload(
-        id: productArrivalEx.productArrival.id,
-        packages: newPackages.map((e) => { 'productArrivalPackageTypeId': e.typeId }).toList(),
-        unloadPackages: newUnloadPackages.map(
-          (e) => { 'productArrivalPackageTypeId': e.typeId, 'amount': e.amount }
-        ).toList()
-      );
-
-      await app.dataStore.productArrivalsDao.clearProductArrivalNewPackages();
-      await app.dataStore.productArrivalsDao.clearProductArrivalNewUnloadPackages();
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _startAccept(ProductArrivalPackageEx productArrivalEx, int storageAcceptPointId) async {
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsBeginPackageAccept(
-        id: productArrivalEx.package.id,
-        storageAcceptPointId: storageAcceptPointId
-      );
-
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _saveProductArrival(ApiProductArrival apiProductArrival) async {
-    ProductArrivalEx productArrivalEx = apiProductArrival.toDatabaseEnt();
-
-    await app.dataStore.transaction(() async {
-      await app.dataStore.productArrivalsDao.updateProductArrivalEx(productArrivalEx);
-      await app.dataStore.storagesDao.addStorage(productArrivalEx.storage);
-    });
   }
 }

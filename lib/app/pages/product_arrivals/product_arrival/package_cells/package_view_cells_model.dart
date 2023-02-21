@@ -9,9 +9,9 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.productArrivals,
-    app.dataStore.productArrivalPackages,
-    app.dataStore.productArrivalPackageNewCells,
+    dataStore.productArrivals,
+    dataStore.productArrivalPackages,
+    dataStore.productArrivalPackageNewCells,
   ]);
 
   @override
@@ -20,18 +20,21 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
 
     emit(state.copyWith(
       status: PackageCellsStateStatus.dataLoaded,
-      user: await app.dataStore.usersDao.getUser(),
-      packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
-      newCells: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewCellsEx(productArrivalPackageId)
+      user: await store.usersRepo.getUser(),
+      packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
+      newCells: await store.productArrivalsRepo.getProductArrivalPackageNewCellsEx(productArrivalPackageId)
     ));
   }
 
-  void setCell(String storageCellIdStr, String storageCellName) {
+  Future<void> setCell(String storageCellIdStr, String storageCellName) async {
     int storageCellId = int.parse(storageCellIdStr);
+    StorageCell storageCell = StorageCell(id: storageCellId, name: storageCellName);
+
+    await store.storagesRepo.addStorageCell(storageCell);
 
     emit(state.copyWith(
       status: PackageCellsStateStatus.setCell,
-      storageCell: Optional.of(ApiStorageCell(id: storageCellId, name: storageCellName))
+      storageCell: Optional.of(storageCell)
     ));
   }
 
@@ -39,7 +42,7 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     emit(state.copyWith(status: PackageCellsStateStatus.inProgress));
 
     try {
-      await _placeProducts(state.packageEx, state.newCells);
+      await store.productArrivalsRepo.placeProducts(state.packageEx, state.newCells);
 
       emit(state.copyWith(status: PackageCellsStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -48,46 +51,13 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
   }
 
   Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCellEx packageNewCellEx) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
+    await store.productArrivalsRepo.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
   }
 
   Future<void> printProductLabel(Product product, int amount) async {
-    ProductLabel(product: product, user: state.user!).print(
+    await ProductLabel(product: product, user: state.user!).print(
       amount: amount,
       onError: (String error) => emit(state.copyWith(status: PackageCellsStateStatus.failure, message: error))
     );
-  }
-
-  Future<void> _placeProducts(
-    ProductArrivalPackageEx packageEx,
-    List<ProductArrivalPackageNewCellEx> newCellsEx
-  ) async {
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsPlacePackageProducts(
-        id: packageEx.package.id,
-        cells: newCellsEx.map((e) => {
-          'storageCellId': e.newCell.storageCellId,
-          'productId': e.newCell.productId,
-          'amount': e.newCell.amount
-        }).toList()
-      );
-
-      await app.dataStore.productArrivalsDao.clearProductArrivalPackageNewCells();
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _saveProductArrival(ApiProductArrival apiProductArrival) async {
-    ProductArrivalEx productArrivalEx = apiProductArrival.toDatabaseEnt();
-
-    await app.dataStore.transaction(() async {
-      await app.dataStore.productArrivalsDao.updateProductArrivalEx(productArrivalEx);
-      await app.dataStore.storagesDao.addStorage(productArrivalEx.storage);
-    });
   }
 }

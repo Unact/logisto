@@ -6,11 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/qr_types.dart';
-import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
 import 'product_arrival/product_arrival_page.dart';
 

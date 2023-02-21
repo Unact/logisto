@@ -10,14 +10,14 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.users
+    dataStore.users
   ]);
 
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
       status: PersonStateStatus.dataLoaded,
-      user: await app.dataStore.usersDao.getUser(),
+      user: await store.usersRepo.getUser(),
       fullVersion: app.fullVersion,
       newVersionAvailable: await app.newVersionAvailable,
     ));
@@ -27,7 +27,7 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
     emit(state.copyWith(status: PersonStateStatus.inProgress));
 
     try {
-      await app.logout();
+      await store.usersRepo.logout();
 
       emit(state.copyWith(status: PersonStateStatus.loggedOut));
     } on AppError catch(e) {

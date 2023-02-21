@@ -13,8 +13,10 @@ part 'schema.dart';
 part 'database.g.dart';
 part 'api_credentials_dao.dart';
 part 'product_arrivals_dao.dart';
+part 'product_transfers_dao.dart';
 part 'storages_dao.dart';
 part 'orders_dao.dart';
+part 'products_dao.dart';
 part 'users_dao.dart';
 
 @DriftDatabase(
@@ -30,17 +32,24 @@ part 'users_dao.dart';
     ProductArrivalPackageNewLines,
     ProductArrivalPackageNewCells,
     ProductArrivalNewUnloadPackages,
+    ProductStores,
+    ProductTransfers,
+    ProductTransferFromCells,
+    ProductTransferToCells,
     Orders,
     OrderLines,
     Storages,
+    StorageCells,
     ApiCredentials,
     Prefs
   ],
   daos: [
     ApiCredentialsDao,
-    StoragesDao,
-    ProductArrivalsDao,
     OrdersDao,
+    ProductArrivalsDao,
+    ProductTransfersDao,
+    ProductsDao,
+    StoragesDao,
     UsersDao,
   ]
 )
@@ -94,7 +103,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

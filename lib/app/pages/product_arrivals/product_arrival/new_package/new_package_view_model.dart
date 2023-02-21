@@ -11,7 +11,7 @@ class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageState
   Future<void> loadData() async {
     emit(state.copyWith(
       status: NewPackageStateStatus.dataLoaded,
-      types: await app.dataStore.productArrivalsDao.getProductArrivalPackageTypes(),
+      types: await store.productArrivalsRepo.getProductArrivalPackageTypes(),
     ));
   }
 
@@ -48,7 +48,7 @@ class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageState
         number: const Value(Strings.undefinedNumber)
       );
 
-      await app.dataStore.productArrivalsDao.addProductArrivalNewPackage(package);
+      await store.productArrivalsRepo.addProductArrivalNewPackage(package);
     }
 
     emit(state.copyWith(status: NewPackageStateStatus.packagesAdded));

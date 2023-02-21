@@ -3147,20 +3147,189 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
   }
 }
 
+class StorageCell extends DataClass implements Insertable<StorageCell> {
+  final int id;
+  final String name;
+  StorageCell({required this.id, required this.name});
+  factory StorageCell.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return StorageCell(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  StorageCellsCompanion toCompanion(bool nullToAbsent) {
+    return StorageCellsCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory StorageCell.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StorageCell(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  StorageCell copyWith({int? id, String? name}) => StorageCell(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('StorageCell(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StorageCell && other.id == this.id && other.name == this.name);
+}
+
+class StorageCellsCompanion extends UpdateCompanion<StorageCell> {
+  final Value<int> id;
+  final Value<String> name;
+  const StorageCellsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  StorageCellsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<StorageCell> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  StorageCellsCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return StorageCellsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StorageCellsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StorageCellsTable extends StorageCells
+    with TableInfo<$StorageCellsTable, StorageCell> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StorageCellsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? 'storage_cells';
+  @override
+  String get actualTableName => 'storage_cells';
+  @override
+  VerificationContext validateIntegrity(Insertable<StorageCell> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StorageCell map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return StorageCell.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $StorageCellsTable createAlias(String alias) {
+    return $StorageCellsTable(attachedDatabase, alias);
+  }
+}
+
 class ProductArrivalPackageNewCell extends DataClass
     implements Insertable<ProductArrivalPackageNewCell> {
   final int id;
   final int productArrivalPackageId;
   final int productId;
   final int storageCellId;
-  final String storageCellName;
   final int amount;
   ProductArrivalPackageNewCell(
       {required this.id,
       required this.productArrivalPackageId,
       required this.productId,
       required this.storageCellId,
-      required this.storageCellName,
       required this.amount});
   factory ProductArrivalPackageNewCell.fromData(Map<String, dynamic> data,
       {String? prefix}) {
@@ -3174,8 +3343,6 @@ class ProductArrivalPackageNewCell extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
       storageCellId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}storage_cell_id'])!,
-      storageCellName: const StringType().mapFromDatabaseResponse(
-          data['${effectivePrefix}storage_cell_name'])!,
       amount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
     );
@@ -3187,7 +3354,6 @@ class ProductArrivalPackageNewCell extends DataClass
     map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
     map['product_id'] = Variable<int>(productId);
     map['storage_cell_id'] = Variable<int>(storageCellId);
-    map['storage_cell_name'] = Variable<String>(storageCellName);
     map['amount'] = Variable<int>(amount);
     return map;
   }
@@ -3198,7 +3364,6 @@ class ProductArrivalPackageNewCell extends DataClass
       productArrivalPackageId: Value(productArrivalPackageId),
       productId: Value(productId),
       storageCellId: Value(storageCellId),
-      storageCellName: Value(storageCellName),
       amount: Value(amount),
     );
   }
@@ -3212,7 +3377,6 @@ class ProductArrivalPackageNewCell extends DataClass
           serializer.fromJson<int>(json['productArrivalPackageId']),
       productId: serializer.fromJson<int>(json['productId']),
       storageCellId: serializer.fromJson<int>(json['storageCellId']),
-      storageCellName: serializer.fromJson<String>(json['storageCellName']),
       amount: serializer.fromJson<int>(json['amount']),
     );
   }
@@ -3225,7 +3389,6 @@ class ProductArrivalPackageNewCell extends DataClass
           serializer.toJson<int>(productArrivalPackageId),
       'productId': serializer.toJson<int>(productId),
       'storageCellId': serializer.toJson<int>(storageCellId),
-      'storageCellName': serializer.toJson<String>(storageCellName),
       'amount': serializer.toJson<int>(amount),
     };
   }
@@ -3235,7 +3398,6 @@ class ProductArrivalPackageNewCell extends DataClass
           int? productArrivalPackageId,
           int? productId,
           int? storageCellId,
-          String? storageCellName,
           int? amount}) =>
       ProductArrivalPackageNewCell(
         id: id ?? this.id,
@@ -3243,7 +3405,6 @@ class ProductArrivalPackageNewCell extends DataClass
             productArrivalPackageId ?? this.productArrivalPackageId,
         productId: productId ?? this.productId,
         storageCellId: storageCellId ?? this.storageCellId,
-        storageCellName: storageCellName ?? this.storageCellName,
         amount: amount ?? this.amount,
       );
   @override
@@ -3253,15 +3414,14 @@ class ProductArrivalPackageNewCell extends DataClass
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
           ..write('storageCellId: $storageCellId, ')
-          ..write('storageCellName: $storageCellName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, productArrivalPackageId, productId,
-      storageCellId, storageCellName, amount);
+  int get hashCode => Object.hash(
+      id, productArrivalPackageId, productId, storageCellId, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3270,7 +3430,6 @@ class ProductArrivalPackageNewCell extends DataClass
           other.productArrivalPackageId == this.productArrivalPackageId &&
           other.productId == this.productId &&
           other.storageCellId == this.storageCellId &&
-          other.storageCellName == this.storageCellName &&
           other.amount == this.amount);
 }
 
@@ -3280,14 +3439,12 @@ class ProductArrivalPackageNewCellsCompanion
   final Value<int> productArrivalPackageId;
   final Value<int> productId;
   final Value<int> storageCellId;
-  final Value<String> storageCellName;
   final Value<int> amount;
   const ProductArrivalPackageNewCellsCompanion({
     this.id = const Value.absent(),
     this.productArrivalPackageId = const Value.absent(),
     this.productId = const Value.absent(),
     this.storageCellId = const Value.absent(),
-    this.storageCellName = const Value.absent(),
     this.amount = const Value.absent(),
   });
   ProductArrivalPackageNewCellsCompanion.insert({
@@ -3295,19 +3452,16 @@ class ProductArrivalPackageNewCellsCompanion
     required int productArrivalPackageId,
     required int productId,
     required int storageCellId,
-    required String storageCellName,
     required int amount,
   })  : productArrivalPackageId = Value(productArrivalPackageId),
         productId = Value(productId),
         storageCellId = Value(storageCellId),
-        storageCellName = Value(storageCellName),
         amount = Value(amount);
   static Insertable<ProductArrivalPackageNewCell> custom({
     Expression<int>? id,
     Expression<int>? productArrivalPackageId,
     Expression<int>? productId,
     Expression<int>? storageCellId,
-    Expression<String>? storageCellName,
     Expression<int>? amount,
   }) {
     return RawValuesInsertable({
@@ -3316,7 +3470,6 @@ class ProductArrivalPackageNewCellsCompanion
         'product_arrival_package_id': productArrivalPackageId,
       if (productId != null) 'product_id': productId,
       if (storageCellId != null) 'storage_cell_id': storageCellId,
-      if (storageCellName != null) 'storage_cell_name': storageCellName,
       if (amount != null) 'amount': amount,
     });
   }
@@ -3326,7 +3479,6 @@ class ProductArrivalPackageNewCellsCompanion
       Value<int>? productArrivalPackageId,
       Value<int>? productId,
       Value<int>? storageCellId,
-      Value<String>? storageCellName,
       Value<int>? amount}) {
     return ProductArrivalPackageNewCellsCompanion(
       id: id ?? this.id,
@@ -3334,7 +3486,6 @@ class ProductArrivalPackageNewCellsCompanion
           productArrivalPackageId ?? this.productArrivalPackageId,
       productId: productId ?? this.productId,
       storageCellId: storageCellId ?? this.storageCellId,
-      storageCellName: storageCellName ?? this.storageCellName,
       amount: amount ?? this.amount,
     );
   }
@@ -3355,9 +3506,6 @@ class ProductArrivalPackageNewCellsCompanion
     if (storageCellId.present) {
       map['storage_cell_id'] = Variable<int>(storageCellId.value);
     }
-    if (storageCellName.present) {
-      map['storage_cell_name'] = Variable<String>(storageCellName.value);
-    }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
     }
@@ -3371,7 +3519,6 @@ class ProductArrivalPackageNewCellsCompanion
           ..write('productArrivalPackageId: $productArrivalPackageId, ')
           ..write('productId: $productId, ')
           ..write('storageCellId: $storageCellId, ')
-          ..write('storageCellName: $storageCellName, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -3414,27 +3561,17 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
   @override
   late final GeneratedColumn<int?> storageCellId = GeneratedColumn<int?>(
       'storage_cell_id', aliasedName, false,
-      type: const IntType(), requiredDuringInsert: true);
-  final VerificationMeta _storageCellNameMeta =
-      const VerificationMeta('storageCellName');
-  @override
-  late final GeneratedColumn<String?> storageCellName =
-      GeneratedColumn<String?>('storage_cell_name', aliasedName, false,
-          type: const StringType(), requiredDuringInsert: true);
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES storage_cells (id) ON DELETE CASCADE');
   final VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
       'amount', aliasedName, false,
       type: const IntType(), requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        productArrivalPackageId,
-        productId,
-        storageCellId,
-        storageCellName,
-        amount
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalPackageId, productId, storageCellId, amount];
   @override
   String get aliasedName => _alias ?? 'product_arrival_package_new_cells';
   @override
@@ -3470,14 +3607,6 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
               data['storage_cell_id']!, _storageCellIdMeta));
     } else if (isInserting) {
       context.missing(_storageCellIdMeta);
-    }
-    if (data.containsKey('storage_cell_name')) {
-      context.handle(
-          _storageCellNameMeta,
-          storageCellName.isAcceptableOrUnknown(
-              data['storage_cell_name']!, _storageCellNameMeta));
-    } else if (isInserting) {
-      context.missing(_storageCellNameMeta);
     }
     if (data.containsKey('amount')) {
       context.handle(_amountMeta,
@@ -3800,6 +3929,1092 @@ class $ProductArrivalNewUnloadPackagesTable
   @override
   $ProductArrivalNewUnloadPackagesTable createAlias(String alias) {
     return $ProductArrivalNewUnloadPackagesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductStore extends DataClass implements Insertable<ProductStore> {
+  final String id;
+  final String name;
+  ProductStore({required this.id, required this.name});
+  factory ProductStore.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductStore(
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  ProductStoresCompanion toCompanion(bool nullToAbsent) {
+    return ProductStoresCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory ProductStore.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductStore(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  ProductStore copyWith({String? id, String? name}) => ProductStore(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductStore(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductStore && other.id == this.id && other.name == this.name);
+}
+
+class ProductStoresCompanion extends UpdateCompanion<ProductStore> {
+  final Value<String> id;
+  final Value<String> name;
+  const ProductStoresCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  ProductStoresCompanion.insert({
+    required String id,
+    required String name,
+  })  : id = Value(id),
+        name = Value(name);
+  static Insertable<ProductStore> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  ProductStoresCompanion copyWith({Value<String>? id, Value<String>? name}) {
+    return ProductStoresCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductStoresCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductStoresTable extends ProductStores
+    with TableInfo<$ProductStoresTable, ProductStore> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductStoresTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? 'product_stores';
+  @override
+  String get actualTableName => 'product_stores';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductStore> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductStore map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductStore.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductStoresTable createAlias(String alias) {
+    return $ProductStoresTable(attachedDatabase, alias);
+  }
+}
+
+class ProductTransfer extends DataClass implements Insertable<ProductTransfer> {
+  final int id;
+  final String? storeFromId;
+  final String? storeToId;
+  final String? comment;
+  final bool gatherFinished;
+  ProductTransfer(
+      {required this.id,
+      this.storeFromId,
+      this.storeToId,
+      this.comment,
+      required this.gatherFinished});
+  factory ProductTransfer.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductTransfer(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      storeFromId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}store_from_id']),
+      storeToId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}store_to_id']),
+      comment: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}comment']),
+      gatherFinished: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}gather_finished'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || storeFromId != null) {
+      map['store_from_id'] = Variable<String?>(storeFromId);
+    }
+    if (!nullToAbsent || storeToId != null) {
+      map['store_to_id'] = Variable<String?>(storeToId);
+    }
+    if (!nullToAbsent || comment != null) {
+      map['comment'] = Variable<String?>(comment);
+    }
+    map['gather_finished'] = Variable<bool>(gatherFinished);
+    return map;
+  }
+
+  ProductTransfersCompanion toCompanion(bool nullToAbsent) {
+    return ProductTransfersCompanion(
+      id: Value(id),
+      storeFromId: storeFromId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storeFromId),
+      storeToId: storeToId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storeToId),
+      comment: comment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(comment),
+      gatherFinished: Value(gatherFinished),
+    );
+  }
+
+  factory ProductTransfer.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductTransfer(
+      id: serializer.fromJson<int>(json['id']),
+      storeFromId: serializer.fromJson<String?>(json['storeFromId']),
+      storeToId: serializer.fromJson<String?>(json['storeToId']),
+      comment: serializer.fromJson<String?>(json['comment']),
+      gatherFinished: serializer.fromJson<bool>(json['gatherFinished']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'storeFromId': serializer.toJson<String?>(storeFromId),
+      'storeToId': serializer.toJson<String?>(storeToId),
+      'comment': serializer.toJson<String?>(comment),
+      'gatherFinished': serializer.toJson<bool>(gatherFinished),
+    };
+  }
+
+  ProductTransfer copyWith(
+          {int? id,
+          String? storeFromId,
+          String? storeToId,
+          String? comment,
+          bool? gatherFinished}) =>
+      ProductTransfer(
+        id: id ?? this.id,
+        storeFromId: storeFromId ?? this.storeFromId,
+        storeToId: storeToId ?? this.storeToId,
+        comment: comment ?? this.comment,
+        gatherFinished: gatherFinished ?? this.gatherFinished,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransfer(')
+          ..write('id: $id, ')
+          ..write('storeFromId: $storeFromId, ')
+          ..write('storeToId: $storeToId, ')
+          ..write('comment: $comment, ')
+          ..write('gatherFinished: $gatherFinished')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, storeFromId, storeToId, comment, gatherFinished);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductTransfer &&
+          other.id == this.id &&
+          other.storeFromId == this.storeFromId &&
+          other.storeToId == this.storeToId &&
+          other.comment == this.comment &&
+          other.gatherFinished == this.gatherFinished);
+}
+
+class ProductTransfersCompanion extends UpdateCompanion<ProductTransfer> {
+  final Value<int> id;
+  final Value<String?> storeFromId;
+  final Value<String?> storeToId;
+  final Value<String?> comment;
+  final Value<bool> gatherFinished;
+  const ProductTransfersCompanion({
+    this.id = const Value.absent(),
+    this.storeFromId = const Value.absent(),
+    this.storeToId = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.gatherFinished = const Value.absent(),
+  });
+  ProductTransfersCompanion.insert({
+    this.id = const Value.absent(),
+    this.storeFromId = const Value.absent(),
+    this.storeToId = const Value.absent(),
+    this.comment = const Value.absent(),
+    required bool gatherFinished,
+  }) : gatherFinished = Value(gatherFinished);
+  static Insertable<ProductTransfer> custom({
+    Expression<int>? id,
+    Expression<String?>? storeFromId,
+    Expression<String?>? storeToId,
+    Expression<String?>? comment,
+    Expression<bool>? gatherFinished,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (storeFromId != null) 'store_from_id': storeFromId,
+      if (storeToId != null) 'store_to_id': storeToId,
+      if (comment != null) 'comment': comment,
+      if (gatherFinished != null) 'gather_finished': gatherFinished,
+    });
+  }
+
+  ProductTransfersCompanion copyWith(
+      {Value<int>? id,
+      Value<String?>? storeFromId,
+      Value<String?>? storeToId,
+      Value<String?>? comment,
+      Value<bool>? gatherFinished}) {
+    return ProductTransfersCompanion(
+      id: id ?? this.id,
+      storeFromId: storeFromId ?? this.storeFromId,
+      storeToId: storeToId ?? this.storeToId,
+      comment: comment ?? this.comment,
+      gatherFinished: gatherFinished ?? this.gatherFinished,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (storeFromId.present) {
+      map['store_from_id'] = Variable<String?>(storeFromId.value);
+    }
+    if (storeToId.present) {
+      map['store_to_id'] = Variable<String?>(storeToId.value);
+    }
+    if (comment.present) {
+      map['comment'] = Variable<String?>(comment.value);
+    }
+    if (gatherFinished.present) {
+      map['gather_finished'] = Variable<bool>(gatherFinished.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransfersCompanion(')
+          ..write('id: $id, ')
+          ..write('storeFromId: $storeFromId, ')
+          ..write('storeToId: $storeToId, ')
+          ..write('comment: $comment, ')
+          ..write('gatherFinished: $gatherFinished')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductTransfersTable extends ProductTransfers
+    with TableInfo<$ProductTransfersTable, ProductTransfer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductTransfersTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _storeFromIdMeta =
+      const VerificationMeta('storeFromId');
+  @override
+  late final GeneratedColumn<String?> storeFromId = GeneratedColumn<String?>(
+      'store_from_id', aliasedName, true,
+      type: const StringType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'REFERENCES product_stores (id) ON DELETE CASCADE');
+  final VerificationMeta _storeToIdMeta = const VerificationMeta('storeToId');
+  @override
+  late final GeneratedColumn<String?> storeToId = GeneratedColumn<String?>(
+      'store_to_id', aliasedName, true,
+      type: const StringType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'REFERENCES product_stores (id) ON DELETE CASCADE');
+  final VerificationMeta _commentMeta = const VerificationMeta('comment');
+  @override
+  late final GeneratedColumn<String?> comment = GeneratedColumn<String?>(
+      'comment', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _gatherFinishedMeta =
+      const VerificationMeta('gatherFinished');
+  @override
+  late final GeneratedColumn<bool?> gatherFinished = GeneratedColumn<bool?>(
+      'gather_finished', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (gather_finished IN (0, 1))');
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, storeFromId, storeToId, comment, gatherFinished];
+  @override
+  String get aliasedName => _alias ?? 'product_transfers';
+  @override
+  String get actualTableName => 'product_transfers';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductTransfer> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('store_from_id')) {
+      context.handle(
+          _storeFromIdMeta,
+          storeFromId.isAcceptableOrUnknown(
+              data['store_from_id']!, _storeFromIdMeta));
+    }
+    if (data.containsKey('store_to_id')) {
+      context.handle(
+          _storeToIdMeta,
+          storeToId.isAcceptableOrUnknown(
+              data['store_to_id']!, _storeToIdMeta));
+    }
+    if (data.containsKey('comment')) {
+      context.handle(_commentMeta,
+          comment.isAcceptableOrUnknown(data['comment']!, _commentMeta));
+    }
+    if (data.containsKey('gather_finished')) {
+      context.handle(
+          _gatherFinishedMeta,
+          gatherFinished.isAcceptableOrUnknown(
+              data['gather_finished']!, _gatherFinishedMeta));
+    } else if (isInserting) {
+      context.missing(_gatherFinishedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductTransfer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductTransfer.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductTransfersTable createAlias(String alias) {
+    return $ProductTransfersTable(attachedDatabase, alias);
+  }
+}
+
+class ProductTransferFromCell extends DataClass
+    implements Insertable<ProductTransferFromCell> {
+  final int id;
+  final int productTransferId;
+  final int productId;
+  final int storageCellId;
+  final int amount;
+  ProductTransferFromCell(
+      {required this.id,
+      required this.productTransferId,
+      required this.productId,
+      required this.storageCellId,
+      required this.amount});
+  factory ProductTransferFromCell.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductTransferFromCell(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productTransferId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_transfer_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      storageCellId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}storage_cell_id'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_transfer_id'] = Variable<int>(productTransferId);
+    map['product_id'] = Variable<int>(productId);
+    map['storage_cell_id'] = Variable<int>(storageCellId);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ProductTransferFromCellsCompanion toCompanion(bool nullToAbsent) {
+    return ProductTransferFromCellsCompanion(
+      id: Value(id),
+      productTransferId: Value(productTransferId),
+      productId: Value(productId),
+      storageCellId: Value(storageCellId),
+      amount: Value(amount),
+    );
+  }
+
+  factory ProductTransferFromCell.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductTransferFromCell(
+      id: serializer.fromJson<int>(json['id']),
+      productTransferId: serializer.fromJson<int>(json['productTransferId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      storageCellId: serializer.fromJson<int>(json['storageCellId']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productTransferId': serializer.toJson<int>(productTransferId),
+      'productId': serializer.toJson<int>(productId),
+      'storageCellId': serializer.toJson<int>(storageCellId),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ProductTransferFromCell copyWith(
+          {int? id,
+          int? productTransferId,
+          int? productId,
+          int? storageCellId,
+          int? amount}) =>
+      ProductTransferFromCell(
+        id: id ?? this.id,
+        productTransferId: productTransferId ?? this.productTransferId,
+        productId: productId ?? this.productId,
+        storageCellId: storageCellId ?? this.storageCellId,
+        amount: amount ?? this.amount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransferFromCell(')
+          ..write('id: $id, ')
+          ..write('productTransferId: $productTransferId, ')
+          ..write('productId: $productId, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productTransferId, productId, storageCellId, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductTransferFromCell &&
+          other.id == this.id &&
+          other.productTransferId == this.productTransferId &&
+          other.productId == this.productId &&
+          other.storageCellId == this.storageCellId &&
+          other.amount == this.amount);
+}
+
+class ProductTransferFromCellsCompanion
+    extends UpdateCompanion<ProductTransferFromCell> {
+  final Value<int> id;
+  final Value<int> productTransferId;
+  final Value<int> productId;
+  final Value<int> storageCellId;
+  final Value<int> amount;
+  const ProductTransferFromCellsCompanion({
+    this.id = const Value.absent(),
+    this.productTransferId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.storageCellId = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  ProductTransferFromCellsCompanion.insert({
+    this.id = const Value.absent(),
+    required int productTransferId,
+    required int productId,
+    required int storageCellId,
+    required int amount,
+  })  : productTransferId = Value(productTransferId),
+        productId = Value(productId),
+        storageCellId = Value(storageCellId),
+        amount = Value(amount);
+  static Insertable<ProductTransferFromCell> custom({
+    Expression<int>? id,
+    Expression<int>? productTransferId,
+    Expression<int>? productId,
+    Expression<int>? storageCellId,
+    Expression<int>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productTransferId != null) 'product_transfer_id': productTransferId,
+      if (productId != null) 'product_id': productId,
+      if (storageCellId != null) 'storage_cell_id': storageCellId,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  ProductTransferFromCellsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productTransferId,
+      Value<int>? productId,
+      Value<int>? storageCellId,
+      Value<int>? amount}) {
+    return ProductTransferFromCellsCompanion(
+      id: id ?? this.id,
+      productTransferId: productTransferId ?? this.productTransferId,
+      productId: productId ?? this.productId,
+      storageCellId: storageCellId ?? this.storageCellId,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productTransferId.present) {
+      map['product_transfer_id'] = Variable<int>(productTransferId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (storageCellId.present) {
+      map['storage_cell_id'] = Variable<int>(storageCellId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransferFromCellsCompanion(')
+          ..write('id: $id, ')
+          ..write('productTransferId: $productTransferId, ')
+          ..write('productId: $productId, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductTransferFromCellsTable extends ProductTransferFromCells
+    with TableInfo<$ProductTransferFromCellsTable, ProductTransferFromCell> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductTransferFromCellsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productTransferIdMeta =
+      const VerificationMeta('productTransferId');
+  @override
+  late final GeneratedColumn<int?> productTransferId = GeneratedColumn<int?>(
+      'product_transfer_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints:
+          'REFERENCES product_transfers (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
+  final VerificationMeta _storageCellIdMeta =
+      const VerificationMeta('storageCellId');
+  @override
+  late final GeneratedColumn<int?> storageCellId = GeneratedColumn<int?>(
+      'storage_cell_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES storage_cells (id) ON DELETE CASCADE');
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productTransferId, productId, storageCellId, amount];
+  @override
+  String get aliasedName => _alias ?? 'product_transfer_from_cells';
+  @override
+  String get actualTableName => 'product_transfer_from_cells';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductTransferFromCell> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_transfer_id')) {
+      context.handle(
+          _productTransferIdMeta,
+          productTransferId.isAcceptableOrUnknown(
+              data['product_transfer_id']!, _productTransferIdMeta));
+    } else if (isInserting) {
+      context.missing(_productTransferIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('storage_cell_id')) {
+      context.handle(
+          _storageCellIdMeta,
+          storageCellId.isAcceptableOrUnknown(
+              data['storage_cell_id']!, _storageCellIdMeta));
+    } else if (isInserting) {
+      context.missing(_storageCellIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductTransferFromCell map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return ProductTransferFromCell.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductTransferFromCellsTable createAlias(String alias) {
+    return $ProductTransferFromCellsTable(attachedDatabase, alias);
+  }
+}
+
+class ProductTransferToCell extends DataClass
+    implements Insertable<ProductTransferToCell> {
+  final int id;
+  final int productTransferId;
+  final int productId;
+  final int storageCellId;
+  final int amount;
+  ProductTransferToCell(
+      {required this.id,
+      required this.productTransferId,
+      required this.productId,
+      required this.storageCellId,
+      required this.amount});
+  factory ProductTransferToCell.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductTransferToCell(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productTransferId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_transfer_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      storageCellId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}storage_cell_id'])!,
+      amount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}amount'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_transfer_id'] = Variable<int>(productTransferId);
+    map['product_id'] = Variable<int>(productId);
+    map['storage_cell_id'] = Variable<int>(storageCellId);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ProductTransferToCellsCompanion toCompanion(bool nullToAbsent) {
+    return ProductTransferToCellsCompanion(
+      id: Value(id),
+      productTransferId: Value(productTransferId),
+      productId: Value(productId),
+      storageCellId: Value(storageCellId),
+      amount: Value(amount),
+    );
+  }
+
+  factory ProductTransferToCell.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductTransferToCell(
+      id: serializer.fromJson<int>(json['id']),
+      productTransferId: serializer.fromJson<int>(json['productTransferId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      storageCellId: serializer.fromJson<int>(json['storageCellId']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productTransferId': serializer.toJson<int>(productTransferId),
+      'productId': serializer.toJson<int>(productId),
+      'storageCellId': serializer.toJson<int>(storageCellId),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ProductTransferToCell copyWith(
+          {int? id,
+          int? productTransferId,
+          int? productId,
+          int? storageCellId,
+          int? amount}) =>
+      ProductTransferToCell(
+        id: id ?? this.id,
+        productTransferId: productTransferId ?? this.productTransferId,
+        productId: productId ?? this.productId,
+        storageCellId: storageCellId ?? this.storageCellId,
+        amount: amount ?? this.amount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransferToCell(')
+          ..write('id: $id, ')
+          ..write('productTransferId: $productTransferId, ')
+          ..write('productId: $productId, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productTransferId, productId, storageCellId, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductTransferToCell &&
+          other.id == this.id &&
+          other.productTransferId == this.productTransferId &&
+          other.productId == this.productId &&
+          other.storageCellId == this.storageCellId &&
+          other.amount == this.amount);
+}
+
+class ProductTransferToCellsCompanion
+    extends UpdateCompanion<ProductTransferToCell> {
+  final Value<int> id;
+  final Value<int> productTransferId;
+  final Value<int> productId;
+  final Value<int> storageCellId;
+  final Value<int> amount;
+  const ProductTransferToCellsCompanion({
+    this.id = const Value.absent(),
+    this.productTransferId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.storageCellId = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  ProductTransferToCellsCompanion.insert({
+    this.id = const Value.absent(),
+    required int productTransferId,
+    required int productId,
+    required int storageCellId,
+    required int amount,
+  })  : productTransferId = Value(productTransferId),
+        productId = Value(productId),
+        storageCellId = Value(storageCellId),
+        amount = Value(amount);
+  static Insertable<ProductTransferToCell> custom({
+    Expression<int>? id,
+    Expression<int>? productTransferId,
+    Expression<int>? productId,
+    Expression<int>? storageCellId,
+    Expression<int>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productTransferId != null) 'product_transfer_id': productTransferId,
+      if (productId != null) 'product_id': productId,
+      if (storageCellId != null) 'storage_cell_id': storageCellId,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  ProductTransferToCellsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productTransferId,
+      Value<int>? productId,
+      Value<int>? storageCellId,
+      Value<int>? amount}) {
+    return ProductTransferToCellsCompanion(
+      id: id ?? this.id,
+      productTransferId: productTransferId ?? this.productTransferId,
+      productId: productId ?? this.productId,
+      storageCellId: storageCellId ?? this.storageCellId,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productTransferId.present) {
+      map['product_transfer_id'] = Variable<int>(productTransferId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (storageCellId.present) {
+      map['storage_cell_id'] = Variable<int>(storageCellId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransferToCellsCompanion(')
+          ..write('id: $id, ')
+          ..write('productTransferId: $productTransferId, ')
+          ..write('productId: $productId, ')
+          ..write('storageCellId: $storageCellId, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductTransferToCellsTable extends ProductTransferToCells
+    with TableInfo<$ProductTransferToCellsTable, ProductTransferToCell> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductTransferToCellsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productTransferIdMeta =
+      const VerificationMeta('productTransferId');
+  @override
+  late final GeneratedColumn<int?> productTransferId = GeneratedColumn<int?>(
+      'product_transfer_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints:
+          'REFERENCES product_transfers (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
+  final VerificationMeta _storageCellIdMeta =
+      const VerificationMeta('storageCellId');
+  @override
+  late final GeneratedColumn<int?> storageCellId = GeneratedColumn<int?>(
+      'storage_cell_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES storage_cells (id) ON DELETE CASCADE');
+  final VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int?> amount = GeneratedColumn<int?>(
+      'amount', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productTransferId, productId, storageCellId, amount];
+  @override
+  String get aliasedName => _alias ?? 'product_transfer_to_cells';
+  @override
+  String get actualTableName => 'product_transfer_to_cells';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductTransferToCell> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_transfer_id')) {
+      context.handle(
+          _productTransferIdMeta,
+          productTransferId.isAcceptableOrUnknown(
+              data['product_transfer_id']!, _productTransferIdMeta));
+    } else if (isInserting) {
+      context.missing(_productTransferIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('storage_cell_id')) {
+      context.handle(
+          _storageCellIdMeta,
+          storageCellId.isAcceptableOrUnknown(
+              data['storage_cell_id']!, _storageCellIdMeta));
+    } else if (isInserting) {
+      context.missing(_storageCellIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductTransferToCell map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ProductTransferToCell.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductTransferToCellsTable createAlias(String alias) {
+    return $ProductTransferToCellsTable(attachedDatabase, alias);
   }
 }
 
@@ -5505,21 +6720,32 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $ProductArrivalNewPackagesTable(this);
   late final $ProductArrivalPackageNewLinesTable productArrivalPackageNewLines =
       $ProductArrivalPackageNewLinesTable(this);
+  late final $StorageCellsTable storageCells = $StorageCellsTable(this);
   late final $ProductArrivalPackageNewCellsTable productArrivalPackageNewCells =
       $ProductArrivalPackageNewCellsTable(this);
   late final $ProductArrivalNewUnloadPackagesTable
       productArrivalNewUnloadPackages =
       $ProductArrivalNewUnloadPackagesTable(this);
+  late final $ProductStoresTable productStores = $ProductStoresTable(this);
+  late final $ProductTransfersTable productTransfers =
+      $ProductTransfersTable(this);
+  late final $ProductTransferFromCellsTable productTransferFromCells =
+      $ProductTransferFromCellsTable(this);
+  late final $ProductTransferToCellsTable productTransferToCells =
+      $ProductTransferToCellsTable(this);
   late final $OrdersTable orders = $OrdersTable(this);
   late final $OrderLinesTable orderLines = $OrderLinesTable(this);
   late final $ApiCredentialsTable apiCredentials = $ApiCredentialsTable(this);
   late final $PrefsTable prefs = $PrefsTable(this);
   late final ApiCredentialsDao apiCredentialsDao =
       ApiCredentialsDao(this as AppDataStore);
-  late final StoragesDao storagesDao = StoragesDao(this as AppDataStore);
+  late final OrdersDao ordersDao = OrdersDao(this as AppDataStore);
   late final ProductArrivalsDao productArrivalsDao =
       ProductArrivalsDao(this as AppDataStore);
-  late final OrdersDao ordersDao = OrdersDao(this as AppDataStore);
+  late final ProductTransfersDao productTransfersDao =
+      ProductTransfersDao(this as AppDataStore);
+  late final ProductsDao productsDao = ProductsDao(this as AppDataStore);
+  late final StoragesDao storagesDao = StoragesDao(this as AppDataStore);
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
@@ -5535,8 +6761,13 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         productArrivalPackageLines,
         productArrivalNewPackages,
         productArrivalPackageNewLines,
+        storageCells,
         productArrivalPackageNewCells,
         productArrivalNewUnloadPackages,
+        productStores,
+        productTransfers,
+        productTransferFromCells,
+        productTransferToCells,
         orders,
         orderLines,
         apiCredentials,
@@ -5552,19 +6783,20 @@ mixin _$ApiCredentialsDaoMixin on DatabaseAccessor<AppDataStore> {
   $ApiCredentialsTable get apiCredentials => attachedDatabase.apiCredentials;
 }
 mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $ProductsTable get products => attachedDatabase.products;
   $StoragesTable get storages => attachedDatabase.storages;
   $ProductArrivalsTable get productArrivals => attachedDatabase.productArrivals;
   $ProductArrivalPackagesTable get productArrivalPackages =>
       attachedDatabase.productArrivalPackages;
   $ProductArrivalUnloadPackagesTable get productArrivalUnloadPackages =>
       attachedDatabase.productArrivalUnloadPackages;
-  $ProductsTable get products => attachedDatabase.products;
   $ProductArrivalPackageLinesTable get productArrivalPackageLines =>
       attachedDatabase.productArrivalPackageLines;
   $ProductArrivalPackageTypesTable get productArrivalPackageTypes =>
       attachedDatabase.productArrivalPackageTypes;
   $ProductArrivalPackageNewLinesTable get productArrivalPackageNewLines =>
       attachedDatabase.productArrivalPackageNewLines;
+  $StorageCellsTable get storageCells => attachedDatabase.storageCells;
   $ProductArrivalPackageNewCellsTable get productArrivalPackageNewCells =>
       attachedDatabase.productArrivalPackageNewCells;
   $ProductArrivalNewPackagesTable get productArrivalNewPackages =>
@@ -5572,13 +6804,29 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
   $ProductArrivalNewUnloadPackagesTable get productArrivalNewUnloadPackages =>
       attachedDatabase.productArrivalNewUnloadPackages;
 }
+mixin _$ProductTransfersDaoMixin on DatabaseAccessor<AppDataStore> {
+  $ProductsTable get products => attachedDatabase.products;
+  $ProductStoresTable get productStores => attachedDatabase.productStores;
+  $ProductTransfersTable get productTransfers =>
+      attachedDatabase.productTransfers;
+  $StorageCellsTable get storageCells => attachedDatabase.storageCells;
+  $ProductTransferFromCellsTable get productTransferFromCells =>
+      attachedDatabase.productTransferFromCells;
+  $ProductTransferToCellsTable get productTransferToCells =>
+      attachedDatabase.productTransferToCells;
+}
 mixin _$StoragesDaoMixin on DatabaseAccessor<AppDataStore> {
   $StoragesTable get storages => attachedDatabase.storages;
+  $StorageCellsTable get storageCells => attachedDatabase.storageCells;
 }
 mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $StoragesTable get storages => attachedDatabase.storages;
   $OrdersTable get orders => attachedDatabase.orders;
   $OrderLinesTable get orderLines => attachedDatabase.orderLines;
+}
+mixin _$ProductsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $ProductsTable get products => attachedDatabase.products;
+  $ProductStoresTable get productStores => attachedDatabase.productStores;
 }
 mixin _$UsersDaoMixin on DatabaseAccessor<AppDataStore> {
   $UsersTable get users => attachedDatabase.users;

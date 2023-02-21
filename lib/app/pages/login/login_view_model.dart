@@ -41,7 +41,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     ));
 
     try {
-      await app.login(url, login, password);
+      await store.usersRepo.login(url, login, password);
 
       emit(state.copyWith(status: LoginStateStatus.loggedIn));
     } on AppError catch(e) {
@@ -63,21 +63,10 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     ));
 
     try {
-      await _resetPassword(url, login);
+      await store.usersRepo.resetPassword(url, login);
       emit(state.copyWith(status: LoginStateStatus.passwordSent, message: 'Пароль отправлен на почту'));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));
-    }
-  }
-
-  Future<void> _resetPassword(String url, String login) async {
-    try {
-      await Api(dataStore: app.dataStore).resetPassword(url: url, login: login);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
     }
   }
 }

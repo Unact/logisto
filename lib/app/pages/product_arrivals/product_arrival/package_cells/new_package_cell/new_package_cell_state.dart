@@ -25,7 +25,7 @@ class NewPackageCellState {
   final NewPackageCellStateStatus status;
   final String message;
   final ProductArrivalPackageEx packageEx;
-  final ApiStorageCell storageCell;
+  final StorageCell storageCell;
   final List<Product> packageLineProducts;
   final Product? product;
   final int? amount;
@@ -33,7 +33,7 @@ class NewPackageCellState {
   NewPackageCellState copyWith({
     NewPackageCellStateStatus? status,
     ProductArrivalPackageEx? packageEx,
-    ApiStorageCell? storageCell,
+    StorageCell? storageCell,
     final List<Product>? packageLineProducts,
     String? message,
     Optional<Product>? product,
