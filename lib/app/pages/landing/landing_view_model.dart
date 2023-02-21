@@ -8,7 +8,7 @@ class LandingViewModel extends PageViewModel<LandingState, LandingStateStatus> {
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.users
+    dataStore.users
   ]);
 
   @override
@@ -19,17 +19,17 @@ class LandingViewModel extends PageViewModel<LandingState, LandingStateStatus> {
 
   @override
   Future<void> loadData() async {
-    emit(state.copyWith(user: await app.dataStore.usersDao.getUser()));
+    emit(state.copyWith(user: await store.usersRepo.getUser()));
   }
 
   Future<void> _maybeLogout() async {
-    Pref pref = await app.dataStore.getPref();
+    Pref pref = await store.getPref();
     DateTime now = DateTime.now();
     DateTime? lastLogin = pref.lastLogin;
 
     if (lastLogin == null) return;
     if (now.day == lastLogin.day && now.difference(lastLogin).inDays < 1) return;
 
-    await app.logout();
+    await store.usersRepo.logout();
   }
 }

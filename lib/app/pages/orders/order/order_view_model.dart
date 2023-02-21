@@ -9,26 +9,26 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.orders,
-    app.dataStore.orderLines,
-    app.dataStore.storages,
-    app.dataStore.users
+    dataStore.orders,
+    dataStore.orderLines,
+    dataStore.storages,
+    dataStore.users
   ]);
 
   @override
   Future<void> loadData() async {
     emit(state.copyWith(
       status: OrderStateStatus.dataLoaded,
-      storages: await app.dataStore.storagesDao.getStorages(),
-      orderEx: await app.dataStore.ordersDao.getOrderEx(state.order.id),
-      user: await app.dataStore.usersDao.getUser()
+      storages: await store.storagesRepo.getStorages(),
+      orderEx: await store.ordersRepo.getOrderEx(state.order.id),
+      user: await store.usersRepo.getUser()
     ));
   }
 
   Future<void> updateOrderLineAmount(OrderLine orderLine, String amount) async {
     int? intAmount = int.tryParse(amount);
 
-    await app.dataStore.ordersDao.upsertOrderLine(
+    await store.ordersRepo.upsertOrderLine(
       orderLine.id,
       OrderLinesCompanion(factAmount: Value(intAmount))
     );
@@ -43,7 +43,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
 
     try {
-      await _updateOrder({'weight': (parsedWeight * 1000).toInt()});
+      await store.ordersRepo.updateOrder(state.orderEx, {'weight': (parsedWeight * 1000).toInt()});
     } on AppError catch(e) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: e.message));
     }
@@ -58,7 +58,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     }
 
     try {
-      await _updateOrder({'volume': (parsedVolume * 1000000).toInt()});
+      await store.ordersRepo.updateOrder(state.orderEx, {'volume': (parsedVolume * 1000000).toInt()});
     } on AppError catch(e) {
       emit(state.copyWith(status: OrderStateStatus.failure, message: e.message));
     }
@@ -68,7 +68,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _transferOrder(storage);
+      await store.ordersRepo.transferOrder(state.orderEx, storage);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно передан'));
     } on AppError catch(e) {
@@ -86,7 +86,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
     try {
       await _acceptAndUpdateOrder(docConfirmed, weightStr, volumeStr);
-      await _acceptOrder(newStorage);
+      await store.ordersRepo.acceptOrder(state.orderEx, newStorage);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
     } on AppError catch(e) {
@@ -103,7 +103,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
     try {
       await _acceptAndUpdateOrder(docConfirmed, weightStr, volumeStr);
-      await _acceptStorageTransferOrder();
+      await store.ordersRepo.acceptStorageTransferOrder(state.orderEx);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
     } on AppError catch(e) {
@@ -115,7 +115,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _acceptTransferOrder();
+      await store.ordersRepo.acceptTransferOrder(state.orderEx);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно принят'));
     } on AppError catch(e) {
@@ -129,7 +129,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _confirmOrder();
+      await store.ordersRepo.confirmOrder(state.orderEx);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно выдан'));
     } on AppError catch(e) {
@@ -143,7 +143,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.inProgress));
 
     try {
-      await _cancelOrder();
+      await store.ordersRepo.cancelOrder(state.orderEx);
 
       emit(state.copyWith(status: OrderStateStatus.success, message: 'Заказ успешно передан на возврат'));
     } on AppError catch(e) {
@@ -198,113 +198,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.paymentFinished, message: result));
   }
 
-  Future<void> _updateOrder(Map<String, dynamic> data) async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).updateOrder(id: state.order.id, data: data);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _confirmOrder() async {
-    try {
-      List<Map<String, int>> lines = state.lines
-        .map((e) => { 'id': e.id, 'factAmount': e.factAmount ?? e.amount })
-        .toList();
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).confirmOrder(id: state.order.id, lines: lines);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _cancelOrder() async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).cancelOrder(id: state.order.id);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _transferOrder(Storage storage) async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).transferOrder(
-        id: state.order.id,
-        storageId: storage.id
-      );
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _acceptOrder(Storage storage) async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptOrder(id: state.order.id, storageId: storage.id);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _acceptStorageTransferOrder() async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptStorageTransferOrder(id: state.order.id);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _acceptTransferOrder() async {
-    try {
-      ApiOrder newOrder = await Api(dataStore: app.dataStore).acceptTransferOrder(id: state.order.id);
-
-      await _saveApiOrder(newOrder);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _saveApiOrder(ApiOrder apiOrder) async {
-    OrderEx orderEx = apiOrder.toDatabaseEnt();
-
-    await app.dataStore.transaction(() async {
-      await app.dataStore.ordersDao.updateOrderEx(orderEx);
-      if (orderEx.storageFrom != null) await app.dataStore.storagesDao.addStorage(orderEx.storageFrom!);
-      if (orderEx.storageTo != null) await app.dataStore.storagesDao.addStorage(orderEx.storageTo!);
-    });
-  }
-
   Future<void> _acceptAndUpdateOrder(bool docConfirmed, String weightStr, String volumeStr) async {
     if (state.order.documentsReturn && !docConfirmed) throw AppError('Нельзя принять заказ без документов');
 
@@ -313,6 +206,9 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
     if (parsedVolume == null || parsedWeight == null) throw AppError('Указано не корректное число');
 
-    await _updateOrder({'volume': (parsedVolume * 1000000).toInt(), 'weight': (parsedWeight * 1000).toInt()});
+    await store.ordersRepo.updateOrder(
+      state.orderEx,
+      {'volume': (parsedVolume * 1000000).toInt(), 'weight': (parsedWeight * 1000).toInt()}
+    );
   }
 }

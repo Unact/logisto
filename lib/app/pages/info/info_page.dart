@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
+import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quiver/core.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
@@ -10,8 +11,8 @@ import '/app/entities/entities.dart';
 import '/app/pages/orders/orders_page.dart';
 import '/app/pages/product_arrivals/product_arrivals_page.dart';
 import '/app/pages/person/person_page.dart';
+import '/app/pages/product_transfer/product_transfer_page.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
 import '/app/utils/format.dart';
 
 part 'info_state.dart';
@@ -57,45 +58,53 @@ class _InfoViewState extends State<_InfoView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(Strings.ruAppName),
-        actions: <Widget>[
-          IconButton(
-            color: Colors.white,
-            icon: const Icon(Icons.person),
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => PersonPage(),
-                  fullscreenDialog: true
-                )
-              );
-            }
-          )
-        ]
-      ),
-      body: BlocConsumer<InfoViewModel, InfoState>(
+    return BlocConsumer<InfoViewModel, InfoState>(
         builder: (context, state) {
           InfoViewModel vm = context.read<InfoViewModel>();
 
-          return RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () async {
-              vm.getData();
-              return _refresherCompleter.future;
-            },
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(top: 24, left: 8, right: 8, bottom: 24),
-              children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _buildInfoCards(context)
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(Strings.ruAppName),
+              actions: <Widget>[
+                IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.compare_arrows),
+                  tooltip: 'Перемещение',
+                  onPressed: vm.startTransfer
+                ),
+                IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.person),
+                  tooltip: 'Пользователь',
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => PersonPage(),
+                        fullscreenDialog: true
+                      )
+                    );
+                  }
                 )
-              ],
+              ]
+            ),
+            body: RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () async {
+                vm.getData();
+                return _refresherCompleter.future;
+              },
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(top: 24, left: 8, right: 8, bottom: 24),
+                children: <Widget>[
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _buildInfoCards(context)
+                  )
+                ],
+              )
             )
           );
         },
@@ -109,12 +118,21 @@ class _InfoViewState extends State<_InfoView> {
               showMessage(state.message);
               closeRefresher();
               break;
+            case InfoStateStatus.startTransfer:
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => ProductTransferPage(productTransferEx: state.productTransferEx!)
+                  )
+                );
+              });
+              break;
             default:
               break;
           }
         },
-      )
-    );
+      );
   }
 
   List<Widget> _buildInfoCards(BuildContext context) {

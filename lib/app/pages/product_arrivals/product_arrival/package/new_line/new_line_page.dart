@@ -12,7 +12,6 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/services/api.dart';
 import '/app/widgets/widgets.dart';
 
 part 'new_line_state.dart';

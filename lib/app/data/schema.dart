@@ -92,8 +92,8 @@ class ProductArrivalPackageNewCells extends Table {
     .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
   IntColumn get productId => integer()
     .references(Products, #id, onDelete: KeyAction.cascade)();
-  IntColumn get storageCellId => integer()();
-  TextColumn get storageCellName => text()();
+  IntColumn get storageCellId => integer()
+    .references(StorageCells, #id, onDelete: KeyAction.cascade)();
   IntColumn get amount => integer()();
 }
 
@@ -113,6 +113,46 @@ class ProductArrivalNewUnloadPackages extends Table {
   IntColumn get amount => integer()();
   IntColumn get typeId => integer()();
   TextColumn get typeName => text()();
+}
+
+class ProductStores extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class ProductTransfers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get storeFromId => text().nullable()
+    .references(ProductStores, #id, onDelete: KeyAction.cascade)();
+  TextColumn get storeToId => text().nullable()
+    .references(ProductStores, #id, onDelete: KeyAction.cascade)();
+  TextColumn get comment => text().nullable()();
+  BoolColumn get gatherFinished => boolean()();
+}
+
+class ProductTransferFromCells extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productTransferId => integer()
+    .references(ProductTransfers, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
+  IntColumn get storageCellId => integer()
+    .references(StorageCells, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amount => integer()();
+}
+
+class ProductTransferToCells extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productTransferId => integer()
+    .references(ProductTransfers, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
+  IntColumn get storageCellId => integer()
+    .references(StorageCells, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amount => integer()();
 }
 
 class Orders extends Table {
@@ -154,6 +194,11 @@ class Storages extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   IntColumn get sequenceNumber => integer()();
+}
+
+class StorageCells extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
 }
 
 class JsonIntListConverter extends TypeConverter<List<int>, String> {

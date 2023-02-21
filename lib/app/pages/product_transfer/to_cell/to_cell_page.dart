@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,34 +12,34 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
-part 'new_package_cell_state.dart';
-part 'new_package_cell_view_model.dart';
+part 'to_cell_state.dart';
+part 'to_cell_view_model.dart';
 
-class NewPackageCellPage extends StatelessWidget {
-  final ProductArrivalPackageEx packageEx;
+class ToCellPage extends StatelessWidget {
+  final ProductTransferEx productTransferEx;
   final StorageCell storageCell;
 
-  NewPackageCellPage({
-    required this.packageEx,
+  ToCellPage({
+    required this.productTransferEx,
     required this.storageCell,
     Key? key
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NewPackageCellViewModel>(
-      create: (context) => NewPackageCellViewModel(context, packageEx: packageEx, storageCell: storageCell),
-      child: ScaffoldMessenger(child: _NewPackageCellView()),
+    return BlocProvider<ToCellViewModel>(
+      create: (context) => ToCellViewModel(context, productTransferEx: productTransferEx, storageCell: storageCell),
+      child: ScaffoldMessenger(child: _ToCellView()),
     );
   }
 }
 
-class _NewPackageCellView extends StatefulWidget {
+class _ToCellView extends StatefulWidget {
   @override
-  NewPackageCellViewState createState() => NewPackageCellViewState();
+  ToCellViewState createState() => ToCellViewState();
 }
 
-class NewPackageCellViewState extends State<_NewPackageCellView> {
+class ToCellViewState extends State<_ToCellView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   late ThemeData theme = Theme.of(context);
   final TextEditingController _amountController = TextEditingController();
@@ -48,12 +48,12 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NewPackageCellViewModel, NewPackageCellState>(
+    return BlocConsumer<ToCellViewModel, ToCellState>(
       builder: (context, state) {
-        NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
+        ToCellViewModel vm = context.read<ToCellViewModel>();
         String amount = vm.state.amount?.toString() ?? '';
 
-        _amountController.text = vm.state.amount?.toString() ?? '';
+        _amountController.text = amount;
         _amountController.selection = TextSelection.fromPosition(TextPosition(offset: amount.length));
 
         return Scaffold(
@@ -75,7 +75,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
                       suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
                     ),
                     value: vm.state.product,
-                    items: vm.state.packageLineProducts.map((e) => DropdownMenuItem<Product>(
+                    items: vm.state.fromCellsProducts.map((e) => DropdownMenuItem<Product>(
                       value: e,
                       child: Text(e.name, style: Style.listTileText.merge(theme.textTheme.labelMedium))
                     )).toList(),
@@ -96,7 +96,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             actions: <Widget>[
               TextButton(
                 child: const Text('Добавить'),
-                onPressed: vm.addProductArrivalPackageNewPackageCell,
+                onPressed: vm.addProductTransferToCell,
               ),
               TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],
@@ -105,25 +105,26 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case NewPackageCellStateStatus.lineAdded:
+          case ToCellStateStatus.cellAdded:
             productFocus.requestFocus();
             break;
-          case NewPackageCellStateStatus.setProduct:
+          case ToCellStateStatus.setProduct:
             _progressDialog.close();
             amountFocus.requestFocus();
             break;
-          case NewPackageCellStateStatus.inProgress:
+          case ToCellStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case NewPackageCellStateStatus.success:
-          case NewPackageCellStateStatus.failure:
+          case ToCellStateStatus.success:
+          case ToCellStateStatus.failure:
             showMessage(state.message);
             _progressDialog.close();
             break;
           default:
             break;
         }
-      },);
+      }
+    );
   }
 
   void showMessage(String message) {
@@ -131,7 +132,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
   }
 
   Future<void> _onScan() async {
-    NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
+    ToCellViewModel vm = context.read<ToCellViewModel>();
 
     FocusScope.of(context).unfocus();
 

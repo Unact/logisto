@@ -1,7 +1,10 @@
 part of 'database.dart';
 
 @DriftAccessor(
-  tables: [Storages],
+  tables: [
+    Storages,
+    StorageCells
+  ],
 )
 class StoragesDao extends DatabaseAccessor<AppDataStore> with _$StoragesDaoMixin {
   StoragesDao(AppDataStore db) : super(db);
@@ -23,5 +26,13 @@ class StoragesDao extends DatabaseAccessor<AppDataStore> with _$StoragesDaoMixin
 
   Future<Storage?> getStorageById(int id) async {
     return await (select(storages)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<void> addStorageCell(StorageCell storageCell) async {
+    await into(storageCells).insert(storageCell, mode: InsertMode.insertOrReplace);
+  }
+
+  Future<StorageCell?> getStorageCellById(int id) async {
+    return await (select(storageCells)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
   }
 }

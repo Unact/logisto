@@ -8,6 +8,7 @@ enum InfoStateStatus {
   success,
   failure,
   inProgress,
+  startTransfer
 }
 
 class InfoState {
@@ -18,7 +19,8 @@ class InfoState {
     this.newVersionAvailable = false,
     this.message = '',
     this.loading = false,
-    this.user
+    this.user,
+    this.productTransferEx
   });
 
   final List<OrderEx> orderExList;
@@ -28,6 +30,7 @@ class InfoState {
   final String message;
   final bool loading;
   final User? user;
+  final ProductTransferEx? productTransferEx;
 
   double get total => user?.total ?? 0;
 
@@ -38,7 +41,8 @@ class InfoState {
     bool? newVersionAvailable,
     String? message,
     bool? loading,
-    User? user
+    User? user,
+    Optional<ProductTransferEx>? productTransferEx
   }) {
     return InfoState(
       status: status ?? this.status,
@@ -47,7 +51,8 @@ class InfoState {
       newVersionAvailable: newVersionAvailable ?? this.newVersionAvailable,
       message: message ?? this.message,
       loading: loading ?? this.loading,
-      user: user ?? this.user
+      user: user ?? this.user,
+      productTransferEx: productTransferEx != null ? productTransferEx.orNull : this.productTransferEx
     );
   }
 }

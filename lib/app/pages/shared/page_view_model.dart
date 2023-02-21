@@ -5,7 +5,9 @@ import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '/app/data/database.dart';
 import '/app/app.dart';
+import '/app/repositories/app_store.dart';
 import '/app/utils/misc.dart';
 
 abstract class PageViewModel<T, P> extends Cubit<T> {
@@ -19,11 +21,14 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
 
   P get status;
 
+  AppStore get store => app.store;
+  AppDataStore get dataStore => app.store.dataStore;
+
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([]);
 
   @mustCallSuper
   Future<void> initViewModel() async {
-    _subscription = app.dataStore.tableUpdates(listenForTables).listen((event) async {
+    _subscription = dataStore.tableUpdates(listenForTables).listen((event) async {
       await Future.delayed(Duration.zero);
       await loadData();
     });

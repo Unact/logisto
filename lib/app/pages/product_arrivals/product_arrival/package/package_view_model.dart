@@ -9,10 +9,10 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
 
   @override
   TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    app.dataStore.productArrivals,
-    app.dataStore.productArrivalPackages,
-    app.dataStore.productArrivalPackageLines,
-    app.dataStore.productArrivalPackageNewLines,
+    dataStore.productArrivals,
+    dataStore.productArrivalPackages,
+    dataStore.productArrivalPackageLines,
+    dataStore.productArrivalPackageNewLines,
   ]);
 
   @override
@@ -21,14 +21,14 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
 
     emit(state.copyWith(
       status: PackageStateStatus.dataLoaded,
-      user: await app.dataStore.usersDao.getUser(),
-      packageEx: await app.dataStore.productArrivalsDao.getProductArrivalPackageEx(productArrivalPackageId),
-      newLineExList: await app.dataStore.productArrivalsDao.getProductArrivalPackageNewLinesEx(productArrivalPackageId)
+      user: await store.usersRepo.getUser(),
+      packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
+      newLineExList: await store.productArrivalsRepo.getProductArrivalPackageNewLinesEx(productArrivalPackageId)
     ));
   }
 
   Future<void> printProductLabel(Product product, int amount) async {
-    ProductLabel(product: product, user: state.user!).print(
+    await ProductLabel(product: product, user: state.user!).print(
       amount: amount,
       onError: (String error) => emit(state.copyWith(status: PackageStateStatus.failure, message: error))
     );
@@ -38,7 +38,7 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
     emit(state.copyWith(status: PackageStateStatus.inProgress));
 
     try {
-      await _endAccept(state.packageEx, state.newLineExList);
+      await store.productArrivalsRepo.endAccept(state.packageEx, state.newLineExList);
 
       emit(state.copyWith(status: PackageStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -47,32 +47,6 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
   }
 
   Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLineEx packageNewLineEx) async {
-    await app.dataStore.productArrivalsDao.deleteProductArrivalPackageNewLine(packageNewLineEx.line);
-  }
-
-  Future<void> _endAccept(ProductArrivalPackageEx packageEx, List<ProductArrivalPackageNewLineEx> newLineExList) async {
-    try {
-      ApiProductArrival newApiProductArrival = await Api(dataStore: app.dataStore).productArrivalsFinishPackageAccept(
-        id: packageEx.package.id,
-        lines: newLineExList.map((e) => { 'productId': e.product.id, 'amount': e.line.amount }).toList()
-      );
-
-      await app.dataStore.productArrivalsDao.clearProductArrivalPackageNewLines();
-      await _saveProductArrival(newApiProductArrival);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await app.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> _saveProductArrival(ApiProductArrival apiProductArrival) async {
-    ProductArrivalEx productArrivalEx = apiProductArrival.toDatabaseEnt();
-
-    await app.dataStore.transaction(() async {
-      await app.dataStore.productArrivalsDao.updateProductArrivalEx(productArrivalEx);
-      await app.dataStore.storagesDao.addStorage(productArrivalEx.storage);
-    });
+    await store.productArrivalsRepo.deleteProductArrivalPackageNewLine(packageNewLineEx.line);
   }
 }

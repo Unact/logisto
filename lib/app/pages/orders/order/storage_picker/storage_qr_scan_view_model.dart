@@ -42,7 +42,7 @@ class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQR
   }
 
   Future<void> _processQR(int storageId) async {
-    Storage? storage = await app.dataStore.storagesDao.getStorageById(storageId);
+    Storage? storage = await store.storagesRepo.getStorageById(storageId);
 
     if (storage == null) {
       emit(state.copyWith(status: StorageQRScanStateStatus.failure, message: 'Склад не найден'));

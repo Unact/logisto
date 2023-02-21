@@ -11,7 +11,7 @@ class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, New
   Future<void> loadData() async {
     emit(state.copyWith(
       status: NewUnloadPackageStateStatus.dataLoaded,
-      types: await app.dataStore.productArrivalsDao.getProductArrivalPackageTypes(),
+      types: await store.productArrivalsRepo.getProductArrivalPackageTypes(),
     ));
   }
 
@@ -47,7 +47,7 @@ class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, New
       amount: Value(state.amount!)
     );
 
-    await app.dataStore.productArrivalsDao.addProductArrivalNewUnloadPackage(unloadPackage);
+    await store.productArrivalsRepo.addProductArrivalNewUnloadPackage(unloadPackage);
 
     emit(state.copyWith(status: NewUnloadPackageStateStatus.unloadPackageAdded));
   }
