@@ -16,6 +16,7 @@ class ToCellState {
     this.status = ToCellStateStatus.initial,
     required this.productTransferEx,
     required this.storageCell,
+    this.fromCellsProducts = const [],
     this.message = '',
     this.product,
     this.amount
@@ -28,12 +29,13 @@ class ToCellState {
   final Product? product;
   final int? amount;
 
-  List<Product> get fromCellsProducts => productTransferEx.fromCells.map((e) => e.product).toSet().toList();
+  final List<Product> fromCellsProducts;
 
   ToCellState copyWith({
     ToCellStateStatus? status,
     ProductTransferEx? productTransferEx,
     StorageCell? storageCell,
+    List<Product>? fromCellsProducts,
     String? message,
     Optional<Product>? product,
     Optional<int>? amount
@@ -42,6 +44,7 @@ class ToCellState {
       status: status ?? this.status,
       productTransferEx: productTransferEx ?? this.productTransferEx,
       storageCell: storageCell ?? this.storageCell,
+      fromCellsProducts: fromCellsProducts ?? this.fromCellsProducts,
       message: message ?? this.message,
       product: product != null ? product.orNull : this.product,
       amount: amount != null ? amount.orNull : this.amount,

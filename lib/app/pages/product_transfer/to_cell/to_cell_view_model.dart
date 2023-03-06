@@ -21,9 +21,12 @@ class ToCellViewModel extends PageViewModel<ToCellState, ToCellStateStatus> {
 
   @override
   Future<void> loadData() async {
+    final productTransferEx = await store.productTransfersRepo.getCurrentTransfer();
+
     emit(state.copyWith(
       status: ToCellStateStatus.dataLoaded,
-      productTransferEx: await store.productTransfersRepo.getCurrentTransfer()
+      productTransferEx: productTransferEx,
+      fromCellsProducts: _calcFromCellsProducts(productTransferEx!)
     ));
   }
 
@@ -104,5 +107,24 @@ class ToCellViewModel extends PageViewModel<ToCellState, ToCellStateStatus> {
       amount: const Optional.absent(),
       product: const Optional.absent()
     ));
+  }
+
+  List<Product> _calcFromCellsProducts(ProductTransferEx productTransferEx) {
+    final fromCellsProductsMap = productTransferEx.fromCells.map((e) => e.product).toSet().toList()
+      .fold<Map<Product, int>>(
+        {},
+        (prevProductMap, product) => prevProductMap..addAll({
+          product: productTransferEx.fromCells.where((e) => e.product == product)
+            .fold<int>(0, (prev, e) => e.fromCell.amount + prev)
+        })
+      );
+
+    for (var e in productTransferEx.toCells) {
+      if (fromCellsProductsMap[e.product] == null) continue;
+      fromCellsProductsMap[e.product] = fromCellsProductsMap[e.product]! - e.toCell.amount;
+    }
+    fromCellsProductsMap.removeWhere((key, value) => value == 0);
+
+    return fromCellsProductsMap.keys.toList();
   }
 }
