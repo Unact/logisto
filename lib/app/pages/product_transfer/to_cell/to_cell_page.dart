@@ -105,6 +105,9 @@ class ToCellViewState extends State<_ToCellView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case ToCellStateStatus.dataLoaded:
+            if (state.fromCellsProducts.isEmpty) Navigator.of(context).pop();
+            break;
           case ToCellStateStatus.cellAdded:
             productFocus.requestFocus();
             break;
