@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -105,6 +105,9 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case NewPackageCellStateStatus.dataLoaded:
+            if (state.packageLineProducts.isEmpty) Navigator.of(context).pop();
+            break;
           case NewPackageCellStateStatus.lineAdded:
             productFocus.requestFocus();
             break;

@@ -13,10 +13,21 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
   NewPackageCellStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    List<Product> products = state.packageEx.packageLines.map((e) => e.product).toSet().toList();
+  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
+    dataStore.productArrivals,
+    dataStore.productArrivalPackages,
+    dataStore.productArrivalPackageNewCells,
+  ]);
 
-    emit(state.copyWith(status: NewPackageCellStateStatus.dataLoaded, packageLineProducts: products));
+  @override
+  Future<void> loadData() async {
+    final newCells = await store.productArrivalsRepo.getProductArrivalPackageNewCellsEx(state.packageEx.package.id);
+
+    emit(state.copyWith(
+      status: NewPackageCellStateStatus.dataLoaded,
+      packageLineProducts: _calcNewCellsProducts(state.packageEx.packageLines, newCells),
+      newCells: newCells
+    ));
   }
 
   Future<void> findAndSetProductByCode(String code) async {
@@ -58,6 +69,15 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
   }
 
   Future<void> addProductArrivalPackageNewPackageCell() async {
+    int productAmount = state.packageEx.packageLines.fold(
+      0,
+      (prev, e) => prev + (e.product == state.product ? e.line.amount : 0)
+    );
+    int productNewCellsAmount = state.newCells.fold(
+      0,
+      (prev, e) => prev + (e.product == state.product ? e.newCell.amount : 0)
+    );
+
     if (state.product == null) {
       emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Не указан товар'));
       return;
@@ -65,6 +85,14 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
 
     if (state.amount == null) {
       emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Не указано кол-во'));
+      return;
+    }
+
+    if (productAmount < productNewCellsAmount + state.amount!) {
+      emit(state.copyWith(
+        status: NewPackageCellStateStatus.failure,
+        message: 'Нельзя разместить товара больше чем принято'
+      ));
       return;
     }
 
@@ -82,5 +110,27 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
       amount: const Optional.absent(),
       product: const Optional.absent()
     ));
+  }
+
+  List<Product> _calcNewCellsProducts(
+    List<ProductArrivalPackageLineEx> packageLines,
+    List<ProductArrivalPackageNewCellEx> newCells
+  ) {
+    final productsMap = packageLines.map((e) => e.product).toSet().toList()
+      .fold<Map<Product, int>>(
+        {},
+        (prevProductMap, product) => prevProductMap..addAll({
+          product: packageLines.where((e) => e.product == product)
+            .fold<int>(0, (prev, e) => e.line.amount + prev)
+        })
+      );
+
+    for (var e in newCells) {
+      if (productsMap[e.product] == null) continue;
+      productsMap[e.product] = productsMap[e.product]! - e.newCell.amount;
+    }
+    productsMap.removeWhere((key, value) => value == 0);
+
+    return productsMap.keys.toList();
   }
 }
