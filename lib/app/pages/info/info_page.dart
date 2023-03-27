@@ -111,15 +111,15 @@ class _InfoViewState extends State<_InfoView> {
             actions: <Widget>[
               IconButton(
                 color: Colors.white,
-                icon: const Icon(Icons.compare_arrows),
-                tooltip: 'Перемещение',
-                onPressed: vm.startTransfer
-              ),
-              IconButton(
-                color: Colors.white,
                 icon: const Icon(Icons.search),
                 tooltip: 'Поиск товара',
                 onPressed: showProductSearch
+              ),
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.compare_arrows),
+                tooltip: 'Перемещение',
+                onPressed: vm.startTransfer
               ),
               IconButton(
                 color: Colors.white,

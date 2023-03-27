@@ -10,7 +10,6 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/format.dart';
 import '/app/widgets/widgets.dart';
 
 part 'product_state.dart';
@@ -131,19 +130,19 @@ class _ProductViewState extends State<_ProductView> {
         InfoRow(title: const Text('Артикул'), trailing: Text(product.article ?? '')),
         InfoRow(
           title: const Text('Вес, кг'),
-          trailing: Text(product.weight != null ? Format.numberStr(product.weight!/1000)  : '')
+          trailing: Text(product.weight != null ? (product.weight!~/1000).toString() : '')
         ),
         InfoRow(
           title: const Text('Длина, см'),
-          trailing: Text(product.weight != null ? Format.numberStr(product.length!/1000)  : '')
+          trailing: Text(product.weight != null ? (product.length!~/10).toString() : '')
         ),
         InfoRow(
           title: const Text('Высота, см'),
-          trailing: Text(product.weight != null ? Format.numberStr(product.height!/1000)  : '')
+          trailing: Text(product.weight != null ? (product.height!~/10).toString() : '')
         ),
         InfoRow(
           title: const Text('Ширина, см'),
-          trailing: Text(product.weight != null ? Format.numberStr(product.width!/1000)  : '')
+          trailing: Text(product.weight != null ? (product.width!~/10).toString() : '')
         ),
         InfoRow(title: const Text('Архив'), trailing: Text(product.archived ? 'Да' : 'Нет')),
         ExpansionTile(
