@@ -9,7 +9,7 @@ import '/app/constants/qr_types.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/labels/product_label.dart';
+import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package_cell/new_package_cell_page.dart';
@@ -56,48 +56,14 @@ class PackageCellsViewState extends State<_PackageCellsView> {
     ).show();
   }
 
-  Future<void> showProductLabelPrintDialog(Product product) async {
-    PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
-    int? amount;
-
-    bool result = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              alignment: Alignment.topCenter,
-              title: const Text('Укажите кол-во этикеток'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    autofocus: true,
-                    keyboardType: TextInputType.number,
-                    onChanged: (newAmount) => setState(() => amount = int.tryParse(newAmount)),
-                    decoration: const InputDecoration(labelText: 'Кол-во'),
-                  )
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: amount != null && amount! > 0 ? () => Navigator.of(context).pop(true) : null,
-                  child: const Text('Подтвердить')
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Отменить')
-                )
-              ]
-            );
-          }
-        );
-      }
-    ) ?? false;
-
-    if (!result) return;
-
-    await vm.printProductLabel(product, amount!);
+  Future<void> showProductPage(Product product) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ProductPage(product: product),
+        fullscreenDialog: true
+      )
+    );
   }
 
   @override
@@ -185,9 +151,9 @@ class PackageCellsViewState extends State<_PackageCellsView> {
       onDismissed: (direction) => vm.deleteProductArrivalPackageNewCell(newCellEx),
       child: ListTile(
         leading: IconButton(
-          icon: const Icon(Icons.print_sharp),
-          onPressed: () => showProductLabelPrintDialog(newCellEx.product),
-          tooltip: 'Распечатать места',
+          icon: const Icon(Icons.info),
+          onPressed: () => showProductPage(newCellEx.product),
+          tooltip: 'Информация о товаре',
           constraints: const BoxConstraints(),
           padding: const EdgeInsets.only(left: 8)
         ),

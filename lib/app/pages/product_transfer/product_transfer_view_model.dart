@@ -18,7 +18,6 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
   Future<void> loadData() async {
     emit(state.copyWith(
       status: ProductTransferStateStatus.dataLoaded,
-      user: await store.usersRepo.getUser(),
       productStores: await store.productsRepo.getProductStores(),
       productTransferEx: await store.productTransfersRepo.getCurrentTransfer()
     ));
@@ -108,12 +107,5 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
       status: ProductTransferStateStatus.gatherFinishCanceled,
       message: 'Изъятие товаров успешно отменено'
     ));
-  }
-
-  Future<void> printProductLabel(Product product, int amount) async {
-    await ProductLabel(product: product, user: state.user!).print(
-      amount: amount,
-      onError: (String error) => emit(state.copyWith(status: ProductTransferStateStatus.failure, message: error))
-    );
   }
 }

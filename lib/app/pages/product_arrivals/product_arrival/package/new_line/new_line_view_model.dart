@@ -10,33 +10,6 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
   @override
   Future<void> loadData() async {}
 
-  Future<List<Product>> findProductsByName(String name) async {
-    try {
-      return await store.productsRepo.findProduct(name: name);
-    } on AppError catch(e) {
-      emit(state.copyWith(status: NewLineStateStatus.failure, message: e.message));
-
-      return [];
-    }
-  }
-
-  Future<void> findAndSetProductByCode(String code) async {
-    emit(state.copyWith(status: NewLineStateStatus.inProgress));
-
-    try {
-      List<Product> products = await store.productsRepo.findProduct(code: code);
-
-      if (products.isEmpty) {
-        emit(state.copyWith(status: NewLineStateStatus.failure, message: 'Не найден товар'));
-        return;
-      }
-
-      setProduct(products.first);
-    } on AppError catch(e) {
-      emit(state.copyWith(status: NewLineStateStatus.failure, message: e.message));
-    }
-  }
-
   void setProduct(Product product) {
     emit(state.copyWith(
       status: NewLineStateStatus.setProduct,
@@ -70,6 +43,10 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
 
     await store.productArrivalsRepo.addProductArrivalPackageNewLine(line);
 
-    emit(state.copyWith(status: NewLineStateStatus.lineAdded));
+    emit(state.copyWith(
+      status: NewLineStateStatus.lineAdded,
+      amount: const Optional.absent(),
+      product: const Optional.absent()
+    ));
   }
 }

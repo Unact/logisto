@@ -21,17 +21,9 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
 
     emit(state.copyWith(
       status: PackageStateStatus.dataLoaded,
-      user: await store.usersRepo.getUser(),
       packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
       newLineExList: await store.productArrivalsRepo.getProductArrivalPackageNewLinesEx(productArrivalPackageId)
     ));
-  }
-
-  Future<void> printProductLabel(Product product, int amount) async {
-    await ProductLabel(product: product, user: state.user!).print(
-      amount: amount,
-      onError: (String error) => emit(state.copyWith(status: PackageStateStatus.failure, message: error))
-    );
   }
 
   Future<void> endAccept() async {

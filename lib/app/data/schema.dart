@@ -24,9 +24,15 @@ class ApiCredentials extends Table {
 class Products extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
+  TextColumn get groupName => text()();
   TextColumn get article => text().nullable()();
   TextColumn get barcodeCode => text().nullable()();
   TextColumn get barcodeType => text().nullable()();
+  IntColumn get length => integer().nullable()();
+  IntColumn get width => integer().nullable()();
+  IntColumn get height => integer().nullable()();
+  IntColumn get weight => integer().nullable()();
+  BoolColumn get archived => boolean()();
 }
 
 class ProductArrivals extends Table {

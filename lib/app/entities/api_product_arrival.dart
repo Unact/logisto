@@ -69,13 +69,7 @@ class ApiProductArrival extends Equatable {
       comment: comment
     );
     List<ProductArrivalLineEx> productArrivalLines = lines.map((e) {
-        final product = Product(
-          id: e.product.id,
-          name: e.product.name,
-          article: e.product.article,
-          barcodeCode: e.product.barcodeCode,
-          barcodeType: e.product.barcodeType,
-        );
+        final product = e.product.toDatabaseEnt();
         final line = ProductArrivalLine(
             id: e.id,
             productArrivalId: id,
@@ -98,13 +92,7 @@ class ApiProductArrival extends Equatable {
         placed: e.placed
       );
       final lines = e.lines.map((line) {
-        final product = Product(
-          id: line.product.id,
-          name: line.product.name,
-          article: line.product.article,
-          barcodeCode: line.product.barcodeCode,
-          barcodeType: line.product.barcodeType,
-        );
+        final product = line.product.toDatabaseEnt();
         final productArrivalPackageLine = ProductArrivalPackageLine(
             id: line.id,
             productArrivalPackageId: e.id,

@@ -2,15 +2,13 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
+import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
 
@@ -42,18 +40,19 @@ class _NewLineView extends StatefulWidget {
 class NewLineViewState extends State<_NewLineView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
   late ThemeData theme = Theme.of(context);
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
-  ApiProduct? product;
-  int? amount;
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<NewLineViewModel, NewLineState>(
       builder: (context, state) {
         NewLineViewModel vm = context.read<NewLineViewModel>();
+        String amount = vm.state.amount?.toString() ?? '';
+
+        _amountController.text = vm.state.amount?.toString() ?? '';
+        _amountController.selection = TextSelection.fromPosition(TextPosition(offset: amount.length));
 
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -63,36 +62,7 @@ class NewLineViewState extends State<_NewLineView> {
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
-                  TypeAheadField(
-                    hideOnError: true,
-                    minCharsForSuggestions: 5,
-                    textFieldConfiguration: TextFieldConfiguration(
-                      style: Style.listTileText,
-                      autofocus: true,
-                      focusNode: productFocus,
-                      controller: _nameController,
-                      autocorrect: false,
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        labelText: 'Товар',
-                        suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
-                      )
-                    ),
-                    noItemsFoundBuilder: (BuildContext ctx) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text('Ничего не найдено', style: TextStyle(color: theme.disabledColor)),
-                      );
-                    },
-                    suggestionsCallback: (String pattern) => vm.findProductsByName(pattern),
-                    itemBuilder: (BuildContext ctx, Product suggestion) {
-                      return ListTile(
-                        isThreeLine: false,
-                        title: Text(suggestion.name, style: Theme.of(context).textTheme.caption)
-                      );
-                    },
-                    onSuggestionSelected: vm.setProduct
-                  ),
+                  ProductSearchField(focusNode: productFocus, product: state.product, onProductSelect: vm.setProduct),
                   TextFormField(
                     focusNode: amountFocus,
                     autocorrect: false,
@@ -118,10 +88,9 @@ class NewLineViewState extends State<_NewLineView> {
       listener: (context, state) async {
         switch (state.status) {
           case NewLineStateStatus.lineAdded:
-            Navigator.of(context).pop();
+            productFocus.requestFocus();
             break;
           case NewLineStateStatus.setProduct:
-            _nameController.text = state.product!.name;
             _progressDialog.close();
             amountFocus.requestFocus();
             break;
@@ -141,33 +110,5 @@ class NewLineViewState extends State<_NewLineView> {
 
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  Future<void> _onScan() async {
-    NewLineViewModel vm = context.read<NewLineViewModel>();
-
-    FocusScope.of(context).unfocus();
-
-    await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (BuildContext context) => ScanView(
-          barcodeMode: true,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте позицию', style: Style.qrScanTitleText)
-              )
-            ]
-          ),
-          onRead: (String code) {
-            Navigator.of(context).pop();
-            vm.findAndSetProductByCode(code);
-          }
-        )
-      )
-    );
   }
 }

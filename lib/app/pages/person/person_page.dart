@@ -58,7 +58,6 @@ class _PersonViewState extends State<_PersonView> {
             await _progressDialog.open();
             break;
           case PersonStateStatus.failure:
-          case PersonStateStatus.logsSend:
             showMessage(state.message);
             break;
           case PersonStateStatus.loggedOut:

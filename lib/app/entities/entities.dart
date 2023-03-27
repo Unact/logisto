@@ -13,6 +13,8 @@ part 'api_product_arrival_package_line.dart';
 part 'api_product_arrival_package_type.dart';
 part 'api_product_arrival_unload_package.dart';
 part 'api_product_arrival.dart';
+part 'api_product_barcode.dart';
+part 'api_product_image.dart';
 part 'api_product_store.dart';
 part 'api_product.dart';
 part 'api_storage.dart';

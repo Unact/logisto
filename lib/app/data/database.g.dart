@@ -409,15 +409,27 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
 class Product extends DataClass implements Insertable<Product> {
   final int id;
   final String name;
+  final String groupName;
   final String? article;
   final String? barcodeCode;
   final String? barcodeType;
+  final int? length;
+  final int? width;
+  final int? height;
+  final int? weight;
+  final bool archived;
   Product(
       {required this.id,
       required this.name,
+      required this.groupName,
       this.article,
       this.barcodeCode,
-      this.barcodeType});
+      this.barcodeType,
+      this.length,
+      this.width,
+      this.height,
+      this.weight,
+      required this.archived});
   factory Product.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Product(
@@ -425,12 +437,24 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      groupName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}group_name'])!,
       article: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}article']),
       barcodeCode: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}barcode_code']),
       barcodeType: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}barcode_type']),
+      length: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}length']),
+      width: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}width']),
+      height: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}height']),
+      weight: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}weight']),
+      archived: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}archived'])!,
     );
   }
   @override
@@ -438,6 +462,7 @@ class Product extends DataClass implements Insertable<Product> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['group_name'] = Variable<String>(groupName);
     if (!nullToAbsent || article != null) {
       map['article'] = Variable<String?>(article);
     }
@@ -447,6 +472,19 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || barcodeType != null) {
       map['barcode_type'] = Variable<String?>(barcodeType);
     }
+    if (!nullToAbsent || length != null) {
+      map['length'] = Variable<int?>(length);
+    }
+    if (!nullToAbsent || width != null) {
+      map['width'] = Variable<int?>(width);
+    }
+    if (!nullToAbsent || height != null) {
+      map['height'] = Variable<int?>(height);
+    }
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<int?>(weight);
+    }
+    map['archived'] = Variable<bool>(archived);
     return map;
   }
 
@@ -454,6 +492,7 @@ class Product extends DataClass implements Insertable<Product> {
     return ProductsCompanion(
       id: Value(id),
       name: Value(name),
+      groupName: Value(groupName),
       article: article == null && nullToAbsent
           ? const Value.absent()
           : Value(article),
@@ -463,6 +502,15 @@ class Product extends DataClass implements Insertable<Product> {
       barcodeType: barcodeType == null && nullToAbsent
           ? const Value.absent()
           : Value(barcodeType),
+      length:
+          length == null && nullToAbsent ? const Value.absent() : Value(length),
+      width:
+          width == null && nullToAbsent ? const Value.absent() : Value(width),
+      height:
+          height == null && nullToAbsent ? const Value.absent() : Value(height),
+      weight:
+          weight == null && nullToAbsent ? const Value.absent() : Value(weight),
+      archived: Value(archived),
     );
   }
 
@@ -472,9 +520,15 @@ class Product extends DataClass implements Insertable<Product> {
     return Product(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      groupName: serializer.fromJson<String>(json['groupName']),
       article: serializer.fromJson<String?>(json['article']),
       barcodeCode: serializer.fromJson<String?>(json['barcodeCode']),
       barcodeType: serializer.fromJson<String?>(json['barcodeType']),
+      length: serializer.fromJson<int?>(json['length']),
+      width: serializer.fromJson<int?>(json['width']),
+      height: serializer.fromJson<int?>(json['height']),
+      weight: serializer.fromJson<int?>(json['weight']),
+      archived: serializer.fromJson<bool>(json['archived']),
     );
   }
   @override
@@ -483,98 +537,173 @@ class Product extends DataClass implements Insertable<Product> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'groupName': serializer.toJson<String>(groupName),
       'article': serializer.toJson<String?>(article),
       'barcodeCode': serializer.toJson<String?>(barcodeCode),
       'barcodeType': serializer.toJson<String?>(barcodeType),
+      'length': serializer.toJson<int?>(length),
+      'width': serializer.toJson<int?>(width),
+      'height': serializer.toJson<int?>(height),
+      'weight': serializer.toJson<int?>(weight),
+      'archived': serializer.toJson<bool>(archived),
     };
   }
 
   Product copyWith(
           {int? id,
           String? name,
+          String? groupName,
           String? article,
           String? barcodeCode,
-          String? barcodeType}) =>
+          String? barcodeType,
+          int? length,
+          int? width,
+          int? height,
+          int? weight,
+          bool? archived}) =>
       Product(
         id: id ?? this.id,
         name: name ?? this.name,
+        groupName: groupName ?? this.groupName,
         article: article ?? this.article,
         barcodeCode: barcodeCode ?? this.barcodeCode,
         barcodeType: barcodeType ?? this.barcodeType,
+        length: length ?? this.length,
+        width: width ?? this.width,
+        height: height ?? this.height,
+        weight: weight ?? this.weight,
+        archived: archived ?? this.archived,
       );
   @override
   String toString() {
     return (StringBuffer('Product(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('groupName: $groupName, ')
           ..write('article: $article, ')
           ..write('barcodeCode: $barcodeCode, ')
-          ..write('barcodeType: $barcodeType')
+          ..write('barcodeType: $barcodeType, ')
+          ..write('length: $length, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('weight: $weight, ')
+          ..write('archived: $archived')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, article, barcodeCode, barcodeType);
+  int get hashCode => Object.hash(id, name, groupName, article, barcodeCode,
+      barcodeType, length, width, height, weight, archived);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Product &&
           other.id == this.id &&
           other.name == this.name &&
+          other.groupName == this.groupName &&
           other.article == this.article &&
           other.barcodeCode == this.barcodeCode &&
-          other.barcodeType == this.barcodeType);
+          other.barcodeType == this.barcodeType &&
+          other.length == this.length &&
+          other.width == this.width &&
+          other.height == this.height &&
+          other.weight == this.weight &&
+          other.archived == this.archived);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int> id;
   final Value<String> name;
+  final Value<String> groupName;
   final Value<String?> article;
   final Value<String?> barcodeCode;
   final Value<String?> barcodeType;
+  final Value<int?> length;
+  final Value<int?> width;
+  final Value<int?> height;
+  final Value<int?> weight;
+  final Value<bool> archived;
   const ProductsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.groupName = const Value.absent(),
     this.article = const Value.absent(),
     this.barcodeCode = const Value.absent(),
     this.barcodeType = const Value.absent(),
+    this.length = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.archived = const Value.absent(),
   });
   ProductsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
+    required String groupName,
     this.article = const Value.absent(),
     this.barcodeCode = const Value.absent(),
     this.barcodeType = const Value.absent(),
-  }) : name = Value(name);
+    this.length = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.weight = const Value.absent(),
+    required bool archived,
+  })  : name = Value(name),
+        groupName = Value(groupName),
+        archived = Value(archived);
   static Insertable<Product> custom({
     Expression<int>? id,
     Expression<String>? name,
+    Expression<String>? groupName,
     Expression<String?>? article,
     Expression<String?>? barcodeCode,
     Expression<String?>? barcodeType,
+    Expression<int?>? length,
+    Expression<int?>? width,
+    Expression<int?>? height,
+    Expression<int?>? weight,
+    Expression<bool>? archived,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (groupName != null) 'group_name': groupName,
       if (article != null) 'article': article,
       if (barcodeCode != null) 'barcode_code': barcodeCode,
       if (barcodeType != null) 'barcode_type': barcodeType,
+      if (length != null) 'length': length,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (weight != null) 'weight': weight,
+      if (archived != null) 'archived': archived,
     });
   }
 
   ProductsCompanion copyWith(
       {Value<int>? id,
       Value<String>? name,
+      Value<String>? groupName,
       Value<String?>? article,
       Value<String?>? barcodeCode,
-      Value<String?>? barcodeType}) {
+      Value<String?>? barcodeType,
+      Value<int?>? length,
+      Value<int?>? width,
+      Value<int?>? height,
+      Value<int?>? weight,
+      Value<bool>? archived}) {
     return ProductsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      groupName: groupName ?? this.groupName,
       article: article ?? this.article,
       barcodeCode: barcodeCode ?? this.barcodeCode,
       barcodeType: barcodeType ?? this.barcodeType,
+      length: length ?? this.length,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      archived: archived ?? this.archived,
     );
   }
 
@@ -587,6 +716,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (groupName.present) {
+      map['group_name'] = Variable<String>(groupName.value);
+    }
     if (article.present) {
       map['article'] = Variable<String?>(article.value);
     }
@@ -596,6 +728,21 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (barcodeType.present) {
       map['barcode_type'] = Variable<String?>(barcodeType.value);
     }
+    if (length.present) {
+      map['length'] = Variable<int?>(length.value);
+    }
+    if (width.present) {
+      map['width'] = Variable<int?>(width.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<int?>(height.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<int?>(weight.value);
+    }
+    if (archived.present) {
+      map['archived'] = Variable<bool>(archived.value);
+    }
     return map;
   }
 
@@ -604,9 +751,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     return (StringBuffer('ProductsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('groupName: $groupName, ')
           ..write('article: $article, ')
           ..write('barcodeCode: $barcodeCode, ')
-          ..write('barcodeType: $barcodeType')
+          ..write('barcodeType: $barcodeType, ')
+          ..write('length: $length, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('weight: $weight, ')
+          ..write('archived: $archived')
           ..write(')'))
         .toString();
   }
@@ -629,6 +782,11 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
+  final VerificationMeta _groupNameMeta = const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String?> groupName = GeneratedColumn<String?>(
+      'group_name', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _articleMeta = const VerificationMeta('article');
   @override
   late final GeneratedColumn<String?> article = GeneratedColumn<String?>(
@@ -646,9 +804,47 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<String?> barcodeType = GeneratedColumn<String?>(
       'barcode_type', aliasedName, true,
       type: const StringType(), requiredDuringInsert: false);
+  final VerificationMeta _lengthMeta = const VerificationMeta('length');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, article, barcodeCode, barcodeType];
+  late final GeneratedColumn<int?> length = GeneratedColumn<int?>(
+      'length', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _widthMeta = const VerificationMeta('width');
+  @override
+  late final GeneratedColumn<int?> width = GeneratedColumn<int?>(
+      'width', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _heightMeta = const VerificationMeta('height');
+  @override
+  late final GeneratedColumn<int?> height = GeneratedColumn<int?>(
+      'height', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<int?> weight = GeneratedColumn<int?>(
+      'weight', aliasedName, true,
+      type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _archivedMeta = const VerificationMeta('archived');
+  @override
+  late final GeneratedColumn<bool?> archived = GeneratedColumn<bool?>(
+      'archived', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (archived IN (0, 1))');
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        groupName,
+        article,
+        barcodeCode,
+        barcodeType,
+        length,
+        width,
+        height,
+        weight,
+        archived
+      ];
   @override
   String get aliasedName => _alias ?? 'products';
   @override
@@ -667,6 +863,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('group_name')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['group_name']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
     if (data.containsKey('article')) {
       context.handle(_articleMeta,
           article.isAcceptableOrUnknown(data['article']!, _articleMeta));
@@ -682,6 +884,28 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           _barcodeTypeMeta,
           barcodeType.isAcceptableOrUnknown(
               data['barcode_type']!, _barcodeTypeMeta));
+    }
+    if (data.containsKey('length')) {
+      context.handle(_lengthMeta,
+          length.isAcceptableOrUnknown(data['length']!, _lengthMeta));
+    }
+    if (data.containsKey('width')) {
+      context.handle(
+          _widthMeta, width.isAcceptableOrUnknown(data['width']!, _widthMeta));
+    }
+    if (data.containsKey('height')) {
+      context.handle(_heightMeta,
+          height.isAcceptableOrUnknown(data['height']!, _heightMeta));
+    }
+    if (data.containsKey('weight')) {
+      context.handle(_weightMeta,
+          weight.isAcceptableOrUnknown(data['weight']!, _weightMeta));
+    }
+    if (data.containsKey('archived')) {
+      context.handle(_archivedMeta,
+          archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta));
+    } else if (isInserting) {
+      context.missing(_archivedMeta);
     }
     return context;
   }

@@ -2,7 +2,7 @@ part of 'entities.dart';
 
 class ApiProductArrivalLine extends Equatable {
   final int id;
-  final Product product;
+  final ApiProduct product;
   final int amount;
   final bool enumeratePiece;
 
@@ -17,7 +17,7 @@ class ApiProductArrivalLine extends Equatable {
     return ApiProductArrivalLine(
       id: json['id'],
       amount: json['amount'],
-      product: Product.fromJson(json['product']),
+      product: ApiProduct.fromJson(json['product']),
       enumeratePiece: json['enumeratePiece']
     );
   }

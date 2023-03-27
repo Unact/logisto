@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:dio/dio.dart';
 import 'package:fk_user_agent/fk_user_agent.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '/app/constants/strings.dart';
@@ -299,6 +302,59 @@ class Api {
         'toCells': toCells
       }
     ));
+  }
+
+  Future<List<ApiProductBarcode>> productBarcodes({
+    required int productId
+  }) async {
+    final productBarcodeData = await _sendRequest((dio) => dio.get(
+      'v1/logisto/product_barcodes',
+      queryParameters: { 'productId': productId }
+    ));
+
+    return productBarcodeData.map<ApiProductBarcode>((e) => ApiProductBarcode.fromJson(e)).toList();
+  }
+
+  Future<ApiProductBarcode> productBarcodesCreate({
+    required int productId,
+    required String type,
+    required String code
+  }) async {
+    final productBarcode = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_barcodes',
+      data: { 'productId': productId, 'type': type, 'code': code }
+    ));
+
+    return ApiProductBarcode.fromJson(productBarcode);
+  }
+
+  Future<List<ApiProductImage>> productImages({
+    required int productId
+  }) async {
+    final productImageData = await _sendRequest((dio) => dio.get(
+      'v1/logisto/product_images',
+      queryParameters: { 'productId': productId }
+    ));
+
+    return productImageData.map<ApiProductImage>((e) => ApiProductImage.fromJson(e)).toList();
+  }
+
+  Future<ApiProductImage> productImagesCreate({
+    required int productId,
+    required XFile file,
+  }) async {
+    Uint8List fileBytes = await file.readAsBytes();
+    String filename = file.path.split('/').last;
+
+    final productImage = await _sendRequest((dio) => dio.post(
+      'v1/logisto/product_images',
+      data: FormData.fromMap({
+        'productId': productId,
+        'file': MultipartFile.fromBytes(fileBytes, filename: filename, contentType: MediaType('image', 'jpeg'))
+      })
+    ));
+
+    return ApiProductImage.fromJson(productImage);
   }
 
   Future<void> resetPassword({
