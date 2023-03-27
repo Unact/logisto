@@ -24,33 +24,6 @@ class FromCellViewModel extends PageViewModel<FromCellState, FromCellStateStatus
     ));
   }
 
-  Future<List<Product>> findProductsByName(String name) async {
-    try {
-      return await store.productsRepo.findProduct(name: name);
-    } on AppError catch(e) {
-      emit(state.copyWith(status: FromCellStateStatus.failure, message: e.message));
-
-      return [];
-    }
-  }
-
-  Future<void> findAndSetProductByCode(String code) async {
-    emit(state.copyWith(status: FromCellStateStatus.inProgress));
-
-    try {
-      List<Product> products = await store.productsRepo.findProduct(code: code);
-
-      if (products.isEmpty) {
-        emit(state.copyWith(status: FromCellStateStatus.failure, message: 'Не найден товар'));
-        return;
-      }
-
-      setProduct(products.first);
-    } on AppError catch(e) {
-      emit(state.copyWith(status: FromCellStateStatus.failure, message: e.message));
-    }
-  }
-
   void setProduct(Product product) {
     emit(state.copyWith(
       status: FromCellStateStatus.setProduct,

@@ -2,7 +2,7 @@ part of 'entities.dart';
 
 class ApiProductArrivalPackageLine extends Equatable {
   final int id;
-  final Product product;
+  final ApiProduct product;
   final int amount;
 
   const ApiProductArrivalPackageLine({
@@ -15,7 +15,7 @@ class ApiProductArrivalPackageLine extends Equatable {
     return ApiProductArrivalPackageLine(
       id: json['id'],
       amount: json['amount'],
-      product: Product.fromJson(json['product'])
+      product: ApiProduct.fromJson(json['product'])
     );
   }
 

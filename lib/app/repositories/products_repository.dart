@@ -1,3 +1,5 @@
+import 'package:cross_file/cross_file.dart';
+
 import '/app/app.dart';
 import '/app/constants/strings.dart';
 
@@ -28,6 +30,67 @@ class ProductsRepository {
       });
 
       return products;
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<List<ApiProductBarcode>> getProductBarcodes(Product product) async {
+    try {
+      List<ApiProductBarcode> productBarcodes = await api.productBarcodes(productId: product.id);
+
+      return productBarcodes;
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<ApiProductBarcode> createProductBarcode(Product product, {
+    required String code,
+    required String type
+  }) async {
+    try {
+      ApiProductBarcode productBarcode = await api.productBarcodesCreate(
+        productId: product.id,
+        code: code,
+        type: type
+      );
+
+      return productBarcode;
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<List<ApiProductImage>> getProductImages(Product product) async {
+    try {
+      List<ApiProductImage> productImages = await api.productImages(productId: product.id);
+
+      return productImages;
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<ApiProductImage> createProductImage(Product product, {
+    required XFile file
+  }) async {
+    try {
+      ApiProductImage productImage = await api.productImagesCreate(productId: product.id, file: file);
+
+      return productImage;
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

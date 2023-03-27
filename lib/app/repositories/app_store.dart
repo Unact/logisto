@@ -89,6 +89,10 @@ class AppStore {
         await dataStore.productArrivalsDao.loadProductArrivalPackageTypes(productArrivalPackageTypes);
         await dataStore.productsDao.loadProductStores(productStores);
         await dataStore.productTransfersDao.clearProductTransfers();
+        await dataStore.productArrivalsDao.clearProductArrivalNewPackages();
+        await dataStore.productArrivalsDao.clearProductArrivalPackageNewLines();
+        await dataStore.productArrivalsDao.clearProductArrivalPackageNewCells();
+        await dataStore.productArrivalsDao.clearProductArrivalNewUnloadPackages();
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

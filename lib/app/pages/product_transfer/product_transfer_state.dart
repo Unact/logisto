@@ -18,14 +18,12 @@ class ProductTransferState {
     required this.productTransferEx,
     this.message = '',
     this.productStores = const [],
-    this.user,
     this.scannedStorageCell
   });
 
   final ProductTransferStateStatus status;
   final ProductTransferEx productTransferEx;
   final String message;
-  final User? user;
   final StorageCell? scannedStorageCell;
 
   bool get gatherFinished => productTransferEx.productTransfer.gatherFinished;
@@ -43,7 +41,6 @@ class ProductTransferState {
     ProductTransferEx? productTransferEx,
     String? message,
     List<ProductStore>? productStores,
-    User? user,
     Optional<StorageCell>? scannedStorageCell
   }) {
     return ProductTransferState(
@@ -51,7 +48,6 @@ class ProductTransferState {
       productTransferEx: productTransferEx ?? this.productTransferEx,
       message: message ?? this.message,
       productStores: productStores ?? this.productStores,
-      user: user ?? this.user,
       scannedStorageCell: scannedStorageCell != null ? scannedStorageCell.orNull : this.scannedStorageCell
     );
   }

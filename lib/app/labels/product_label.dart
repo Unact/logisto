@@ -1,14 +1,17 @@
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/services/printer.dart';
 import '/app/utils/format.dart';
 
 class ProductLabel {
   final Product product;
+  final ApiProductBarcode productBarcode;
   final User user;
   final Printer _printer = Printer();
 
   ProductLabel({
     required this.product,
+    required this.productBarcode,
     required this.user
   });
 
@@ -18,7 +21,7 @@ class ProductLabel {
   }) async {
     String? barcodeType;
 
-    switch (product.barcodeType) {
+    switch (productBarcode.type) {
       case 'code128':
         barcodeType = '128';
         break;
@@ -43,7 +46,7 @@ class ProductLabel {
       CLS
       $wrappedName
       TEXT ${articleLen < 0 ? 0 : articleLen},400,"0",0,10,10,"$article"
-      BARCODE 50,500,"$barcodeType",200,2,0,5,2,"${product.barcodeCode}"
+      BARCODE 50,500,"$barcodeType",200,2,0,5,2,"${productBarcode.code}"
       TEXT 10,900,"2",0,1,1,"$formattedDate ${user.username}"
       PRINT 1,$amount
     ''';
