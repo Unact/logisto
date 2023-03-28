@@ -221,11 +221,8 @@ class _ProductViewState extends State<_ProductView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => CameraView(
-          onError: (String errorMessage) => showMessage(errorMessage),
-          onTakePicture: (XFile file) {
-            Navigator.of(context).pop();
-            vm.addProductImage(file);
-          }
+          onError: (String message) => WidgetsBinding.instance.addPostFrameCallback((_) => showMessage(message)),
+          onTakePicture: (XFile file) => vm.addProductImage(file)
         )
       )
     );

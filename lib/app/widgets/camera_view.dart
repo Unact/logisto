@@ -31,6 +31,12 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _initCameras() async {
     _cameras = await availableCameras();
 
+    if (_cameras.isEmpty) {
+      widget.onError('Нет доступных камер');
+      Navigator.of(context).pop();
+      return;
+    }
+
     final backCameras = _cameras.where((el) => el.lensDirection == CameraLensDirection.back);
     final frontCameras = _cameras.where((el) => el.lensDirection == CameraLensDirection.front);
 
@@ -45,12 +51,7 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future<void> _setCamera(CameraDescription camera) async {
-    _controller = CameraController(
-      camera,
-      ResolutionPreset.max,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg
-    );
+    _controller = CameraController(camera, ResolutionPreset.max, enableAudio: false);
 
     try {
       await _controller!.initialize();
@@ -67,6 +68,7 @@ class _CameraViewState extends State<CameraView> {
           widget.onError('Произошла ошибка: ${e.code} - ${e.description ?? ''}');
           break;
       }
+      Navigator.of(context).pop();
     }
   }
 
@@ -127,8 +129,10 @@ class _CameraViewState extends State<CameraView> {
         onPressed: () async {
           if (!(_controller?.value.isInitialized ?? false)) return;
 
+
           try {
             widget.onTakePicture(await _controller!.takePicture());
+            Navigator.of(context).pop();
           } on CameraException catch (e) {
             widget.onError('Произошла ошибка: ${e.code} - ${e.description ?? ''}');
           }
