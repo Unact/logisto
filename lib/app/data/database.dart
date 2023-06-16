@@ -11,7 +11,6 @@ import '/app/constants/strings.dart';
 
 part 'schema.dart';
 part 'database.g.dart';
-part 'api_credentials_dao.dart';
 part 'product_arrivals_dao.dart';
 part 'product_transfers_dao.dart';
 part 'storages_dao.dart';
@@ -41,11 +40,9 @@ part 'users_dao.dart';
     OrderLines,
     Storages,
     StorageCells,
-    ApiCredentials,
     Prefs
   ],
   daos: [
-    ApiCredentialsDao,
     OrdersDao,
     ProductArrivalsDao,
     ProductTransfersDao,
@@ -94,17 +91,14 @@ class AppDataStore extends _$AppDataStore {
         total: 0,
         storageIds: []
       ));
-      batch.insert(apiCredentials, ApiCredential(
-        refreshToken: '',
-        url: '',
-        accessToken: ''
+      batch.insert(prefs, Pref(
+        logoutAfter: DateTime.now().add(const Duration(days: 1))
       ));
-      batch.insert(prefs, Pref());
     });
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -5,79 +5,104 @@ import 'dart:typed_data';
 import 'package:cross_file/cross_file.dart';
 import 'package:dio/dio.dart';
 import 'package:fk_user_agent/fk_user_agent.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
-import '/app/data/database.dart';
 
 class Api {
   static const String authSchema = 'Renew';
+  static const _kAccessTokenKey = 'accessToken';
+  static const _kRefreshTokenKey = 'refreshToken';
+  static const _kUrlKey = 'url';
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  final AppDataStore dataStore;
+  late Dio _dio;
+  final String _version;
+  String _refreshToken;
+  String _url;
+  String _accessToken;
 
-  Api({
-    required this.dataStore
-  });
+  Api._(
+    this._url,
+    this._accessToken,
+    this._refreshToken,
+    this._version
+  ) {
+    _dio = _createDio(_url, _version, _accessToken);
+  }
+
+  Future<void> _setApiData(String url, String accessToken, String refreshToken) async {
+    await _storage.write(key: _kUrlKey, value: url);
+    await _storage.write(key: _kAccessTokenKey, value: accessToken);
+    await _storage.write(key: _kRefreshTokenKey, value: refreshToken);
+
+    _url = url;
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+    _dio = _createDio(_url, _version, _accessToken);
+  }
+
+  static Future<Api> init() async {
+    return Api._(
+      await _storage.read(key: _kUrlKey) ?? '',
+      await _storage.read(key: _kAccessTokenKey) ?? '',
+      await _storage.read(key: _kRefreshTokenKey) ?? '',
+      (await PackageInfo.fromPlatform()).version
+    );
+  }
+
+  bool get isLoggedIn => _accessToken != '';
 
   Future<void> login({
     required String url,
     required String login,
     required String password
   }) async {
-    Map<String, dynamic> result = await _sendRawRequest(() async {
-      Dio dio = await _createDio(url, null);
+    await _setApiData(url, '', '');
+    Map<String, dynamic> result = await _sendRawRequest(() => _dio.post(
+      'v2/authenticate',
+      options: Options(headers: { 'Authorization': '$authSchema login=$login,password=$password' })
+    ));
 
-      return await dio.post(
-        'v2/authenticate',
-        options: Options(headers: { 'Authorization': '$authSchema login=$login,password=$password' })
-      );
-    });
-
-    ApiCredential apiCredential = ApiCredential(
-      accessToken: result['access_token'],
-      refreshToken: result['refresh_token'],
-      url: url
-    );
-
-    await dataStore.apiCredentialsDao.updateApiCredential(apiCredential.toCompanion(true));
+    await _setApiData(url, result['access_token'], result['refresh_token']);
   }
 
   Future<void> refresh() async {
-    ApiCredential apiCredential = await _getApiCredentials();
-    Map<String, dynamic> result = await _sendRawRequest(() async {
-      Dio dio = await _createDio(apiCredential.url, apiCredential.refreshToken);
+    await _setApiData(_url, _refreshToken, '');
+    Map<String, dynamic> result = await _sendRawRequest(() => _dio.post('v2/refresh'));
 
-      return await dio.post('v2/refresh');
-    });
-
-    ApiCredential newApiCredential = apiCredential.copyWith(
-      accessToken: result['access_token'],
-      refreshToken: result['refresh_token']
-    );
-
-    await dataStore.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
+    await _setApiData(_url, result['access_token'], result['refresh_token']);
   }
 
   Future<void> logout() async {
-    ApiCredential newApiCredential = ApiCredential(
-      accessToken: '',
-      refreshToken: '',
-      url: ''
-    );
+    await _setApiData('', '', '');
+  }
 
-    await dataStore.apiCredentialsDao.updateApiCredential(newApiCredential.toCompanion(true));
+  Future<void> resetPassword({
+    required String url,
+    required String login
+  }) async {
+    await _sendRawRequest(() async {
+      _dio = _createDio(_url, _version, null);
+
+      return await _dio.post(
+        'v2/reset_password',
+        options: Options(headers: { 'Authorization': '$authSchema login=$login' })
+      );
+    });
   }
 
   Future<ApiData> loadOrders() async {
-    return ApiData.fromJson(await _sendRequest((dio) => dio.get('v1/logisto')));
+    return ApiData.fromJson(await _sendRequest(() => _dio.get('v1/logisto')));
   }
 
   Future<ApiOrder> findOrder({
     required String trackingNumber
   }) async {
-    final orderData = await _sendRequest((dio) => dio.get(
+    final orderData = await _sendRequest(() => _dio.get(
       'v1/logisto/find_order',
       queryParameters: { 'trackingNumber': trackingNumber }
     ));
@@ -89,7 +114,7 @@ class Api {
     required int id,
     required Map<String, dynamic> data
   }) async {
-    final orderData = await _sendRequest((dio) => dio.put(
+    final orderData = await _sendRequest(() => _dio.put(
       'v1/logisto/update_order',
       data: data..addAll({ 'id': id })
     ));
@@ -101,7 +126,7 @@ class Api {
     required int id,
     required int storageId
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/accept_order',
       data: { 'id': id, 'storageId': storageId }
     ));
@@ -112,7 +137,7 @@ class Api {
   Future<ApiOrder> acceptStorageTransferOrder({
     required int id
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/accept_storage_transfer_order',
       data: { 'id': id }
     ));
@@ -123,7 +148,7 @@ class Api {
   Future<ApiOrder> acceptTransferOrder({
     required int id
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/accept_transfer_order',
       data: { 'id': id }
     ));
@@ -134,7 +159,7 @@ class Api {
   Future<ApiOrder> cancelOrder({
     required int id
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/cancel_order',
       data: { 'id': id }
     ));
@@ -146,7 +171,7 @@ class Api {
     required int id,
     required List<Map<String, dynamic>> lines
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/confirm_order',
       data: { 'id': id, 'lines': lines }
     ));
@@ -158,7 +183,7 @@ class Api {
     required int id,
     required int storageId
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/transfer_order',
       data: { 'id': id, 'storageId': storageId }
     ));
@@ -171,7 +196,7 @@ class Api {
     required double summ,
     Map<dynamic, dynamic>? transaction
   }) async {
-    final orderData = await _sendRequest((dio) => dio.post(
+    final orderData = await _sendRequest(() => _dio.post(
       'v1/logisto/accept_payment',
       data: {
         'id': id,
@@ -186,7 +211,7 @@ class Api {
   Future<ApiProductArrival> findProductArrival({
     required String number
   }) async {
-    final orderData = await _sendRequest((dio) => dio.get(
+    final orderData = await _sendRequest(() => _dio.get(
       'v1/logisto/product_arrivals/find_product_arrival',
       queryParameters: { 'number': number }
     ));
@@ -198,7 +223,7 @@ class Api {
     required int id,
     required int storageUnloadPointId
   }) async {
-    final productArrivalData = await _sendRequest((dio) => dio.post(
+    final productArrivalData = await _sendRequest(() => _dio.post(
       'v1/logisto/product_arrivals/begin_unload',
       data: {
         'id': id,
@@ -214,7 +239,7 @@ class Api {
     required List<Map<String, dynamic>> packages,
     required List<Map<String, dynamic>> unloadPackages
   }) async {
-    final productArrivalData = await _sendRequest((dio) => dio.post(
+    final productArrivalData = await _sendRequest(() => _dio.post(
       'v1/logisto/product_arrivals/finish_unload',
       data: {
         'id': id,
@@ -230,7 +255,7 @@ class Api {
     required int id,
     required int storageAcceptPointId
   }) async {
-    final productArrivalData = await _sendRequest((dio) => dio.post(
+    final productArrivalData = await _sendRequest(() => _dio.post(
       'v1/logisto/product_arrivals/begin_package_accept',
       data: {
         'id': id,
@@ -245,7 +270,7 @@ class Api {
     required int id,
     required List<Map<String, dynamic>> lines
   }) async {
-    final productArrivalData = await _sendRequest((dio) => dio.post(
+    final productArrivalData = await _sendRequest(() => _dio.post(
       'v1/logisto/product_arrivals/finish_package_accept',
       data: {
         'id': id,
@@ -260,7 +285,7 @@ class Api {
     required int id,
     required List<Map<String, dynamic>> cells
   }) async {
-    final productArrivalData = await _sendRequest((dio) => dio.post(
+    final productArrivalData = await _sendRequest(() => _dio.post(
       'v1/logisto/product_arrivals/place_package_products',
       data: {
         'id': id,
@@ -275,7 +300,7 @@ class Api {
     String? code,
     String? name
   }) async {
-    final productData = await _sendRequest((dio) => dio.get(
+    final productData = await _sendRequest(() => _dio.get(
       'v1/logisto/products/find_product',
       queryParameters: { 'code': code, 'name': name }
     ));
@@ -291,7 +316,7 @@ class Api {
     required List<Map<String, dynamic>> fromCells,
     required List<Map<String, dynamic>> toCells,
   }) async {
-    await _sendRequest((dio) => dio.post(
+    await _sendRequest(() => _dio.post(
       'v1/logisto/products/transfer',
       data: {
         'id': id,
@@ -307,7 +332,7 @@ class Api {
   Future<List<ApiProductBarcode>> productBarcodes({
     required int productId
   }) async {
-    final productBarcodeData = await _sendRequest((dio) => dio.get(
+    final productBarcodeData = await _sendRequest(() => _dio.get(
       'v1/logisto/product_barcodes',
       queryParameters: { 'productId': productId }
     ));
@@ -320,7 +345,7 @@ class Api {
     required String type,
     required String code
   }) async {
-    final productBarcode = await _sendRequest((dio) => dio.post(
+    final productBarcode = await _sendRequest(() => _dio.post(
       'v1/logisto/product_barcodes',
       data: { 'productId': productId, 'type': type, 'code': code }
     ));
@@ -331,7 +356,7 @@ class Api {
   Future<List<ApiProductImage>> productImages({
     required int productId
   }) async {
-    final productImageData = await _sendRequest((dio) => dio.get(
+    final productImageData = await _sendRequest(() => _dio.get(
       'v1/logisto/product_images',
       queryParameters: { 'productId': productId }
     ));
@@ -346,7 +371,7 @@ class Api {
     Uint8List fileBytes = await file.readAsBytes();
     String filename = file.path.split('/').last;
 
-    final productImage = await _sendRequest((dio) => dio.post(
+    final productImage = await _sendRequest(() => _dio.post(
       'v1/logisto/product_images',
       data: FormData.fromMap({
         'productId': productId,
@@ -357,62 +382,32 @@ class Api {
     return ApiProductImage.fromJson(productImage);
   }
 
-  Future<void> resetPassword({
-    required String url,
-    required String login
-  }) async {
-    await _sendRawRequest(() async {
-      Dio dio = await _createDio(url, null);
-
-      return await dio.post(
-        'v2/reset_password',
-        options: Options(headers: { 'Authorization': '$authSchema login=$login' })
-      );
-    });
-  }
-
   Future<ApiPaymentCredentials> getPaymentCredentials() async {
-    return ApiPaymentCredentials.fromJson(await _sendRequest((dio) => dio.get('v1/logisto/credentials')));
+    return ApiPaymentCredentials.fromJson(await _sendRequest(() => _dio.get('v1/logisto/credentials')));
   }
 
   Future<ApiUserData> getUserData() async {
-    return ApiUserData.fromJson(await _sendRequest((dio) => dio.get('v1/logisto/user_info')));
+    return ApiUserData.fromJson(await _sendRequest(() => _dio.get('v1/logisto/user_info')));
   }
 
-  Future<dynamic> _sendRequest(Future<dynamic> Function(Dio) request) async {
-    ApiCredential apiCredential = await _getApiCredentials();
-
+  Future<dynamic> _sendRequest(Future<Response> Function() request) async {
     try {
-      return await _sendRawRequest(() async {
-        Dio dio = await _createDio(apiCredential.url, apiCredential.accessToken);
-
-        return await request.call(dio);
-      });
+      return await _sendRawRequest(request);
     } on AuthException {
       await refresh();
-      ApiCredential newApiCredential = await _getApiCredentials();
-      Dio newDio = await _createDio(newApiCredential.url, newApiCredential.accessToken);
-
-      return await _sendRawRequest(() async {
-        return await request.call(newDio);
-      });
+      return await _sendRawRequest(request);
     }
   }
 
   Future<dynamic> _sendRawRequest(Future<Response> Function() rawRequest) async {
     try {
       return (await rawRequest.call()).data;
-    } on DioError catch(e) {
-      _onDioError(e);
+    } on DioException catch(e) {
+      _onDioException(e);
     }
   }
 
-  Future<ApiCredential> _getApiCredentials() async {
-    return await dataStore.apiCredentialsDao.getApiCredential();
-  }
-
-  Future<Dio> _createDio(String url, String? token) async {
-    String version = (await PackageInfo.fromPlatform()).version;
+  Dio _createDio(String url, String version, String? token) {
     String appName = Strings.appName;
     Map<String, dynamic> headers = {
       'Accept': 'application/json',
@@ -423,15 +418,15 @@ class Api {
 
     return Dio(BaseOptions(
       baseUrl: url,
-      connectTimeout: 100000,
-      receiveTimeout: 100000,
+      connectTimeout: const Duration(seconds: 100000),
+      receiveTimeout: const Duration(seconds: 100000),
       headers: headers,
       contentType: Headers.jsonContentType,
       responseType: ResponseType.json,
     ));
   }
 
-  static void _onDioError(DioError e) {
+  static void _onDioException(DioException e) {
     if (e.response != null) {
       final int statusCode = e.response!.statusCode!;
       final dynamic body = e.response!.data;
@@ -456,7 +451,12 @@ class Api {
         throw ApiException(body['error'], statusCode);
       }
     } else {
-      if (e.error is SocketException || e.error is HandshakeException || e.type == DioErrorType.connectTimeout) {
+      if (
+        e.error is SocketException ||
+        e.error is HandshakeException ||
+        e.error is HttpException ||
+        e.type == DioExceptionType.connectionTimeout
+      ) {
         throw ApiConnException();
       }
 

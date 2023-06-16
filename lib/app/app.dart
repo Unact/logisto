@@ -9,8 +9,9 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:stack_trace/stack_trace.dart';
 
-import 'repositories/app_store.dart';
-import 'data/database.dart';
+import '/app/data/database.dart';
+import '/app/repositories/app_store.dart';
+import '/app/services/api.dart';
 
 class App {
   final bool isDebug;
@@ -42,7 +43,10 @@ class App {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await FkUserAgent.init();
 
-    AppStore repository = AppStore(dataStore: AppDataStore(logStatements: isDebug));
+    AppStore repository = AppStore(
+      dataStore: AppDataStore(logStatements: isDebug),
+      api: await Api.init()
+    );
 
     await _initSentry(
       dsn: const String.fromEnvironment('LOGISTO_SENTRY_DSN'),

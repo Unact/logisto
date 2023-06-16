@@ -2,28 +2,28 @@ part of 'landing_page.dart';
 
 enum LandingStateStatus {
   initial,
+  dataLoaded
 }
 
 class LandingState {
   LandingState({
     this.status = LandingStateStatus.initial,
-    this.user,
+    this.isLoggedIn = false,
     this.pref
   });
 
-  final User? user;
+  final bool isLoggedIn;
   final Pref? pref;
   final LandingStateStatus status;
-  bool get isLogged => user != null && user!.id != UsersDao.kGuestId;
 
   LandingState copyWith({
     LandingStateStatus? status,
-    User? user,
+    bool? isLoggedIn,
     Pref? pref
   }) {
     return LandingState(
       status: status ?? this.status,
-      user: user ?? this.user,
+      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       pref: pref ?? this.pref
     );
   }
