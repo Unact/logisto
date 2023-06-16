@@ -79,7 +79,7 @@ class _PackageViewState extends State<_PackageView> {
           ),
           floatingActionButton: !state.inProgress ?
             null :
-            FloatingActionButton(child: const Icon(Icons.add), onPressed: showNewLineDialog),
+            FloatingActionButton(onPressed: showNewLineDialog, child: const Icon(Icons.add)),
           body: _lineList(context)
         );
       },

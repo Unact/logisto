@@ -48,6 +48,7 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
         PackageQRScanViewModel vm = context.read<PackageQRScanViewModel>();
 
         return ScanView(
+          onRead: vm.readQRCode,
           child: Column(
             children: [
               Container(
@@ -55,8 +56,7 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
                 child: const Text('Отсканируйте место приемки', style: Style.qrScanTitleText)
               )
             ]
-          ),
-          onRead: vm.readQRCode
+          )
         );
       },
       listener: (context, state) {

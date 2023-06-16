@@ -60,8 +60,8 @@ class _InfoViewState extends State<_InfoView> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: const Text(Strings.ok),
-                  onPressed: newProduct == null ? null : () => Navigator.of(context).pop(newProduct)
+                  onPressed: newProduct == null ? null : () => Navigator.of(context).pop(newProduct),
+                  child: const Text(Strings.ok)
                 ),
                 TextButton(
                   child: const Text(Strings.cancel),

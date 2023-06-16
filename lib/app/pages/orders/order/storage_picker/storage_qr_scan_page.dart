@@ -34,6 +34,7 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
         StorageQRScanViewModel vm = context.read<StorageQRScanViewModel>();
 
         return ScanView(
+          onRead: vm.readQRCode,
           child: Column(
             children: [
               Container(
@@ -41,8 +42,7 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
                 child: const Text('Отсканируйте склад', style: Style.qrScanTitleText)
               )
             ]
-          ),
-          onRead: vm.readQRCode
+          )
         );
       },
       listener: (context, state) {

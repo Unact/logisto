@@ -78,8 +78,8 @@ class NewPackageViewState extends State<_NewPackageView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text(Strings.ok),
                 onPressed: vm.addProductArrivalPackage,
+                child: const Text(Strings.ok),
               ),
               TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop())
             ],

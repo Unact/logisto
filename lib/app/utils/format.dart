@@ -47,7 +47,7 @@ class Format {
         String lastLine = resultList.last;
 
         if (lastLine.length + word.length < wrapLength) {
-          lastLine = lastLine + word + " ";
+          lastLine = "$lastLine$word ";
           resultList.last = lastLine;
         } else if (lastLine.length + word.length == wrapLength) {
           lastLine = lastLine + word;
@@ -67,7 +67,7 @@ class Format {
 
   static void _addNewWord(List<String> resultList, String word, int wrapLength) {
     if (word.length < wrapLength) {
-      resultList.add(word + " ");
+      resultList.add("$word ");
     } else if (word.length == wrapLength) {
       resultList.add(word);
     } else {
@@ -80,10 +80,10 @@ class Format {
 
     if (offset > 1) {
       String lastLine = resultList.last;
-      lastLine = lastLine + part + "-";
+      lastLine = "$lastLine$part-";
       resultList.last = lastLine;
     } else {
-      resultList.add(part + "-");
+      resultList.add("$part-");
     }
 
     String nextPart = word.substring((wrapLength - offset) - 1, word.length);
@@ -91,7 +91,7 @@ class Format {
     if (nextPart.length > wrapLength) return _breakLongWord(resultList, nextPart, wrapLength, 0);
     if (nextPart.length == wrapLength) return resultList.add(nextPart);
 
-    return resultList.add(nextPart + " ");
+    return resultList.add("$nextPart ");
   }
 
   static bool _isThereMuchSpace(String line, double lineLength) {

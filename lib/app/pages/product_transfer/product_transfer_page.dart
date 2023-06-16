@@ -117,9 +117,9 @@ class _ProductTransferViewState extends State<_ProductTransferView> {
             ].whereType<Widget>().toList(),
           ),
           floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.qr_code_scanner),
             onPressed: showStorageCellQRScan,
             tooltip: 'Начать приемку',
+            child: const Icon(Icons.qr_code_scanner),
           ),
           body: ListView(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),

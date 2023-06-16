@@ -55,8 +55,8 @@ class _OrderViewState extends State<_OrderView> {
         Order order = vm.state.order;
         String weight = order.weight != null ? Format.numberStr(order.weight! / 1000) : '';
         String volume = order.volume != null ? Format.numberStr(order.volume! / 1000000) : '';
-        TextEditingController _weightDialogController = TextEditingController(text: weight);
-        TextEditingController _volumeDialogController = TextEditingController(text: volume);
+        TextEditingController weightDialogController = TextEditingController(text: weight);
+        TextEditingController volumeDialogController = TextEditingController(text: volume);
         bool? hasDocuments = !order.documentsReturn;
         TextStyle textStyle = const TextStyle(fontSize: 14);
         Storage? newStorage = vm.state.toStorage;
@@ -76,14 +76,14 @@ class _OrderViewState extends State<_OrderView> {
                     ),
                     TextFormField(
                       autocorrect: false,
-                      controller: _weightDialogController,
+                      controller: weightDialogController,
                       style: textStyle,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: const InputDecoration(labelText: 'Вес, кг')
                     ),
                     TextFormField(
                       autocorrect: false,
-                      controller: _volumeDialogController,
+                      controller: volumeDialogController,
                       style: textStyle,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: const InputDecoration(labelText: 'Объем, м3')
@@ -106,12 +106,12 @@ class _OrderViewState extends State<_OrderView> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: const Text(Strings.ok),
                   onPressed: showStoragePicker && newStorage == null ? null : () {
                     Navigator.of(context).pop(
-                      [hasDocuments, _weightDialogController.text, _volumeDialogController.text, newStorage]
+                      [hasDocuments, weightDialogController.text, volumeDialogController.text, newStorage]
                     );
-                  }
+                  },
+                  child: const Text(Strings.ok)
                 ),
                 TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
               ],
@@ -204,8 +204,8 @@ class _OrderViewState extends State<_OrderView> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: const Text(Strings.ok),
-                  onPressed: newStorage == null ? null : () => Navigator.of(context).pop(newStorage)
+                  onPressed: newStorage == null ? null : () => Navigator.of(context).pop(newStorage),
+                  child: const Text(Strings.ok)
                 ),
                 TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
               ],
@@ -243,7 +243,7 @@ class _OrderViewState extends State<_OrderView> {
     OrderViewModel vm = context.read<OrderViewModel>();
     Order order = vm.state.order;
     String deliveryTime = order.deliveryDateTimeFrom != null ?
-      ' ' + Format.timeStr(order.deliveryDateTimeFrom) + '-' + Format.timeStr(order.deliveryDateTimeTo) :
+      ' ${Format.timeStr(order.deliveryDateTimeFrom)}-${Format.timeStr(order.deliveryDateTimeTo)}' :
       '';
     String weight = order.weight != null ? Format.numberStr(order.weight! / 1000) : '';
     String volume = order.volume != null ? Format.numberStr(order.volume! / 1000000) : '';
@@ -364,15 +364,15 @@ class _OrderViewState extends State<_OrderView> {
     List<Widget> actions = [
       !(vm.state.storageTransferAcceptable) ? null : TextButton(
         onPressed: showAcceptStorageTransferDialog,
-        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
+        child: const Column(children: [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
       ),
       !vm.state.acceptable ? null : TextButton(
         onPressed: showAcceptOrderDialog,
-        child: Column(children: const [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')])
+        child: const Column(children: [Icon(Icons.fact_check, color: Colors.black), Text('Приемка')])
       ),
       !vm.state.transferable ? null : TextButton(
         onPressed: showOrderTransferDialog,
-        child: Column(children: const [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')])
+        child: const Column(children: [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')])
       ),
     ].whereType<Widget>().toList();
 
@@ -382,7 +382,7 @@ class _OrderViewState extends State<_OrderView> {
       title: const Text('Передвижение', style: TextStyle(fontSize: 14)),
       initiallyExpanded: false,
       tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-      children: [Row(children: actions, mainAxisAlignment: MainAxisAlignment.spaceAround)]
+      children: [Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: actions)]
     );
   }
 
@@ -392,15 +392,15 @@ class _OrderViewState extends State<_OrderView> {
     List<Widget> actions = [
       !(vm.state.transferAcceptable) ? null : TextButton(
         onPressed: vm.acceptTransferOrder,
-        child: Column(children: const [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
+        child: const Column(children: [Icon(Icons.how_to_reg_sharp, color: Colors.black), Text('Принять')])
       ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryConfirmOrder,
-        child: Column(children: const [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')])
+        child: const Column(children: [Icon(Icons.assignment_turned_in, color: Colors.black), Text('Выдать')])
       ),
       !vm.state.deliverable ? null : TextButton(
         onPressed: vm.tryCancelOrder,
-        child: Column(children: const [Icon(Icons.assignment_return, color: Colors.black), Text('Вернуть')])
+        child: const Column(children: [Icon(Icons.assignment_return, color: Colors.black), Text('Вернуть')])
       ),
     ].whereType<Widget>().toList();
 
@@ -410,7 +410,7 @@ class _OrderViewState extends State<_OrderView> {
       title: const Text('ПВЗ', style: TextStyle(fontSize: 14)),
       initiallyExpanded: false,
       tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-      children: [Row(children: actions, mainAxisAlignment: MainAxisAlignment.spaceAround)]
+      children: [Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: actions)]
     );
   }
 
@@ -434,7 +434,7 @@ class _OrderViewState extends State<_OrderView> {
           ),
           Row(
             children: <Widget>[
-              Text(Format.numberStr(orderLine.price) + ' x ', style: style),
+              Text('${Format.numberStr(orderLine.price)} x ', style: style),
               !vm.state.deliverable ? Text(amountStr, style: style) :
                 SizedBox(
                   width: 40,

@@ -145,9 +145,9 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
           appBar: AppBar(title: Text('Разгрузка ${productArrival.number}')),
           body: _dataList(context),
           floatingActionButton: state.allPackagesAcceptStarted ? null : FloatingActionButton(
-            child: const Icon(Icons.qr_code_scanner),
             onPressed: showProductArrivalPackageQRScan,
             tooltip: 'Начать приемку',
+            child: const Icon(Icons.qr_code_scanner),
           )
         );
       },
@@ -384,9 +384,9 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
     if (lineEx.line.enumeratePiece) {
       leading = const Tooltip(
-        child: Icon(Icons.priority_high, color: Colors.red),
         message: 'Поштучный пересчет',
-        triggerMode: TooltipTriggerMode.tap
+        triggerMode: TooltipTriggerMode.tap,
+        child: Icon(Icons.priority_high, color: Colors.red)
       );
     }
 

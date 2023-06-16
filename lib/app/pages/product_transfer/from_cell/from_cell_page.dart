@@ -79,8 +79,8 @@ class FromCellViewState extends State<_FromCellView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text('Добавить'),
                 onPressed: vm.addProductTransferFromCell,
+                child: const Text('Добавить'),
               ),
               TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],

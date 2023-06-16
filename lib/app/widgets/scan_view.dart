@@ -25,10 +25,10 @@ class ScanView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ScanViewState createState() => _ScanViewState();
+  ScanViewState createState() => ScanViewState();
 }
 
-class _ScanViewState extends State<ScanView> {
+class ScanViewState extends State<ScanView> {
   final GlobalKey _qrKey = GlobalKey();
   QRViewController? _controller;
   StreamSubscription? _subscription;
@@ -144,6 +144,18 @@ class _ScanViewState extends State<ScanView> {
 
   Widget _buildScannerView(BuildContext context) {
     return RawKeyboardListener(
+      autofocus: false,
+      focusNode: FocusNode(),
+      onKey: (RawKeyEvent rawKeyEvent) async {
+        if (rawKeyEvent is! RawKeyUpEvent) {
+          _textEditingController.text = _textEditingController.text + (translateChar(rawKeyEvent) ?? '');
+        }
+
+        if (!_finishKeys.contains(rawKeyEvent.physicalKey)) return;
+
+        _editingFinished = true;
+        _onEditingFinished();
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -176,19 +188,7 @@ class _ScanViewState extends State<ScanView> {
             )
           ]
         )
-      ),
-      autofocus: false,
-      focusNode: FocusNode(),
-      onKey: (RawKeyEvent rawKeyEvent) async {
-        if (rawKeyEvent is! RawKeyUpEvent) {
-          _textEditingController.text = _textEditingController.text + (translateChar(rawKeyEvent) ?? '');
-        }
-
-        if (!_finishKeys.contains(rawKeyEvent.physicalKey)) return;
-
-        _editingFinished = true;
-        _onEditingFinished();
-      }
+      )
     );
   }
 

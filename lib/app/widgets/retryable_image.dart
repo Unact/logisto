@@ -15,10 +15,10 @@ class RetryableImage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RetryableImageState createState() => _RetryableImageState();
+  RetryableImageState createState() => RetryableImageState();
 }
 
-class _RetryableImageState extends State<RetryableImage> {
+class RetryableImageState extends State<RetryableImage> {
   final _rebuildNotifier = ValueNotifier('');
 
   @override
@@ -30,8 +30,8 @@ class _RetryableImageState extends State<RetryableImage> {
         imageUrl: widget.imageUrl,
         imageBuilder: (context, imageProvider) {
           return GestureDetector(
-            child: Container(decoration: BoxDecoration(image: DecorationImage(image: imageProvider))),
-            onTap: widget.onTap
+            onTap: widget.onTap,
+            child: Container(decoration: BoxDecoration(image: DecorationImage(image: imageProvider)))
           );
         },
         placeholder: (context, url) => Center(

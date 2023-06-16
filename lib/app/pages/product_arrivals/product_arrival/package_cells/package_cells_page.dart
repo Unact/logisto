@@ -81,8 +81,8 @@ class PackageCellsViewState extends State<_PackageCellsView> {
               <Widget>[IconButton(icon: const Icon(Icons.check), onPressed: vm.placeProducts)]
           ),
           floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.qr_code_scanner),
-            onPressed: showNewCellDialog
+            onPressed: showNewCellDialog,
+            child: const Icon(Icons.qr_code_scanner)
           ),
           body: _lineList(context)
         );

@@ -73,7 +73,7 @@ class App {
     return Version.parse(remoteVersion) > Version.parse(version);
   }
 
-  String get fullVersion => version + '+' + buildNumber;
+  String get fullVersion => '$version+$buildNumber';
 
   static Future<void> reportError(dynamic error, dynamic stackTrace) async {
     Frame methodFrame = Trace.current().frames.length > 1 ? Trace.current().frames[1] : Trace.current().frames[0];

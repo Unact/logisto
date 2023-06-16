@@ -95,8 +95,8 @@ class ToCellViewState extends State<_ToCellView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text('Добавить'),
                 onPressed: vm.addProductTransferToCell,
+                child: const Text('Добавить'),
               ),
               TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],

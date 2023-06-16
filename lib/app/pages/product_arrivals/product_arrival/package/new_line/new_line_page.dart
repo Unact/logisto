@@ -77,8 +77,8 @@ class NewLineViewState extends State<_NewLineView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text(Strings.ok),
                 onPressed: vm.addProductArrivalPackageNewLine,
+                child: const Text(Strings.ok),
               ),
               TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop())
             ],

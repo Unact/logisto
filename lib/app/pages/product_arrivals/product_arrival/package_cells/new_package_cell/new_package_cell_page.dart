@@ -95,8 +95,8 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text('Добавить'),
                 onPressed: vm.addProductArrivalPackageNewPackageCell,
+                child: const Text('Добавить'),
               ),
               TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(context).pop())
             ],

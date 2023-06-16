@@ -98,7 +98,7 @@ class ProductSearchViewState extends State<_ProductSearchView> {
           itemBuilder: (BuildContext ctx, Product suggestion) {
             return ListTile(
               isThreeLine: false,
-              title: Text(suggestion.name, style: Theme.of(context).textTheme.caption)
+              title: Text(suggestion.name, style: Theme.of(context).textTheme.bodySmall)
             );
           },
           onSuggestionSelected: vm.setProduct

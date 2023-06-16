@@ -95,8 +95,8 @@ class _PersonViewState extends State<_PersonView> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
                     backgroundColor: Colors.blue,
                   ),
-                  child: const Text('Обновить приложение'),
-                  onPressed: vm.launchAppUpdate
+                  onPressed: vm.launchAppUpdate,
+                  child: const Text('Обновить приложение')
                 )
               ],
             )
@@ -110,7 +110,7 @@ class _PersonViewState extends State<_PersonView> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.red,
                 ),
                 onPressed: vm.apiLogout,
                 child: const Text('Выйти'),

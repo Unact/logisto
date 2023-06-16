@@ -33,6 +33,7 @@ class _CameraViewState extends State<CameraView> {
 
     if (_cameras.isEmpty) {
       widget.onError('Нет доступных камер');
+
       Navigator.of(context).pop();
       return;
     }
@@ -128,7 +129,6 @@ class _CameraViewState extends State<CameraView> {
         backgroundColor: Colors.white,
         onPressed: () async {
           if (!(_controller?.value.isInitialized ?? false)) return;
-
 
           try {
             widget.onTakePicture(await _controller!.takePicture());

@@ -29,10 +29,10 @@ class StoragePicker extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _StoragePickerState createState() => _StoragePickerState();
+  StoragePickerState createState() => StoragePickerState();
 }
 
-class _StoragePickerState extends State<StoragePicker> {
+class StoragePickerState extends State<StoragePicker> {
   late Storage? newStorage = widget.value;
 
   @override

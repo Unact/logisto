@@ -47,6 +47,7 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
         OrderQRScanViewModel vm = context.read<OrderQRScanViewModel>();
 
         return ScanView(
+          onRead: vm.readQRCode,
           child: Column(
             children: [
               Container(
@@ -64,8 +65,7 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
                 )
               )
             ]
-          ),
-          onRead: vm.readQRCode
+          )
         );
       },
       listener: (context, state) {
