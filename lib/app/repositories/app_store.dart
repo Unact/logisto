@@ -23,8 +23,9 @@ class AppStore {
   late final StoragesRepository storagesRepo = StoragesRepository(this);
 
   AppStore({
-    required this.dataStore
-  }) : api = Api(dataStore: dataStore);
+    required this.dataStore,
+    required this.api
+  });
 
   Future<Pref> getPref() {
     return dataStore.getPref();

@@ -19,16 +19,18 @@ class LandingViewModel extends PageViewModel<LandingState, LandingStateStatus> {
 
   @override
   Future<void> loadData() async {
-    emit(state.copyWith(user: await store.usersRepo.getUser()));
+    bool isLoggedIn = store.usersRepo.isLoggedIn;
+
+    emit(state.copyWith(
+      status: LandingStateStatus.dataLoaded,
+      isLoggedIn: isLoggedIn
+    ));
   }
 
   Future<void> _maybeLogout() async {
     Pref pref = await store.getPref();
-    DateTime now = DateTime.now();
-    DateTime? lastLogin = pref.lastLogin;
 
-    if (lastLogin == null) return;
-    if (now.day == lastLogin.day && now.difference(lastLogin).inDays < 1) return;
+    if (pref.logoutAfter.difference(DateTime.now()).inSeconds >= 0) return;
 
     await store.usersRepo.logout();
   }

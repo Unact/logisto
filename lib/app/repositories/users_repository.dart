@@ -15,13 +15,15 @@ class UsersRepository {
 
   UsersRepository(this.store);
 
+  bool get isLoggedIn => api.isLoggedIn;
+
   Future<User> getUser() {
     return dataStore.usersDao.getUser();
   }
 
   Future<void> loadUserData() async {
     try {
-      ApiUserData userData = await Api(dataStore: dataStore).getUserData();
+      ApiUserData userData = await api.getUserData();
 
       await dataStore.usersDao.loadUser(userData.toDatabaseEnt());
     } on ApiException catch(e) {
@@ -34,7 +36,7 @@ class UsersRepository {
 
   Future<void> login(String url, String login, String password) async {
     try {
-      await Api(dataStore: dataStore).login(url: url, login: login, password: password);
+      await api.login(url: url, login: login, password: password);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -43,12 +45,12 @@ class UsersRepository {
     }
 
     await loadUserData();
-    await dataStore.updatePref(PrefsCompanion(lastLogin: Value(DateTime.now())));
+    await dataStore.updatePref(PrefsCompanion(logoutAfter: Value(DateTime.now().add(const Duration(days: 1)))));
   }
 
   Future<void> logout() async {
     try {
-      await Api(dataStore: dataStore).logout();
+      await api.logout();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
