@@ -73,5 +73,7 @@
 	<array>
 		<string>tel</string>
 	</array>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
