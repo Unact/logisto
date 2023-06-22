@@ -10,6 +10,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'product_state.dart';
@@ -39,10 +40,6 @@ class _ProductView extends StatefulWidget {
 
 class _ProductViewState extends State<_ProductView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> showProductLabelPrintDialog(ApiProductBarcode productBarcode) async {
     ProductViewModel vm = context.read<ProductViewModel>();
@@ -106,7 +103,7 @@ class _ProductViewState extends State<_ProductView> {
             break;
           case ProductStateStatus.failure:
             _progressDialog.close();
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case ProductStateStatus.success:
             _progressDialog.close();
@@ -221,7 +218,9 @@ class _ProductViewState extends State<_ProductView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => CameraView(
-          onError: (String message) => WidgetsBinding.instance.addPostFrameCallback((_) => showMessage(message)),
+          onError: (String message) => WidgetsBinding.instance.addPostFrameCallback(
+            (_) => Misc.showMessage(context, message)
+          ),
           onTakePicture: (XFile file) => vm.addProductImage(file)
         )
       )

@@ -229,7 +229,8 @@ class ScanViewState extends State<ScanView> {
               formatsAllowed: const [
                 BarcodeFormat.qrcode,
                 BarcodeFormat.code128,
-                BarcodeFormat.ean13
+                BarcodeFormat.ean13,
+                BarcodeFormat.dataMatrix
               ],
               overlay: QrScannerOverlayShape(
                   borderColor: Colors.white,
@@ -254,7 +255,7 @@ class ScanViewState extends State<ScanView> {
                     lastScan = currentScan;
 
                     setState(() => _paused = true);
-                    await _beep();
+                    //TODO await _beep();
                     await widget.onRead(scanData.code ?? '');
                     setState(() => _paused = false);
                   }

@@ -9,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 
 part 'new_package_state.dart';
 part 'new_package_view_model.dart';
@@ -95,15 +96,11 @@ class NewPackageViewState extends State<_NewPackageView> {
             amountFocus.requestFocus();
             break;
           case NewPackageStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           default:
             break;
         }
       },);
-  }
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

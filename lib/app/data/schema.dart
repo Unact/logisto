@@ -20,13 +20,12 @@ class Products extends Table {
   TextColumn get name => text()();
   TextColumn get groupName => text()();
   TextColumn get article => text().nullable()();
-  TextColumn get barcodeCode => text().nullable()();
-  TextColumn get barcodeType => text().nullable()();
   IntColumn get length => integer().nullable()();
   IntColumn get width => integer().nullable()();
   IntColumn get height => integer().nullable()();
   IntColumn get weight => integer().nullable()();
   BoolColumn get archived => boolean()();
+  BoolColumn get needMarking => boolean()();
 }
 
 class ProductArrivals extends Table {
@@ -63,6 +62,8 @@ class ProductArrivalPackages extends Table {
   DateTimeColumn get acceptStart => dateTime().nullable()();
   DateTimeColumn get acceptEnd => dateTime().nullable()();
   DateTimeColumn get placed => dateTime().nullable()();
+  DateTimeColumn get markingScanned => dateTime().nullable()();
+  BoolColumn get needMarkingScan => boolean()();
 }
 
 class ProductArrivalUnloadPackages extends Table {
@@ -85,6 +86,15 @@ class ProductArrivalPackageLines extends Table {
   IntColumn get productId => integer()
     .references(Products, #id, onDelete: KeyAction.cascade)();
   IntColumn get amount => integer()();
+}
+
+class ProductArrivalPackageNewCodes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productArrivalPackageId => integer()
+    .references(ProductArrivalPackages, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
+  TextColumn get code => text()();
 }
 
 class ProductArrivalPackageNewLines extends Table {
@@ -188,6 +198,8 @@ class Orders extends Table {
   BoolColumn get documentsReturn => boolean()();
   RealColumn get paidSum => real()();
   RealColumn get paySum => real()();
+  DateTimeColumn get markingScanned => dateTime().nullable()();
+  BoolColumn get needMarkingScan => boolean()();
 }
 
 class OrderLines extends Table {
@@ -198,6 +210,15 @@ class OrderLines extends Table {
   IntColumn get amount => integer()();
   RealColumn get price => real()();
   IntColumn get factAmount => integer().nullable()();
+  IntColumn get productId => integer().nullable()
+    .references(Products, #id, onDelete: KeyAction.cascade)();
+}
+
+class OrderLineNewCodes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get orderLineId => integer()
+    .references(OrderLines, #id, onDelete: KeyAction.cascade)();
+  TextColumn get code => text()();
 }
 
 class Storages extends Table {

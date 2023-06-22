@@ -21,8 +21,20 @@ class OrdersRepository {
     return dataStore.ordersDao.getOrderEx(id);
   }
 
+  Future<List<OrderLineNewCodeEx>> getOrderLineNewCodesEx(int id) {
+    return dataStore.ordersDao.getOrderLineNewCodesEx(id);
+  }
+
   Future<int> upsertOrderLine(int id, OrderLinesCompanion orderLine) {
     return dataStore.ordersDao.upsertOrderLine(id, orderLine);
+  }
+
+  Future<void> addOrderLineNewCode(OrderLineNewCodesCompanion newCode) {
+    return dataStore.ordersDao.addOrderLineNewCode(newCode);
+  }
+
+  Future<void> deleteOrderLineNewCode(OrderLineNewCode newCode) {
+    return dataStore.ordersDao.deleteOrderLineNewCode(newCode);
   }
 
   Future<OrderEx> findOrder(String trackingNumber) async {
@@ -64,7 +76,7 @@ class OrdersRepository {
   Future<void> confirmOrder(OrderEx orderEx) async {
     try {
       List<Map<String, int>> lines = orderEx.lines
-        .map((e) => { 'id': e.id, 'factAmount': e.factAmount ?? e.amount })
+        .map((e) => { 'id': e.line.id, 'factAmount': e.line.factAmount ?? e.line.amount })
         .toList();
       ApiOrder newOrder = await api.confirmOrder(id: orderEx.order.id, lines: lines);
 
@@ -158,6 +170,30 @@ class OrdersRepository {
       throw AppError(Strings.genericErrorMsg);
     }
   }
+
+  Future<void> saveOrderLineCodes(
+    OrderEx orderEx,
+    List<OrderLineNewCodeEx> newCodesEx
+  ) async {
+    try {
+      ApiOrder newOrder = await api.saveOrderLineCodes(
+        id: orderEx.order.id,
+        codes: newCodesEx.map((e) => {
+          'orderLineId': e.line.line.id,
+          'code': e.newCode.code
+        }).toList()
+      );
+
+      await dataStore.ordersDao.cleareOrderLineNewCodes();
+      await _saveApiOrder(newOrder);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
 
   Future<void> _saveApiOrder(ApiOrder apiOrder) async {
     OrderEx orderEx = apiOrder.toDatabaseEnt();

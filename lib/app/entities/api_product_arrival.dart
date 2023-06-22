@@ -89,7 +89,9 @@ class ApiProductArrival extends Equatable {
         qr: e.qr,
         acceptStart: e.acceptStart,
         acceptEnd: e.acceptEnd,
-        placed: e.placed
+        placed: e.placed,
+        needMarkingScan: e.needMarkingScan == 1,
+        markingScanned: e.markingScanned
       );
       final lines = e.lines.map((line) {
         final product = line.product.toDatabaseEnt();

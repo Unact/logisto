@@ -10,8 +10,10 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/utils/format.dart';
 import '/app/utils/parsing.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import 'accept_payment/accept_payment_page.dart';
+import 'order_line_codes/order_line_codes_page.dart';
 import 'order_qr_scan/order_qr_scan_page.dart';
 import 'storage_picker/storage_picker.dart';
 
@@ -122,11 +124,6 @@ class _OrderViewState extends State<_OrderView> {
     );
   }
 
-  void showMessageAndCloseDialog(String message) {
-    showMessage(message);
-    _progressDialog.close();
-  }
-
   Future<void> showQRScanPage() async {
     OrderViewModel vm = context.read<OrderViewModel>();
     bool res = await Navigator.push<bool>(
@@ -235,8 +232,16 @@ class _OrderViewState extends State<_OrderView> {
     }
   }
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message),));
+  Future<void> navigateToOrderLineCodes() async {
+    OrderViewModel vm = context.read<OrderViewModel>();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => OrderLineCodesPage(orderEx: vm.state.orderEx)
+      )
+    );
   }
 
   List<Widget> orderInfoRows(BuildContext context) {
@@ -321,6 +326,9 @@ class _OrderViewState extends State<_OrderView> {
         title: const Text('Дата приемки'),
         trailing: Text(Format.dateTimeStr(order.firstMovementDate))
       ),
+      order.markingScanned == null ?
+        Container() :
+        InfoRow(title: const Text('Отсканирован'), trailing: Text(Format.dateTimeStr(order.markingScanned))),
       InfoRow(
         title: const Text('К оплате'),
         trailing: Row(
@@ -374,6 +382,10 @@ class _OrderViewState extends State<_OrderView> {
         onPressed: showOrderTransferDialog,
         child: const Column(children: [Icon(Icons.transfer_within_a_station, color: Colors.black), Text('Передать')])
       ),
+      !vm.state.markingScannable ? null : TextButton(
+        onPressed: navigateToOrderLineCodes,
+        child: const Column(children: [Icon(Icons.barcode_reader, color: Colors.black), Text('Отсканировать')])
+      ),
     ].whereType<Widget>().toList();
 
     if (actions.isEmpty) return Container();
@@ -414,9 +426,9 @@ class _OrderViewState extends State<_OrderView> {
     );
   }
 
-  Widget _buildOrderLineTile(BuildContext context, OrderLine orderLine) {
+  Widget _buildOrderLineTile(BuildContext context, OrderLineEx orderLine) {
     OrderViewModel vm = context.read<OrderViewModel>();
-    String amountStr = (orderLine.factAmount ?? orderLine.amount).toString();
+    String amountStr = (orderLine.line.factAmount ?? orderLine.line.amount).toString();
     TextStyle style = const TextStyle(fontSize: 12);
 
     return ListTile(
@@ -428,13 +440,13 @@ class _OrderViewState extends State<_OrderView> {
               height: 36,
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: ExpandingText(orderLine.name, textAlign: TextAlign.left, style: style),
+                child: ExpandingText(orderLine.line.name, textAlign: TextAlign.left, style: style),
               )
             )
           ),
           Row(
             children: <Widget>[
-              Text('${Format.numberStr(orderLine.price)} x ', style: style),
+              Text('${Format.numberStr(orderLine.line.price)} x ', style: style),
               !vm.state.deliverable ? Text(amountStr, style: style) :
                 SizedBox(
                   width: 40,
@@ -505,7 +517,8 @@ class _OrderViewState extends State<_OrderView> {
           case OrderStateStatus.paymentFinished:
           case OrderStateStatus.failure:
           case OrderStateStatus.success:
-            showMessageAndCloseDialog(state.message);
+            Misc.showMessage(context, state.message);
+            _progressDialog.close();
             break;
           case OrderStateStatus.scanStarted:
             WidgetsBinding.instance.addPostFrameCallback((_) async {

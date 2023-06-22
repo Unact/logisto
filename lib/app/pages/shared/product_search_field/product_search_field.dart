@@ -11,6 +11,7 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'product_search_state.dart';
@@ -115,7 +116,7 @@ class ProductSearchViewState extends State<_ProductSearchView> {
             break;
           case ProductSearchStateStatus.success:
           case ProductSearchStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:
@@ -123,10 +124,6 @@ class ProductSearchViewState extends State<_ProductSearchView> {
         }
       }
     );
-  }
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _onScan() async {

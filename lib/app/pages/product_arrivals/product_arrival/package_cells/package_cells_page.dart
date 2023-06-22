@@ -12,10 +12,11 @@ import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
+import '/app/utils/misc.dart';
 import 'new_package_cell/new_package_cell_page.dart';
 
 part 'package_cells_state.dart';
-part 'package_view_cells_model.dart';
+part 'package_cells_view_model.dart';
 
 class PackageCellsPage extends StatelessWidget {
   final ProductArrivalPackageEx packageEx;
@@ -41,10 +42,6 @@ class _PackageCellsView extends StatefulWidget {
 
 class PackageCellsViewState extends State<_PackageCellsView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> showNewCellDialog() async {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
@@ -104,14 +101,14 @@ class PackageCellsViewState extends State<_PackageCellsView> {
             await _progressDialog.open();
             break;
           case PackageCellsStateStatus.success:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
             });
             break;
           case PackageCellsStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:

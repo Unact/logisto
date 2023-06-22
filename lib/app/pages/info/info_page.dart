@@ -16,6 +16,7 @@ import '/app/pages/product_transfer/product_transfer_page.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/utils/format.dart';
+import '/app/utils/misc.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -95,10 +96,6 @@ class _InfoViewState extends State<_InfoView> {
     _refresherCompleter = Completer();
   }
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InfoViewModel, InfoState>(
@@ -164,7 +161,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.failure:
           case InfoStateStatus.success:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             closeRefresher();
             break;
           case InfoStateStatus.startTransfer:

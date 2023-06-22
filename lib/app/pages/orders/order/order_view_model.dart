@@ -25,11 +25,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     ));
   }
 
-  Future<void> updateOrderLineAmount(OrderLine orderLine, String amount) async {
+  Future<void> updateOrderLineAmount(OrderLineEx orderLine, String amount) async {
     int? intAmount = int.tryParse(amount);
 
     await store.ordersRepo.upsertOrderLine(
-      orderLine.id,
+      orderLine.line.id,
       OrderLinesCompanion(factAmount: Value(intAmount))
     );
   }

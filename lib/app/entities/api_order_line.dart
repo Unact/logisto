@@ -6,13 +6,15 @@ class ApiOrderLine extends Equatable {
   final int amount;
   final double price;
   final int? factAmount;
+  final ApiProduct? product;
 
   const ApiOrderLine({
     required this.id,
     required this.name,
     required this.amount,
     required this.price,
-    this.factAmount
+    this.factAmount,
+    this.product
   });
 
   factory ApiOrderLine.fromJson(dynamic json) {
@@ -22,6 +24,7 @@ class ApiOrderLine extends Equatable {
       amount: json['amount'],
       price: Parsing.parseDouble(json['price'])!,
       factAmount: json['factAmount'],
+      product: json['product'] != null ? ApiProduct.fromJson(json['product']) : null
     );
   }
 
@@ -31,6 +34,7 @@ class ApiOrderLine extends Equatable {
     name,
     amount,
     price,
-    factAmount
+    factAmount,
+    product
   ];
 }

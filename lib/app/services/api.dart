@@ -95,7 +95,7 @@ class Api {
     });
   }
 
-  Future<ApiData> loadOrders() async {
+  Future<ApiData> loadData() async {
     return ApiData.fromJson(await _sendRequest(() => _dio.get('v1/logisto')));
   }
 
@@ -208,6 +208,21 @@ class Api {
     return ApiOrder.fromJson(orderData);
   }
 
+  Future<ApiOrder>saveOrderLineCodes({
+    required int id,
+    required List<Map<String, dynamic>> codes
+  }) async {
+    final orderData = await _sendRequest(() => _dio.post(
+      'v1/logisto/save_order_line_codes',
+      data: {
+        'id': id,
+        'codes': codes
+      }
+    ));
+
+    return ApiOrder.fromJson(orderData);
+  }
+
   Future<ApiProductArrival> findProductArrival({
     required String number
   }) async {
@@ -290,6 +305,21 @@ class Api {
       data: {
         'id': id,
         'cells': cells
+      }
+    ));
+
+    return ApiProductArrival.fromJson(productArrivalData);
+  }
+
+  Future<ApiProductArrival> productArrivalsSavePackageCodes({
+    required int id,
+    required List<Map<String, dynamic>> codes
+  }) async {
+    final productArrivalData = await _sendRequest(() => _dio.post(
+      'v1/logisto/product_arrivals/save_package_codes',
+      data: {
+        'id': id,
+        'codes': codes
       }
     ));
 

@@ -9,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'package_qr_scan_state.dart';
@@ -37,10 +38,6 @@ class _PackageQRScanView extends StatefulWidget {
 }
 
 class _PackageQRScanViewState extends State<_PackageQRScanView> {
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PackageQRScanViewModel, PackageQRScanState>(
@@ -62,7 +59,7 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
       listener: (context, state) {
         switch (state.status) {
           case PackageQRScanStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case PackageQRScanStateStatus.finished:
             Navigator.of(context).pop(state.packageEx);

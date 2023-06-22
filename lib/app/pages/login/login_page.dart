@@ -7,6 +7,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'login_state.dart';
@@ -45,10 +46,6 @@ class _LoginViewState extends State<_LoginView> {
     }
   }
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +80,7 @@ class _LoginViewState extends State<_LoginView> {
           switch (state.status) {
             case LoginStateStatus.passwordSent:
             case LoginStateStatus.failure:
-              showMessage(state.message);
+              Misc.showMessage(context, state.message);
               _progressDialog.close();
               break;
             case LoginStateStatus.loggedIn:

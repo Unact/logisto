@@ -10,6 +10,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'person_state.dart';
@@ -37,10 +38,6 @@ class _PersonView extends StatefulWidget {
 class _PersonViewState extends State<_PersonView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PersonViewModel, PersonState>(
@@ -58,7 +55,7 @@ class _PersonViewState extends State<_PersonView> {
             await _progressDialog.open();
             break;
           case PersonStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case PersonStateStatus.loggedOut:
             _progressDialog.close();

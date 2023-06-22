@@ -37,6 +37,10 @@ class ProductArrivalsRepository {
     return dataStore.productArrivalsDao.getProductArrivalPackageNewCellsEx(id);
   }
 
+  Future<List<ProductArrivalPackageNewCodeEx>> getProductArrivalPackageNewCodesEx(int id) {
+    return dataStore.productArrivalsDao.getProductArrivalPackageNewCodesEx(id);
+  }
+
   Future<List<ProductArrivalPackageNewLineEx>> getProductArrivalPackageNewLinesEx(int id) {
     return dataStore.productArrivalsDao.getProductArrivalPackageNewLinesEx(id);
   }
@@ -57,6 +61,10 @@ class ProductArrivalsRepository {
     return dataStore.productArrivalsDao.addProductArrivalPackageNewCell(newCell);
   }
 
+  Future<void> addProductArrivalPackageNewCode(ProductArrivalPackageNewCodesCompanion newCode) {
+    return dataStore.productArrivalsDao.addProductArrivalPackageNewCode(newCode);
+  }
+
   Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) {
     return dataStore.productArrivalsDao.addProductArrivalNewUnloadPackage(newUnloadPackage);
   }
@@ -75,6 +83,33 @@ class ProductArrivalsRepository {
 
   Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) {
     return dataStore.productArrivalsDao.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
+  }
+
+  Future<void> deleteProductArrivalPackageNewCode(ProductArrivalPackageNewCode newCode) {
+    return dataStore.productArrivalsDao.deleteProductArrivalPackageNewCode(newCode);
+  }
+
+  Future<void> savePackageCodes(
+    ProductArrivalPackageEx packageEx,
+    List<ProductArrivalPackageNewCodeEx> newCodesEx
+  ) async {
+    try {
+      ApiProductArrival newApiProductArrival = await api.productArrivalsSavePackageCodes(
+        id: packageEx.package.id,
+        codes: newCodesEx.map((e) => {
+          'productId': e.newCode.productId,
+          'code': e.newCode.code
+        }).toList()
+      );
+
+      await dataStore.productArrivalsDao.clearProductArrivalPackageNewCodes();
+      await _saveProductArrival(newApiProductArrival);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await App.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
   }
 
   Future<ProductArrivalEx> findProductArrival(String number) async {

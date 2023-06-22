@@ -11,6 +11,7 @@ import '/app/data/database.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
+import '/app/utils/misc.dart';
 
 part 'new_line_state.dart';
 part 'new_line_view_model.dart';
@@ -99,16 +100,12 @@ class NewLineViewState extends State<_NewLineView> {
             break;
           case NewLineStateStatus.success:
           case NewLineStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:
             break;
         }
       },);
-  }
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
