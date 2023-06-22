@@ -255,7 +255,7 @@ class ScanViewState extends State<ScanView> {
                     lastScan = currentScan;
 
                     setState(() => _paused = true);
-                    //TODO await _beep();
+                    await _beep();
                     await widget.onRead(scanData.code ?? '');
                     setState(() => _paused = false);
                   }

@@ -129,7 +129,7 @@ class ProductSearchViewState extends State<_ProductSearchView> {
   Future<void> _onScan() async {
     ProductSearchViewModel vm = context.read<ProductSearchViewModel>();
 
-    FocusScope.of(context).unfocus();
+    Misc.unfocus(context);
 
     await Navigator.push<String>(
       context,

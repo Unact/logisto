@@ -39,7 +39,6 @@ class _CodeScanView extends StatefulWidget {
 
 class _CodeScanViewState extends State<_CodeScanView> {
   final TextStyle textStyle = const TextStyle(color: Colors.white, fontSize: 20);
-  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +46,9 @@ class _CodeScanViewState extends State<_CodeScanView> {
       builder: (context, state) {
         CodeScanViewModel vm = context.read<CodeScanViewModel>();
 
-        _controller.text = '';
-
         return ScanView(
           onRead: vm.readCode,
-          child: _lastLineInfoWidget(context)
+          child: _infoWidget(context)
         );
       },
       listener: (context, state) {
@@ -67,7 +64,7 @@ class _CodeScanViewState extends State<_CodeScanView> {
     );
   }
 
-  Widget _lastLineInfoWidget(BuildContext context) {
+  Widget _infoWidget(BuildContext context) {
     CodeScanViewModel vm = context.read<CodeScanViewModel>();
 
     return Column(

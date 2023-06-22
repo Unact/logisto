@@ -133,7 +133,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
   Future<void> _onScan() async {
     NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
 
-    FocusScope.of(context).unfocus();
+    Misc.unfocus(context);
 
     await Navigator.push<String>(
       context,

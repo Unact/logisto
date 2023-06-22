@@ -38,14 +38,6 @@ class _LoginViewState extends State<_LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
 
-  void unfocus() {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.unfocus();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,7 +163,7 @@ class _LoginViewState extends State<_LoginView> {
                       backgroundColor: Colors.blue,
                     ),
                     onPressed: () {
-                      unfocus();
+                      Misc.unfocus(context);
                       vm.apiLogin(_urlController.text, _loginController.text, _passwordController.text);
                     },
                     child: const Text('Войти'),
@@ -188,7 +180,7 @@ class _LoginViewState extends State<_LoginView> {
                       backgroundColor: Colors.blue,
                     ),
                     onPressed: () {
-                      unfocus();
+                      Misc.unfocus(context);
                       vm.getNewPassword(_urlController.text, _loginController.text);
                     },
                     child: const Text('Получить пароль', textAlign: TextAlign.center,),

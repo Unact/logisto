@@ -134,7 +134,7 @@ class ToCellViewState extends State<_ToCellView> {
   Future<void> _onScan() async {
     ToCellViewModel vm = context.read<ToCellViewModel>();
 
-    FocusScope.of(context).unfocus();
+    Misc.unfocus(context);
 
     await Navigator.push<String>(
       context,

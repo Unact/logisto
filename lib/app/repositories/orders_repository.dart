@@ -194,7 +194,6 @@ class OrdersRepository {
     }
   }
 
-
   Future<void> _saveApiOrder(ApiOrder apiOrder) async {
     OrderEx orderEx = apiOrder.toDatabaseEnt();
 
