@@ -8,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'order_qr_scan_state.dart';
@@ -36,10 +37,6 @@ class _OrderQRScanView extends StatefulWidget {
 }
 
 class _OrderQRScanViewState extends State<_OrderQRScanView> {
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrderQRScanViewModel, OrderQRScanState>(
@@ -73,7 +70,7 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
           case OrderQRScanStateStatus.scanReadFinished:
             break;
           case OrderQRScanStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case OrderQRScanStateStatus.finished:
             Navigator.of(context).pop(true);

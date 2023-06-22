@@ -9,6 +9,7 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 
 part 'from_cell_state.dart';
@@ -101,7 +102,7 @@ class FromCellViewState extends State<_FromCellView> {
             break;
           case FromCellStateStatus.success:
           case FromCellStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:
@@ -109,9 +110,5 @@ class FromCellViewState extends State<_FromCellView> {
         }
       }
     );
-  }
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

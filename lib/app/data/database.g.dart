@@ -411,25 +411,23 @@ class Product extends DataClass implements Insertable<Product> {
   final String name;
   final String groupName;
   final String? article;
-  final String? barcodeCode;
-  final String? barcodeType;
   final int? length;
   final int? width;
   final int? height;
   final int? weight;
   final bool archived;
+  final bool needMarking;
   Product(
       {required this.id,
       required this.name,
       required this.groupName,
       this.article,
-      this.barcodeCode,
-      this.barcodeType,
       this.length,
       this.width,
       this.height,
       this.weight,
-      required this.archived});
+      required this.archived,
+      required this.needMarking});
   factory Product.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Product(
@@ -441,10 +439,6 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}group_name'])!,
       article: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}article']),
-      barcodeCode: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}barcode_code']),
-      barcodeType: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}barcode_type']),
       length: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}length']),
       width: const IntType()
@@ -455,6 +449,8 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}weight']),
       archived: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}archived'])!,
+      needMarking: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}need_marking'])!,
     );
   }
   @override
@@ -465,12 +461,6 @@ class Product extends DataClass implements Insertable<Product> {
     map['group_name'] = Variable<String>(groupName);
     if (!nullToAbsent || article != null) {
       map['article'] = Variable<String?>(article);
-    }
-    if (!nullToAbsent || barcodeCode != null) {
-      map['barcode_code'] = Variable<String?>(barcodeCode);
-    }
-    if (!nullToAbsent || barcodeType != null) {
-      map['barcode_type'] = Variable<String?>(barcodeType);
     }
     if (!nullToAbsent || length != null) {
       map['length'] = Variable<int?>(length);
@@ -485,6 +475,7 @@ class Product extends DataClass implements Insertable<Product> {
       map['weight'] = Variable<int?>(weight);
     }
     map['archived'] = Variable<bool>(archived);
+    map['need_marking'] = Variable<bool>(needMarking);
     return map;
   }
 
@@ -496,12 +487,6 @@ class Product extends DataClass implements Insertable<Product> {
       article: article == null && nullToAbsent
           ? const Value.absent()
           : Value(article),
-      barcodeCode: barcodeCode == null && nullToAbsent
-          ? const Value.absent()
-          : Value(barcodeCode),
-      barcodeType: barcodeType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(barcodeType),
       length:
           length == null && nullToAbsent ? const Value.absent() : Value(length),
       width:
@@ -511,6 +496,7 @@ class Product extends DataClass implements Insertable<Product> {
       weight:
           weight == null && nullToAbsent ? const Value.absent() : Value(weight),
       archived: Value(archived),
+      needMarking: Value(needMarking),
     );
   }
 
@@ -522,13 +508,12 @@ class Product extends DataClass implements Insertable<Product> {
       name: serializer.fromJson<String>(json['name']),
       groupName: serializer.fromJson<String>(json['groupName']),
       article: serializer.fromJson<String?>(json['article']),
-      barcodeCode: serializer.fromJson<String?>(json['barcodeCode']),
-      barcodeType: serializer.fromJson<String?>(json['barcodeType']),
       length: serializer.fromJson<int?>(json['length']),
       width: serializer.fromJson<int?>(json['width']),
       height: serializer.fromJson<int?>(json['height']),
       weight: serializer.fromJson<int?>(json['weight']),
       archived: serializer.fromJson<bool>(json['archived']),
+      needMarking: serializer.fromJson<bool>(json['needMarking']),
     );
   }
   @override
@@ -539,13 +524,12 @@ class Product extends DataClass implements Insertable<Product> {
       'name': serializer.toJson<String>(name),
       'groupName': serializer.toJson<String>(groupName),
       'article': serializer.toJson<String?>(article),
-      'barcodeCode': serializer.toJson<String?>(barcodeCode),
-      'barcodeType': serializer.toJson<String?>(barcodeType),
       'length': serializer.toJson<int?>(length),
       'width': serializer.toJson<int?>(width),
       'height': serializer.toJson<int?>(height),
       'weight': serializer.toJson<int?>(weight),
       'archived': serializer.toJson<bool>(archived),
+      'needMarking': serializer.toJson<bool>(needMarking),
     };
   }
 
@@ -554,25 +538,23 @@ class Product extends DataClass implements Insertable<Product> {
           String? name,
           String? groupName,
           String? article,
-          String? barcodeCode,
-          String? barcodeType,
           int? length,
           int? width,
           int? height,
           int? weight,
-          bool? archived}) =>
+          bool? archived,
+          bool? needMarking}) =>
       Product(
         id: id ?? this.id,
         name: name ?? this.name,
         groupName: groupName ?? this.groupName,
         article: article ?? this.article,
-        barcodeCode: barcodeCode ?? this.barcodeCode,
-        barcodeType: barcodeType ?? this.barcodeType,
         length: length ?? this.length,
         width: width ?? this.width,
         height: height ?? this.height,
         weight: weight ?? this.weight,
         archived: archived ?? this.archived,
+        needMarking: needMarking ?? this.needMarking,
       );
   @override
   String toString() {
@@ -581,20 +563,19 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('name: $name, ')
           ..write('groupName: $groupName, ')
           ..write('article: $article, ')
-          ..write('barcodeCode: $barcodeCode, ')
-          ..write('barcodeType: $barcodeType, ')
           ..write('length: $length, ')
           ..write('width: $width, ')
           ..write('height: $height, ')
           ..write('weight: $weight, ')
-          ..write('archived: $archived')
+          ..write('archived: $archived, ')
+          ..write('needMarking: $needMarking')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, groupName, article, barcodeCode,
-      barcodeType, length, width, height, weight, archived);
+  int get hashCode => Object.hash(id, name, groupName, article, length, width,
+      height, weight, archived, needMarking);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -603,13 +584,12 @@ class Product extends DataClass implements Insertable<Product> {
           other.name == this.name &&
           other.groupName == this.groupName &&
           other.article == this.article &&
-          other.barcodeCode == this.barcodeCode &&
-          other.barcodeType == this.barcodeType &&
           other.length == this.length &&
           other.width == this.width &&
           other.height == this.height &&
           other.weight == this.weight &&
-          other.archived == this.archived);
+          other.archived == this.archived &&
+          other.needMarking == this.needMarking);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -617,66 +597,62 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> name;
   final Value<String> groupName;
   final Value<String?> article;
-  final Value<String?> barcodeCode;
-  final Value<String?> barcodeType;
   final Value<int?> length;
   final Value<int?> width;
   final Value<int?> height;
   final Value<int?> weight;
   final Value<bool> archived;
+  final Value<bool> needMarking;
   const ProductsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.groupName = const Value.absent(),
     this.article = const Value.absent(),
-    this.barcodeCode = const Value.absent(),
-    this.barcodeType = const Value.absent(),
     this.length = const Value.absent(),
     this.width = const Value.absent(),
     this.height = const Value.absent(),
     this.weight = const Value.absent(),
     this.archived = const Value.absent(),
+    this.needMarking = const Value.absent(),
   });
   ProductsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String groupName,
     this.article = const Value.absent(),
-    this.barcodeCode = const Value.absent(),
-    this.barcodeType = const Value.absent(),
     this.length = const Value.absent(),
     this.width = const Value.absent(),
     this.height = const Value.absent(),
     this.weight = const Value.absent(),
     required bool archived,
+    required bool needMarking,
   })  : name = Value(name),
         groupName = Value(groupName),
-        archived = Value(archived);
+        archived = Value(archived),
+        needMarking = Value(needMarking);
   static Insertable<Product> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? groupName,
     Expression<String?>? article,
-    Expression<String?>? barcodeCode,
-    Expression<String?>? barcodeType,
     Expression<int?>? length,
     Expression<int?>? width,
     Expression<int?>? height,
     Expression<int?>? weight,
     Expression<bool>? archived,
+    Expression<bool>? needMarking,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (groupName != null) 'group_name': groupName,
       if (article != null) 'article': article,
-      if (barcodeCode != null) 'barcode_code': barcodeCode,
-      if (barcodeType != null) 'barcode_type': barcodeType,
       if (length != null) 'length': length,
       if (width != null) 'width': width,
       if (height != null) 'height': height,
       if (weight != null) 'weight': weight,
       if (archived != null) 'archived': archived,
+      if (needMarking != null) 'need_marking': needMarking,
     });
   }
 
@@ -685,25 +661,23 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String>? name,
       Value<String>? groupName,
       Value<String?>? article,
-      Value<String?>? barcodeCode,
-      Value<String?>? barcodeType,
       Value<int?>? length,
       Value<int?>? width,
       Value<int?>? height,
       Value<int?>? weight,
-      Value<bool>? archived}) {
+      Value<bool>? archived,
+      Value<bool>? needMarking}) {
     return ProductsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       groupName: groupName ?? this.groupName,
       article: article ?? this.article,
-      barcodeCode: barcodeCode ?? this.barcodeCode,
-      barcodeType: barcodeType ?? this.barcodeType,
       length: length ?? this.length,
       width: width ?? this.width,
       height: height ?? this.height,
       weight: weight ?? this.weight,
       archived: archived ?? this.archived,
+      needMarking: needMarking ?? this.needMarking,
     );
   }
 
@@ -722,12 +696,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (article.present) {
       map['article'] = Variable<String?>(article.value);
     }
-    if (barcodeCode.present) {
-      map['barcode_code'] = Variable<String?>(barcodeCode.value);
-    }
-    if (barcodeType.present) {
-      map['barcode_type'] = Variable<String?>(barcodeType.value);
-    }
     if (length.present) {
       map['length'] = Variable<int?>(length.value);
     }
@@ -743,6 +711,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (archived.present) {
       map['archived'] = Variable<bool>(archived.value);
     }
+    if (needMarking.present) {
+      map['need_marking'] = Variable<bool>(needMarking.value);
+    }
     return map;
   }
 
@@ -753,13 +724,12 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('name: $name, ')
           ..write('groupName: $groupName, ')
           ..write('article: $article, ')
-          ..write('barcodeCode: $barcodeCode, ')
-          ..write('barcodeType: $barcodeType, ')
           ..write('length: $length, ')
           ..write('width: $width, ')
           ..write('height: $height, ')
           ..write('weight: $weight, ')
-          ..write('archived: $archived')
+          ..write('archived: $archived, ')
+          ..write('needMarking: $needMarking')
           ..write(')'))
         .toString();
   }
@@ -792,18 +762,6 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<String?> article = GeneratedColumn<String?>(
       'article', aliasedName, true,
       type: const StringType(), requiredDuringInsert: false);
-  final VerificationMeta _barcodeCodeMeta =
-      const VerificationMeta('barcodeCode');
-  @override
-  late final GeneratedColumn<String?> barcodeCode = GeneratedColumn<String?>(
-      'barcode_code', aliasedName, true,
-      type: const StringType(), requiredDuringInsert: false);
-  final VerificationMeta _barcodeTypeMeta =
-      const VerificationMeta('barcodeType');
-  @override
-  late final GeneratedColumn<String?> barcodeType = GeneratedColumn<String?>(
-      'barcode_type', aliasedName, true,
-      type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _lengthMeta = const VerificationMeta('length');
   @override
   late final GeneratedColumn<int?> length = GeneratedColumn<int?>(
@@ -831,19 +789,26 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       type: const BoolType(),
       requiredDuringInsert: true,
       defaultConstraints: 'CHECK (archived IN (0, 1))');
+  final VerificationMeta _needMarkingMeta =
+      const VerificationMeta('needMarking');
+  @override
+  late final GeneratedColumn<bool?> needMarking = GeneratedColumn<bool?>(
+      'need_marking', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (need_marking IN (0, 1))');
   @override
   List<GeneratedColumn> get $columns => [
         id,
         name,
         groupName,
         article,
-        barcodeCode,
-        barcodeType,
         length,
         width,
         height,
         weight,
-        archived
+        archived,
+        needMarking
       ];
   @override
   String get aliasedName => _alias ?? 'products';
@@ -873,18 +838,6 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       context.handle(_articleMeta,
           article.isAcceptableOrUnknown(data['article']!, _articleMeta));
     }
-    if (data.containsKey('barcode_code')) {
-      context.handle(
-          _barcodeCodeMeta,
-          barcodeCode.isAcceptableOrUnknown(
-              data['barcode_code']!, _barcodeCodeMeta));
-    }
-    if (data.containsKey('barcode_type')) {
-      context.handle(
-          _barcodeTypeMeta,
-          barcodeType.isAcceptableOrUnknown(
-              data['barcode_type']!, _barcodeTypeMeta));
-    }
     if (data.containsKey('length')) {
       context.handle(_lengthMeta,
           length.isAcceptableOrUnknown(data['length']!, _lengthMeta));
@@ -906,6 +859,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta));
     } else if (isInserting) {
       context.missing(_archivedMeta);
+    }
+    if (data.containsKey('need_marking')) {
+      context.handle(
+          _needMarkingMeta,
+          needMarking.isAcceptableOrUnknown(
+              data['need_marking']!, _needMarkingMeta));
+    } else if (isInserting) {
+      context.missing(_needMarkingMeta);
     }
     return context;
   }
@@ -1683,6 +1644,8 @@ class ProductArrivalPackage extends DataClass
   final DateTime? acceptStart;
   final DateTime? acceptEnd;
   final DateTime? placed;
+  final DateTime? markingScanned;
+  final bool needMarkingScan;
   ProductArrivalPackage(
       {required this.id,
       required this.productArrivalId,
@@ -1691,7 +1654,9 @@ class ProductArrivalPackage extends DataClass
       required this.qr,
       this.acceptStart,
       this.acceptEnd,
-      this.placed});
+      this.placed,
+      this.markingScanned,
+      required this.needMarkingScan});
   factory ProductArrivalPackage.fromData(Map<String, dynamic> data,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1712,6 +1677,10 @@ class ProductArrivalPackage extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}accept_end']),
       placed: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}placed']),
+      markingScanned: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}marking_scanned']),
+      needMarkingScan: const BoolType().mapFromDatabaseResponse(
+          data['${effectivePrefix}need_marking_scan'])!,
     );
   }
   @override
@@ -1731,6 +1700,10 @@ class ProductArrivalPackage extends DataClass
     if (!nullToAbsent || placed != null) {
       map['placed'] = Variable<DateTime?>(placed);
     }
+    if (!nullToAbsent || markingScanned != null) {
+      map['marking_scanned'] = Variable<DateTime?>(markingScanned);
+    }
+    map['need_marking_scan'] = Variable<bool>(needMarkingScan);
     return map;
   }
 
@@ -1749,6 +1722,10 @@ class ProductArrivalPackage extends DataClass
           : Value(acceptEnd),
       placed:
           placed == null && nullToAbsent ? const Value.absent() : Value(placed),
+      markingScanned: markingScanned == null && nullToAbsent
+          ? const Value.absent()
+          : Value(markingScanned),
+      needMarkingScan: Value(needMarkingScan),
     );
   }
 
@@ -1764,6 +1741,8 @@ class ProductArrivalPackage extends DataClass
       acceptStart: serializer.fromJson<DateTime?>(json['acceptStart']),
       acceptEnd: serializer.fromJson<DateTime?>(json['acceptEnd']),
       placed: serializer.fromJson<DateTime?>(json['placed']),
+      markingScanned: serializer.fromJson<DateTime?>(json['markingScanned']),
+      needMarkingScan: serializer.fromJson<bool>(json['needMarkingScan']),
     );
   }
   @override
@@ -1778,6 +1757,8 @@ class ProductArrivalPackage extends DataClass
       'acceptStart': serializer.toJson<DateTime?>(acceptStart),
       'acceptEnd': serializer.toJson<DateTime?>(acceptEnd),
       'placed': serializer.toJson<DateTime?>(placed),
+      'markingScanned': serializer.toJson<DateTime?>(markingScanned),
+      'needMarkingScan': serializer.toJson<bool>(needMarkingScan),
     };
   }
 
@@ -1789,7 +1770,9 @@ class ProductArrivalPackage extends DataClass
           String? qr,
           DateTime? acceptStart,
           DateTime? acceptEnd,
-          DateTime? placed}) =>
+          DateTime? placed,
+          DateTime? markingScanned,
+          bool? needMarkingScan}) =>
       ProductArrivalPackage(
         id: id ?? this.id,
         productArrivalId: productArrivalId ?? this.productArrivalId,
@@ -1799,6 +1782,8 @@ class ProductArrivalPackage extends DataClass
         acceptStart: acceptStart ?? this.acceptStart,
         acceptEnd: acceptEnd ?? this.acceptEnd,
         placed: placed ?? this.placed,
+        markingScanned: markingScanned ?? this.markingScanned,
+        needMarkingScan: needMarkingScan ?? this.needMarkingScan,
       );
   @override
   String toString() {
@@ -1810,14 +1795,16 @@ class ProductArrivalPackage extends DataClass
           ..write('qr: $qr, ')
           ..write('acceptStart: $acceptStart, ')
           ..write('acceptEnd: $acceptEnd, ')
-          ..write('placed: $placed')
+          ..write('placed: $placed, ')
+          ..write('markingScanned: $markingScanned, ')
+          ..write('needMarkingScan: $needMarkingScan')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, productArrivalId, number, typeName, qr,
-      acceptStart, acceptEnd, placed);
+      acceptStart, acceptEnd, placed, markingScanned, needMarkingScan);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1829,7 +1816,9 @@ class ProductArrivalPackage extends DataClass
           other.qr == this.qr &&
           other.acceptStart == this.acceptStart &&
           other.acceptEnd == this.acceptEnd &&
-          other.placed == this.placed);
+          other.placed == this.placed &&
+          other.markingScanned == this.markingScanned &&
+          other.needMarkingScan == this.needMarkingScan);
 }
 
 class ProductArrivalPackagesCompanion
@@ -1842,6 +1831,8 @@ class ProductArrivalPackagesCompanion
   final Value<DateTime?> acceptStart;
   final Value<DateTime?> acceptEnd;
   final Value<DateTime?> placed;
+  final Value<DateTime?> markingScanned;
+  final Value<bool> needMarkingScan;
   const ProductArrivalPackagesCompanion({
     this.id = const Value.absent(),
     this.productArrivalId = const Value.absent(),
@@ -1851,6 +1842,8 @@ class ProductArrivalPackagesCompanion
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
     this.placed = const Value.absent(),
+    this.markingScanned = const Value.absent(),
+    this.needMarkingScan = const Value.absent(),
   });
   ProductArrivalPackagesCompanion.insert({
     this.id = const Value.absent(),
@@ -1861,10 +1854,13 @@ class ProductArrivalPackagesCompanion
     this.acceptStart = const Value.absent(),
     this.acceptEnd = const Value.absent(),
     this.placed = const Value.absent(),
+    this.markingScanned = const Value.absent(),
+    required bool needMarkingScan,
   })  : productArrivalId = Value(productArrivalId),
         number = Value(number),
         typeName = Value(typeName),
-        qr = Value(qr);
+        qr = Value(qr),
+        needMarkingScan = Value(needMarkingScan);
   static Insertable<ProductArrivalPackage> custom({
     Expression<int>? id,
     Expression<int>? productArrivalId,
@@ -1874,6 +1870,8 @@ class ProductArrivalPackagesCompanion
     Expression<DateTime?>? acceptStart,
     Expression<DateTime?>? acceptEnd,
     Expression<DateTime?>? placed,
+    Expression<DateTime?>? markingScanned,
+    Expression<bool>? needMarkingScan,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1884,6 +1882,8 @@ class ProductArrivalPackagesCompanion
       if (acceptStart != null) 'accept_start': acceptStart,
       if (acceptEnd != null) 'accept_end': acceptEnd,
       if (placed != null) 'placed': placed,
+      if (markingScanned != null) 'marking_scanned': markingScanned,
+      if (needMarkingScan != null) 'need_marking_scan': needMarkingScan,
     });
   }
 
@@ -1895,7 +1895,9 @@ class ProductArrivalPackagesCompanion
       Value<String>? qr,
       Value<DateTime?>? acceptStart,
       Value<DateTime?>? acceptEnd,
-      Value<DateTime?>? placed}) {
+      Value<DateTime?>? placed,
+      Value<DateTime?>? markingScanned,
+      Value<bool>? needMarkingScan}) {
     return ProductArrivalPackagesCompanion(
       id: id ?? this.id,
       productArrivalId: productArrivalId ?? this.productArrivalId,
@@ -1905,6 +1907,8 @@ class ProductArrivalPackagesCompanion
       acceptStart: acceptStart ?? this.acceptStart,
       acceptEnd: acceptEnd ?? this.acceptEnd,
       placed: placed ?? this.placed,
+      markingScanned: markingScanned ?? this.markingScanned,
+      needMarkingScan: needMarkingScan ?? this.needMarkingScan,
     );
   }
 
@@ -1935,6 +1939,12 @@ class ProductArrivalPackagesCompanion
     if (placed.present) {
       map['placed'] = Variable<DateTime?>(placed.value);
     }
+    if (markingScanned.present) {
+      map['marking_scanned'] = Variable<DateTime?>(markingScanned.value);
+    }
+    if (needMarkingScan.present) {
+      map['need_marking_scan'] = Variable<bool>(needMarkingScan.value);
+    }
     return map;
   }
 
@@ -1948,7 +1958,9 @@ class ProductArrivalPackagesCompanion
           ..write('qr: $qr, ')
           ..write('acceptStart: $acceptStart, ')
           ..write('acceptEnd: $acceptEnd, ')
-          ..write('placed: $placed')
+          ..write('placed: $placed, ')
+          ..write('markingScanned: $markingScanned, ')
+          ..write('needMarkingScan: $needMarkingScan')
           ..write(')'))
         .toString();
   }
@@ -2006,6 +2018,20 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
   late final GeneratedColumn<DateTime?> placed = GeneratedColumn<DateTime?>(
       'placed', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _markingScannedMeta =
+      const VerificationMeta('markingScanned');
+  @override
+  late final GeneratedColumn<DateTime?> markingScanned =
+      GeneratedColumn<DateTime?>('marking_scanned', aliasedName, true,
+          type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _needMarkingScanMeta =
+      const VerificationMeta('needMarkingScan');
+  @override
+  late final GeneratedColumn<bool?> needMarkingScan = GeneratedColumn<bool?>(
+      'need_marking_scan', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (need_marking_scan IN (0, 1))');
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2015,7 +2041,9 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
         qr,
         acceptStart,
         acceptEnd,
-        placed
+        placed,
+        markingScanned,
+        needMarkingScan
       ];
   @override
   String get aliasedName => _alias ?? 'product_arrival_packages';
@@ -2068,6 +2096,20 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
     if (data.containsKey('placed')) {
       context.handle(_placedMeta,
           placed.isAcceptableOrUnknown(data['placed']!, _placedMeta));
+    }
+    if (data.containsKey('marking_scanned')) {
+      context.handle(
+          _markingScannedMeta,
+          markingScanned.isAcceptableOrUnknown(
+              data['marking_scanned']!, _markingScannedMeta));
+    }
+    if (data.containsKey('need_marking_scan')) {
+      context.handle(
+          _needMarkingScanMeta,
+          needMarkingScan.isAcceptableOrUnknown(
+              data['need_marking_scan']!, _needMarkingScanMeta));
+    } else if (isInserting) {
+      context.missing(_needMarkingScanMeta);
     }
     return context;
   }
@@ -4158,6 +4200,279 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
   }
 }
 
+class ProductArrivalPackageNewCode extends DataClass
+    implements Insertable<ProductArrivalPackageNewCode> {
+  final int id;
+  final int productArrivalPackageId;
+  final int productId;
+  final String code;
+  ProductArrivalPackageNewCode(
+      {required this.id,
+      required this.productArrivalPackageId,
+      required this.productId,
+      required this.code});
+  factory ProductArrivalPackageNewCode.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ProductArrivalPackageNewCode(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      productArrivalPackageId: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}product_arrival_package_id'])!,
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id'])!,
+      code: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}code'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_arrival_package_id'] = Variable<int>(productArrivalPackageId);
+    map['product_id'] = Variable<int>(productId);
+    map['code'] = Variable<String>(code);
+    return map;
+  }
+
+  ProductArrivalPackageNewCodesCompanion toCompanion(bool nullToAbsent) {
+    return ProductArrivalPackageNewCodesCompanion(
+      id: Value(id),
+      productArrivalPackageId: Value(productArrivalPackageId),
+      productId: Value(productId),
+      code: Value(code),
+    );
+  }
+
+  factory ProductArrivalPackageNewCode.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductArrivalPackageNewCode(
+      id: serializer.fromJson<int>(json['id']),
+      productArrivalPackageId:
+          serializer.fromJson<int>(json['productArrivalPackageId']),
+      productId: serializer.fromJson<int>(json['productId']),
+      code: serializer.fromJson<String>(json['code']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productArrivalPackageId':
+          serializer.toJson<int>(productArrivalPackageId),
+      'productId': serializer.toJson<int>(productId),
+      'code': serializer.toJson<String>(code),
+    };
+  }
+
+  ProductArrivalPackageNewCode copyWith(
+          {int? id,
+          int? productArrivalPackageId,
+          int? productId,
+          String? code}) =>
+      ProductArrivalPackageNewCode(
+        id: id ?? this.id,
+        productArrivalPackageId:
+            productArrivalPackageId ?? this.productArrivalPackageId,
+        productId: productId ?? this.productId,
+        code: code ?? this.code,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewCode(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('code: $code')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, productArrivalPackageId, productId, code);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductArrivalPackageNewCode &&
+          other.id == this.id &&
+          other.productArrivalPackageId == this.productArrivalPackageId &&
+          other.productId == this.productId &&
+          other.code == this.code);
+}
+
+class ProductArrivalPackageNewCodesCompanion
+    extends UpdateCompanion<ProductArrivalPackageNewCode> {
+  final Value<int> id;
+  final Value<int> productArrivalPackageId;
+  final Value<int> productId;
+  final Value<String> code;
+  const ProductArrivalPackageNewCodesCompanion({
+    this.id = const Value.absent(),
+    this.productArrivalPackageId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.code = const Value.absent(),
+  });
+  ProductArrivalPackageNewCodesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productArrivalPackageId,
+    required int productId,
+    required String code,
+  })  : productArrivalPackageId = Value(productArrivalPackageId),
+        productId = Value(productId),
+        code = Value(code);
+  static Insertable<ProductArrivalPackageNewCode> custom({
+    Expression<int>? id,
+    Expression<int>? productArrivalPackageId,
+    Expression<int>? productId,
+    Expression<String>? code,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productArrivalPackageId != null)
+        'product_arrival_package_id': productArrivalPackageId,
+      if (productId != null) 'product_id': productId,
+      if (code != null) 'code': code,
+    });
+  }
+
+  ProductArrivalPackageNewCodesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productArrivalPackageId,
+      Value<int>? productId,
+      Value<String>? code}) {
+    return ProductArrivalPackageNewCodesCompanion(
+      id: id ?? this.id,
+      productArrivalPackageId:
+          productArrivalPackageId ?? this.productArrivalPackageId,
+      productId: productId ?? this.productId,
+      code: code ?? this.code,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productArrivalPackageId.present) {
+      map['product_arrival_package_id'] =
+          Variable<int>(productArrivalPackageId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductArrivalPackageNewCodesCompanion(')
+          ..write('id: $id, ')
+          ..write('productArrivalPackageId: $productArrivalPackageId, ')
+          ..write('productId: $productId, ')
+          ..write('code: $code')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductArrivalPackageNewCodesTable extends ProductArrivalPackageNewCodes
+    with
+        TableInfo<$ProductArrivalPackageNewCodesTable,
+            ProductArrivalPackageNewCode> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductArrivalPackageNewCodesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _productArrivalPackageIdMeta =
+      const VerificationMeta('productArrivalPackageId');
+  @override
+  late final GeneratedColumn<int?> productArrivalPackageId =
+      GeneratedColumn<int?>('product_arrival_package_id', aliasedName, false,
+          type: const IntType(),
+          requiredDuringInsert: true,
+          defaultConstraints:
+              'REFERENCES product_arrival_packages (id) ON DELETE CASCADE');
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
+  final VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String?> code = GeneratedColumn<String?>(
+      'code', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productArrivalPackageId, productId, code];
+  @override
+  String get aliasedName => _alias ?? 'product_arrival_package_new_codes';
+  @override
+  String get actualTableName => 'product_arrival_package_new_codes';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductArrivalPackageNewCode> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_arrival_package_id')) {
+      context.handle(
+          _productArrivalPackageIdMeta,
+          productArrivalPackageId.isAcceptableOrUnknown(
+              data['product_arrival_package_id']!,
+              _productArrivalPackageIdMeta));
+    } else if (isInserting) {
+      context.missing(_productArrivalPackageIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductArrivalPackageNewCode map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return ProductArrivalPackageNewCode.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ProductArrivalPackageNewCodesTable createAlias(String alias) {
+    return $ProductArrivalPackageNewCodesTable(attachedDatabase, alias);
+  }
+}
+
 class ProductArrivalNewUnloadPackage extends DataClass
     implements Insertable<ProductArrivalNewUnloadPackage> {
   final int id;
@@ -5567,6 +5882,8 @@ class Order extends DataClass implements Insertable<Order> {
   final bool documentsReturn;
   final double paidSum;
   final double paySum;
+  final DateTime? markingScanned;
+  final bool needMarkingScan;
   Order(
       {required this.id,
       this.courierName,
@@ -5589,7 +5906,9 @@ class Order extends DataClass implements Insertable<Order> {
       this.delivered,
       required this.documentsReturn,
       required this.paidSum,
-      required this.paySum});
+      required this.paySum,
+      this.markingScanned,
+      required this.needMarkingScan});
   factory Order.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Order(
@@ -5637,6 +5956,10 @@ class Order extends DataClass implements Insertable<Order> {
           .mapFromDatabaseResponse(data['${effectivePrefix}paid_sum'])!,
       paySum: const RealType()
           .mapFromDatabaseResponse(data['${effectivePrefix}pay_sum'])!,
+      markingScanned: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}marking_scanned']),
+      needMarkingScan: const BoolType().mapFromDatabaseResponse(
+          data['${effectivePrefix}need_marking_scan'])!,
     );
   }
   @override
@@ -5687,6 +6010,10 @@ class Order extends DataClass implements Insertable<Order> {
     map['documents_return'] = Variable<bool>(documentsReturn);
     map['paid_sum'] = Variable<double>(paidSum);
     map['pay_sum'] = Variable<double>(paySum);
+    if (!nullToAbsent || markingScanned != null) {
+      map['marking_scanned'] = Variable<DateTime?>(markingScanned);
+    }
+    map['need_marking_scan'] = Variable<bool>(needMarkingScan);
     return map;
   }
 
@@ -5734,6 +6061,10 @@ class Order extends DataClass implements Insertable<Order> {
       documentsReturn: Value(documentsReturn),
       paidSum: Value(paidSum),
       paySum: Value(paySum),
+      markingScanned: markingScanned == null && nullToAbsent
+          ? const Value.absent()
+          : Value(markingScanned),
+      needMarkingScan: Value(needMarkingScan),
     );
   }
 
@@ -5767,6 +6098,8 @@ class Order extends DataClass implements Insertable<Order> {
       documentsReturn: serializer.fromJson<bool>(json['documentsReturn']),
       paidSum: serializer.fromJson<double>(json['paidSum']),
       paySum: serializer.fromJson<double>(json['paySum']),
+      markingScanned: serializer.fromJson<DateTime?>(json['markingScanned']),
+      needMarkingScan: serializer.fromJson<bool>(json['needMarkingScan']),
     );
   }
   @override
@@ -5796,6 +6129,8 @@ class Order extends DataClass implements Insertable<Order> {
       'documentsReturn': serializer.toJson<bool>(documentsReturn),
       'paidSum': serializer.toJson<double>(paidSum),
       'paySum': serializer.toJson<double>(paySum),
+      'markingScanned': serializer.toJson<DateTime?>(markingScanned),
+      'needMarkingScan': serializer.toJson<bool>(needMarkingScan),
     };
   }
 
@@ -5821,7 +6156,9 @@ class Order extends DataClass implements Insertable<Order> {
           DateTime? delivered,
           bool? documentsReturn,
           double? paidSum,
-          double? paySum}) =>
+          double? paySum,
+          DateTime? markingScanned,
+          bool? needMarkingScan}) =>
       Order(
         id: id ?? this.id,
         courierName: courierName ?? this.courierName,
@@ -5845,6 +6182,8 @@ class Order extends DataClass implements Insertable<Order> {
         documentsReturn: documentsReturn ?? this.documentsReturn,
         paidSum: paidSum ?? this.paidSum,
         paySum: paySum ?? this.paySum,
+        markingScanned: markingScanned ?? this.markingScanned,
+        needMarkingScan: needMarkingScan ?? this.needMarkingScan,
       );
   @override
   String toString() {
@@ -5870,7 +6209,9 @@ class Order extends DataClass implements Insertable<Order> {
           ..write('delivered: $delivered, ')
           ..write('documentsReturn: $documentsReturn, ')
           ..write('paidSum: $paidSum, ')
-          ..write('paySum: $paySum')
+          ..write('paySum: $paySum, ')
+          ..write('markingScanned: $markingScanned, ')
+          ..write('needMarkingScan: $needMarkingScan')
           ..write(')'))
         .toString();
   }
@@ -5898,7 +6239,9 @@ class Order extends DataClass implements Insertable<Order> {
         delivered,
         documentsReturn,
         paidSum,
-        paySum
+        paySum,
+        markingScanned,
+        needMarkingScan
       ]);
   @override
   bool operator ==(Object other) =>
@@ -5925,7 +6268,9 @@ class Order extends DataClass implements Insertable<Order> {
           other.delivered == this.delivered &&
           other.documentsReturn == this.documentsReturn &&
           other.paidSum == this.paidSum &&
-          other.paySum == this.paySum);
+          other.paySum == this.paySum &&
+          other.markingScanned == this.markingScanned &&
+          other.needMarkingScan == this.needMarkingScan);
 }
 
 class OrdersCompanion extends UpdateCompanion<Order> {
@@ -5951,6 +6296,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<bool> documentsReturn;
   final Value<double> paidSum;
   final Value<double> paySum;
+  final Value<DateTime?> markingScanned;
+  final Value<bool> needMarkingScan;
   const OrdersCompanion({
     this.id = const Value.absent(),
     this.courierName = const Value.absent(),
@@ -5974,6 +6321,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.documentsReturn = const Value.absent(),
     this.paidSum = const Value.absent(),
     this.paySum = const Value.absent(),
+    this.markingScanned = const Value.absent(),
+    this.needMarkingScan = const Value.absent(),
   });
   OrdersCompanion.insert({
     this.id = const Value.absent(),
@@ -5998,6 +6347,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     required bool documentsReturn,
     required double paidSum,
     required double paySum,
+    this.markingScanned = const Value.absent(),
+    required bool needMarkingScan,
   })  : trackingNumber = Value(trackingNumber),
         number = Value(number),
         deliveryDate = Value(deliveryDate),
@@ -6007,7 +6358,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
         pickupAddressName = Value(pickupAddressName),
         documentsReturn = Value(documentsReturn),
         paidSum = Value(paidSum),
-        paySum = Value(paySum);
+        paySum = Value(paySum),
+        needMarkingScan = Value(needMarkingScan);
   static Insertable<Order> custom({
     Expression<int>? id,
     Expression<String?>? courierName,
@@ -6031,6 +6383,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     Expression<bool>? documentsReturn,
     Expression<double>? paidSum,
     Expression<double>? paySum,
+    Expression<DateTime?>? markingScanned,
+    Expression<bool>? needMarkingScan,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -6058,6 +6412,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       if (documentsReturn != null) 'documents_return': documentsReturn,
       if (paidSum != null) 'paid_sum': paidSum,
       if (paySum != null) 'pay_sum': paySum,
+      if (markingScanned != null) 'marking_scanned': markingScanned,
+      if (needMarkingScan != null) 'need_marking_scan': needMarkingScan,
     });
   }
 
@@ -6083,7 +6439,9 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<DateTime?>? delivered,
       Value<bool>? documentsReturn,
       Value<double>? paidSum,
-      Value<double>? paySum}) {
+      Value<double>? paySum,
+      Value<DateTime?>? markingScanned,
+      Value<bool>? needMarkingScan}) {
     return OrdersCompanion(
       id: id ?? this.id,
       courierName: courierName ?? this.courierName,
@@ -6107,6 +6465,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       documentsReturn: documentsReturn ?? this.documentsReturn,
       paidSum: paidSum ?? this.paidSum,
       paySum: paySum ?? this.paySum,
+      markingScanned: markingScanned ?? this.markingScanned,
+      needMarkingScan: needMarkingScan ?? this.needMarkingScan,
     );
   }
 
@@ -6182,6 +6542,12 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     if (paySum.present) {
       map['pay_sum'] = Variable<double>(paySum.value);
     }
+    if (markingScanned.present) {
+      map['marking_scanned'] = Variable<DateTime?>(markingScanned.value);
+    }
+    if (needMarkingScan.present) {
+      map['need_marking_scan'] = Variable<bool>(needMarkingScan.value);
+    }
     return map;
   }
 
@@ -6209,7 +6575,9 @@ class OrdersCompanion extends UpdateCompanion<Order> {
           ..write('delivered: $delivered, ')
           ..write('documentsReturn: $documentsReturn, ')
           ..write('paidSum: $paidSum, ')
-          ..write('paySum: $paySum')
+          ..write('paySum: $paySum, ')
+          ..write('markingScanned: $markingScanned, ')
+          ..write('needMarkingScan: $needMarkingScan')
           ..write(')'))
         .toString();
   }
@@ -6351,6 +6719,20 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   late final GeneratedColumn<double?> paySum = GeneratedColumn<double?>(
       'pay_sum', aliasedName, false,
       type: const RealType(), requiredDuringInsert: true);
+  final VerificationMeta _markingScannedMeta =
+      const VerificationMeta('markingScanned');
+  @override
+  late final GeneratedColumn<DateTime?> markingScanned =
+      GeneratedColumn<DateTime?>('marking_scanned', aliasedName, true,
+          type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _needMarkingScanMeta =
+      const VerificationMeta('needMarkingScan');
+  @override
+  late final GeneratedColumn<bool?> needMarkingScan = GeneratedColumn<bool?>(
+      'need_marking_scan', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (need_marking_scan IN (0, 1))');
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -6374,7 +6756,9 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         delivered,
         documentsReturn,
         paidSum,
-        paySum
+        paySum,
+        markingScanned,
+        needMarkingScan
       ];
   @override
   String get aliasedName => _alias ?? 'orders';
@@ -6520,6 +6904,20 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
     } else if (isInserting) {
       context.missing(_paySumMeta);
     }
+    if (data.containsKey('marking_scanned')) {
+      context.handle(
+          _markingScannedMeta,
+          markingScanned.isAcceptableOrUnknown(
+              data['marking_scanned']!, _markingScannedMeta));
+    }
+    if (data.containsKey('need_marking_scan')) {
+      context.handle(
+          _needMarkingScanMeta,
+          needMarkingScan.isAcceptableOrUnknown(
+              data['need_marking_scan']!, _needMarkingScanMeta));
+    } else if (isInserting) {
+      context.missing(_needMarkingScanMeta);
+    }
     return context;
   }
 
@@ -6544,13 +6942,15 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
   final int amount;
   final double price;
   final int? factAmount;
+  final int? productId;
   OrderLine(
       {required this.id,
       required this.orderId,
       required this.name,
       required this.amount,
       required this.price,
-      this.factAmount});
+      this.factAmount,
+      this.productId});
   factory OrderLine.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return OrderLine(
@@ -6566,6 +6966,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           .mapFromDatabaseResponse(data['${effectivePrefix}price'])!,
       factAmount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}fact_amount']),
+      productId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}product_id']),
     );
   }
   @override
@@ -6578,6 +6980,9 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
     map['price'] = Variable<double>(price);
     if (!nullToAbsent || factAmount != null) {
       map['fact_amount'] = Variable<int?>(factAmount);
+    }
+    if (!nullToAbsent || productId != null) {
+      map['product_id'] = Variable<int?>(productId);
     }
     return map;
   }
@@ -6592,6 +6997,9 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       factAmount: factAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(factAmount),
+      productId: productId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productId),
     );
   }
 
@@ -6605,6 +7013,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       amount: serializer.fromJson<int>(json['amount']),
       price: serializer.fromJson<double>(json['price']),
       factAmount: serializer.fromJson<int?>(json['factAmount']),
+      productId: serializer.fromJson<int?>(json['productId']),
     );
   }
   @override
@@ -6617,6 +7026,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       'amount': serializer.toJson<int>(amount),
       'price': serializer.toJson<double>(price),
       'factAmount': serializer.toJson<int?>(factAmount),
+      'productId': serializer.toJson<int?>(productId),
     };
   }
 
@@ -6626,7 +7036,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           String? name,
           int? amount,
           double? price,
-          int? factAmount}) =>
+          int? factAmount,
+          int? productId}) =>
       OrderLine(
         id: id ?? this.id,
         orderId: orderId ?? this.orderId,
@@ -6634,6 +7045,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
         amount: amount ?? this.amount,
         price: price ?? this.price,
         factAmount: factAmount ?? this.factAmount,
+        productId: productId ?? this.productId,
       );
   @override
   String toString() {
@@ -6643,13 +7055,15 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('price: $price, ')
-          ..write('factAmount: $factAmount')
+          ..write('factAmount: $factAmount, ')
+          ..write('productId: $productId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, orderId, name, amount, price, factAmount);
+  int get hashCode =>
+      Object.hash(id, orderId, name, amount, price, factAmount, productId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6659,7 +7073,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           other.name == this.name &&
           other.amount == this.amount &&
           other.price == this.price &&
-          other.factAmount == this.factAmount);
+          other.factAmount == this.factAmount &&
+          other.productId == this.productId);
 }
 
 class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
@@ -6669,6 +7084,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
   final Value<int> amount;
   final Value<double> price;
   final Value<int?> factAmount;
+  final Value<int?> productId;
   const OrderLinesCompanion({
     this.id = const Value.absent(),
     this.orderId = const Value.absent(),
@@ -6676,6 +7092,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     this.amount = const Value.absent(),
     this.price = const Value.absent(),
     this.factAmount = const Value.absent(),
+    this.productId = const Value.absent(),
   });
   OrderLinesCompanion.insert({
     this.id = const Value.absent(),
@@ -6684,6 +7101,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     required int amount,
     required double price,
     this.factAmount = const Value.absent(),
+    this.productId = const Value.absent(),
   })  : orderId = Value(orderId),
         name = Value(name),
         amount = Value(amount),
@@ -6695,6 +7113,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     Expression<int>? amount,
     Expression<double>? price,
     Expression<int?>? factAmount,
+    Expression<int?>? productId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -6703,6 +7122,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       if (amount != null) 'amount': amount,
       if (price != null) 'price': price,
       if (factAmount != null) 'fact_amount': factAmount,
+      if (productId != null) 'product_id': productId,
     });
   }
 
@@ -6712,7 +7132,8 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       Value<String>? name,
       Value<int>? amount,
       Value<double>? price,
-      Value<int?>? factAmount}) {
+      Value<int?>? factAmount,
+      Value<int?>? productId}) {
     return OrderLinesCompanion(
       id: id ?? this.id,
       orderId: orderId ?? this.orderId,
@@ -6720,6 +7141,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       amount: amount ?? this.amount,
       price: price ?? this.price,
       factAmount: factAmount ?? this.factAmount,
+      productId: productId ?? this.productId,
     );
   }
 
@@ -6744,6 +7166,9 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     if (factAmount.present) {
       map['fact_amount'] = Variable<int?>(factAmount.value);
     }
+    if (productId.present) {
+      map['product_id'] = Variable<int?>(productId.value);
+    }
     return map;
   }
 
@@ -6755,7 +7180,8 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('price: $price, ')
-          ..write('factAmount: $factAmount')
+          ..write('factAmount: $factAmount, ')
+          ..write('productId: $productId')
           ..write(')'))
         .toString();
   }
@@ -6801,9 +7227,16 @@ class $OrderLinesTable extends OrderLines
   late final GeneratedColumn<int?> factAmount = GeneratedColumn<int?>(
       'fact_amount', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _productIdMeta = const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int?> productId = GeneratedColumn<int?>(
+      'product_id', aliasedName, true,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'REFERENCES products (id) ON DELETE CASCADE');
   @override
   List<GeneratedColumn> get $columns =>
-      [id, orderId, name, amount, price, factAmount];
+      [id, orderId, name, amount, price, factAmount, productId];
   @override
   String get aliasedName => _alias ?? 'order_lines';
   @override
@@ -6846,6 +7279,10 @@ class $OrderLinesTable extends OrderLines
           factAmount.isAcceptableOrUnknown(
               data['fact_amount']!, _factAmountMeta));
     }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    }
     return context;
   }
 
@@ -6860,6 +7297,221 @@ class $OrderLinesTable extends OrderLines
   @override
   $OrderLinesTable createAlias(String alias) {
     return $OrderLinesTable(attachedDatabase, alias);
+  }
+}
+
+class OrderLineNewCode extends DataClass
+    implements Insertable<OrderLineNewCode> {
+  final int id;
+  final int orderLineId;
+  final String code;
+  OrderLineNewCode(
+      {required this.id, required this.orderLineId, required this.code});
+  factory OrderLineNewCode.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return OrderLineNewCode(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      orderLineId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}order_line_id'])!,
+      code: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}code'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['order_line_id'] = Variable<int>(orderLineId);
+    map['code'] = Variable<String>(code);
+    return map;
+  }
+
+  OrderLineNewCodesCompanion toCompanion(bool nullToAbsent) {
+    return OrderLineNewCodesCompanion(
+      id: Value(id),
+      orderLineId: Value(orderLineId),
+      code: Value(code),
+    );
+  }
+
+  factory OrderLineNewCode.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OrderLineNewCode(
+      id: serializer.fromJson<int>(json['id']),
+      orderLineId: serializer.fromJson<int>(json['orderLineId']),
+      code: serializer.fromJson<String>(json['code']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'orderLineId': serializer.toJson<int>(orderLineId),
+      'code': serializer.toJson<String>(code),
+    };
+  }
+
+  OrderLineNewCode copyWith({int? id, int? orderLineId, String? code}) =>
+      OrderLineNewCode(
+        id: id ?? this.id,
+        orderLineId: orderLineId ?? this.orderLineId,
+        code: code ?? this.code,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('OrderLineNewCode(')
+          ..write('id: $id, ')
+          ..write('orderLineId: $orderLineId, ')
+          ..write('code: $code')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, orderLineId, code);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OrderLineNewCode &&
+          other.id == this.id &&
+          other.orderLineId == this.orderLineId &&
+          other.code == this.code);
+}
+
+class OrderLineNewCodesCompanion extends UpdateCompanion<OrderLineNewCode> {
+  final Value<int> id;
+  final Value<int> orderLineId;
+  final Value<String> code;
+  const OrderLineNewCodesCompanion({
+    this.id = const Value.absent(),
+    this.orderLineId = const Value.absent(),
+    this.code = const Value.absent(),
+  });
+  OrderLineNewCodesCompanion.insert({
+    this.id = const Value.absent(),
+    required int orderLineId,
+    required String code,
+  })  : orderLineId = Value(orderLineId),
+        code = Value(code);
+  static Insertable<OrderLineNewCode> custom({
+    Expression<int>? id,
+    Expression<int>? orderLineId,
+    Expression<String>? code,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (orderLineId != null) 'order_line_id': orderLineId,
+      if (code != null) 'code': code,
+    });
+  }
+
+  OrderLineNewCodesCompanion copyWith(
+      {Value<int>? id, Value<int>? orderLineId, Value<String>? code}) {
+    return OrderLineNewCodesCompanion(
+      id: id ?? this.id,
+      orderLineId: orderLineId ?? this.orderLineId,
+      code: code ?? this.code,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (orderLineId.present) {
+      map['order_line_id'] = Variable<int>(orderLineId.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OrderLineNewCodesCompanion(')
+          ..write('id: $id, ')
+          ..write('orderLineId: $orderLineId, ')
+          ..write('code: $code')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OrderLineNewCodesTable extends OrderLineNewCodes
+    with TableInfo<$OrderLineNewCodesTable, OrderLineNewCode> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OrderLineNewCodesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _orderLineIdMeta =
+      const VerificationMeta('orderLineId');
+  @override
+  late final GeneratedColumn<int?> orderLineId = GeneratedColumn<int?>(
+      'order_line_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      defaultConstraints: 'REFERENCES order_lines (id) ON DELETE CASCADE');
+  final VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String?> code = GeneratedColumn<String?>(
+      'code', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, orderLineId, code];
+  @override
+  String get aliasedName => _alias ?? 'order_line_new_codes';
+  @override
+  String get actualTableName => 'order_line_new_codes';
+  @override
+  VerificationContext validateIntegrity(Insertable<OrderLineNewCode> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('order_line_id')) {
+      context.handle(
+          _orderLineIdMeta,
+          orderLineId.isAcceptableOrUnknown(
+              data['order_line_id']!, _orderLineIdMeta));
+    } else if (isInserting) {
+      context.missing(_orderLineIdMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OrderLineNewCode map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return OrderLineNewCode.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $OrderLineNewCodesTable createAlias(String alias) {
+    return $OrderLineNewCodesTable(attachedDatabase, alias);
   }
 }
 
@@ -7031,6 +7683,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $StorageCellsTable storageCells = $StorageCellsTable(this);
   late final $ProductArrivalPackageNewCellsTable productArrivalPackageNewCells =
       $ProductArrivalPackageNewCellsTable(this);
+  late final $ProductArrivalPackageNewCodesTable productArrivalPackageNewCodes =
+      $ProductArrivalPackageNewCodesTable(this);
   late final $ProductArrivalNewUnloadPackagesTable
       productArrivalNewUnloadPackages =
       $ProductArrivalNewUnloadPackagesTable(this);
@@ -7043,6 +7697,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $ProductTransferToCellsTable(this);
   late final $OrdersTable orders = $OrdersTable(this);
   late final $OrderLinesTable orderLines = $OrderLinesTable(this);
+  late final $OrderLineNewCodesTable orderLineNewCodes =
+      $OrderLineNewCodesTable(this);
   late final $PrefsTable prefs = $PrefsTable(this);
   late final OrdersDao ordersDao = OrdersDao(this as AppDataStore);
   late final ProductArrivalsDao productArrivalsDao =
@@ -7069,6 +7725,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         productArrivalPackageNewLines,
         storageCells,
         productArrivalPackageNewCells,
+        productArrivalPackageNewCodes,
         productArrivalNewUnloadPackages,
         productStores,
         productTransfers,
@@ -7076,6 +7733,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         productTransferToCells,
         orders,
         orderLines,
+        orderLineNewCodes,
         prefs
       ];
 }
@@ -7103,6 +7761,8 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
   $StorageCellsTable get storageCells => attachedDatabase.storageCells;
   $ProductArrivalPackageNewCellsTable get productArrivalPackageNewCells =>
       attachedDatabase.productArrivalPackageNewCells;
+  $ProductArrivalPackageNewCodesTable get productArrivalPackageNewCodes =>
+      attachedDatabase.productArrivalPackageNewCodes;
   $ProductArrivalNewPackagesTable get productArrivalNewPackages =>
       attachedDatabase.productArrivalNewPackages;
   $ProductArrivalNewUnloadPackagesTable get productArrivalNewUnloadPackages =>
@@ -7126,7 +7786,10 @@ mixin _$StoragesDaoMixin on DatabaseAccessor<AppDataStore> {
 mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $StoragesTable get storages => attachedDatabase.storages;
   $OrdersTable get orders => attachedDatabase.orders;
+  $ProductsTable get products => attachedDatabase.products;
   $OrderLinesTable get orderLines => attachedDatabase.orderLines;
+  $OrderLineNewCodesTable get orderLineNewCodes =>
+      attachedDatabase.orderLineNewCodes;
 }
 mixin _$ProductsDaoMixin on DatabaseAccessor<AppDataStore> {
   $ProductsTable get products => attachedDatabase.products;

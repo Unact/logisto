@@ -11,6 +11,7 @@ part of 'database.dart';
     ProductArrivalPackageTypes,
     ProductArrivalPackageNewLines,
     ProductArrivalPackageNewCells,
+    ProductArrivalPackageNewCodes,
     ProductArrivalNewPackages,
     ProductArrivalNewUnloadPackages
   ],
@@ -72,6 +73,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await into(productArrivalPackageNewCells).insert(newCell, mode: InsertMode.insertOrReplace);
   }
 
+  Future<void> addProductArrivalPackageNewCode(ProductArrivalPackageNewCodesCompanion newCode) async {
+    await into(productArrivalPackageNewCodes).insert(newCode, mode: InsertMode.insertOrReplace);
+  }
+
   Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) async {
     await into(productArrivalNewUnloadPackages).insert(newUnloadPackage, mode: InsertMode.insertOrReplace);
   }
@@ -86,6 +91,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
 
   Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCell newCell) async {
     await (delete(productArrivalPackageNewCells)..where((e) => e.id.equals(newCell.id))).go();
+  }
+
+  Future<void> deleteProductArrivalPackageNewCode(ProductArrivalPackageNewCode newCode) async {
+    await (delete(productArrivalPackageNewCodes)..where((e) => e.id.equals(newCode.id))).go();
   }
 
   Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) async {
@@ -140,6 +149,10 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await delete(productArrivalPackageNewCells).go();
   }
 
+  Future<void> clearProductArrivalPackageNewCodes() async {
+    await delete(productArrivalPackageNewCodes).go();
+  }
+
   Future<void> clearProductArrivalNewUnloadPackages() async {
     await delete(productArrivalNewUnloadPackages).go();
   }
@@ -180,11 +193,28 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
       ..orderBy([OrderingTerm(expression: products.name)]);
     final packageNewCellsRes = await packageNewCellsQuery.get();
 
-    return packageNewCellsRes.map((packageLine) {
+    return packageNewCellsRes.map((packageCell) {
       return ProductArrivalPackageNewCellEx(
-        packageLine.readTable(productArrivalPackageNewCells),
-        packageLine.readTable(products),
-        packageLine.readTable(storageCells)
+        packageCell.readTable(productArrivalPackageNewCells),
+        packageCell.readTable(products),
+        packageCell.readTable(storageCells)
+      );
+    }).toList();
+  }
+
+  Future<List<ProductArrivalPackageNewCodeEx>> getProductArrivalPackageNewCodesEx(int productArrivalPackageId) async {
+    final packageNewCodesQuery = select(productArrivalPackageNewCodes)
+      .join([
+        innerJoin(products, products.id.equalsExp(productArrivalPackageNewCodes.productId)),
+      ])
+      ..where(productArrivalPackageNewCodes.productArrivalPackageId.equals(productArrivalPackageId))
+      ..orderBy([OrderingTerm(expression: products.name)]);
+    final packageNewCodesRes = await packageNewCodesQuery.get();
+
+    return packageNewCodesRes.map((packageCode) {
+      return ProductArrivalPackageNewCodeEx(
+        packageCode.readTable(productArrivalPackageNewCodes),
+        packageCode.readTable(products)
       );
     }).toList();
   }
@@ -392,4 +422,11 @@ class ProductArrivalPackageNewCellEx {
   final StorageCell storageCell;
 
   ProductArrivalPackageNewCellEx(this.newCell, this.product, this.storageCell);
+}
+
+class ProductArrivalPackageNewCodeEx {
+  final ProductArrivalPackageNewCode newCode;
+  final Product product;
+
+  ProductArrivalPackageNewCodeEx(this.newCode, this.product);
 }

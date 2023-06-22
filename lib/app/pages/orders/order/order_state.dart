@@ -40,7 +40,7 @@ class OrderState {
   List<Storage> get transferableStorages => storages
     .where((e) => e.id != toStorage?.id)
     .toList();
-  List<OrderLine> get lines => orderEx.lines;
+  List<OrderLineEx> get lines => orderEx.lines;
   Order get order => orderEx.order;
   Storage? get fromStorage => orderEx.storageFrom;
   Storage? get toStorage => orderEx.storageTo;
@@ -53,6 +53,7 @@ class OrderState {
   bool get payable => scanned && pickupPointAccess && !deliverable && order.paySum != 0 && order.paidSum == 0;
   bool get storageAccess => user?.storageIds.isNotEmpty ?? false;
   bool get pickupPointAccess => user?.pickupStorageId != null;
+  bool get markingScannable => scanned && order.needMarkingScan;
 
   OrderState copyWith({
     OrderStateStatus? status,

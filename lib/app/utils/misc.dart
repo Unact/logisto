@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 class Misc {
@@ -17,5 +18,15 @@ class Misc {
       'className': '',
       'methodName': '',
     };
+  }
+
+  static void unfocus(BuildContext context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) currentFocus.unfocus();
+  }
+
+  static void showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

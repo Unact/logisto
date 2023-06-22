@@ -11,6 +11,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import 'from_cell/from_cell_page.dart';
 import 'to_cell/to_cell_page.dart';
@@ -42,10 +43,6 @@ class _ProductTransferView extends StatefulWidget {
 
 class _ProductTransferViewState extends State<_ProductTransferView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> showProductPage(Product product) async {
     await Navigator.push(
@@ -170,11 +167,11 @@ class _ProductTransferViewState extends State<_ProductTransferView> {
             await _progressDialog.open();
             break;
           case ProductTransferStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           case ProductTransferStateStatus.success:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
@@ -182,7 +179,7 @@ class _ProductTransferViewState extends State<_ProductTransferView> {
             break;
           case ProductTransferStateStatus.gatherFinished:
           case ProductTransferStateStatus.gatherFinishCanceled:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case ProductTransferStateStatus.addToCell:
             WidgetsBinding.instance.addPostFrameCallback((_) {

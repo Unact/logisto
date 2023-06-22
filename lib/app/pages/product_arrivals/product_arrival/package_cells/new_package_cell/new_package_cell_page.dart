@@ -11,6 +11,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
+import '/app/utils/misc.dart';
 
 part 'new_package_cell_state.dart';
 part 'new_package_cell_view_model.dart';
@@ -120,7 +121,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
             break;
           case NewPackageCellStateStatus.success:
           case NewPackageCellStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:
@@ -129,14 +130,10 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       },);
   }
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   Future<void> _onScan() async {
     NewPackageCellViewModel vm = context.read<NewPackageCellViewModel>();
 
-    FocusScope.of(context).unfocus();
+    Misc.unfocus(context);
 
     await Navigator.push<String>(
       context,

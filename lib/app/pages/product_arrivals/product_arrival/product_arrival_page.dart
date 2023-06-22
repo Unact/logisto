@@ -12,12 +12,14 @@ import '/app/entities/entities.dart';
 import '/app/labels/product_arrival_packages_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/utils/format.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
 import 'new_unload_package/new_unload_package_page.dart';
 import 'package_qr_scan/package_qr_scan_page.dart';
 import 'package/package_page.dart';
 import 'package_cells/package_cells_page.dart';
+import 'package_codes/package_codes_page.dart';
 
 part 'product_arrival_state.dart';
 part 'product_arrival_view_model.dart';
@@ -66,8 +68,14 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
     );
   }
 
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  Future<void> navigateToPackageCodes(ProductArrivalPackageEx packageEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => PackageCodesPage(packageEx: packageEx)
+      )
+    );
   }
 
   Future<void> showNewPackageDialog() async {
@@ -164,11 +172,11 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
             break;
           case ProductArrivalStateStatus.productArrivalPackageScanFail:
           case ProductArrivalStateStatus.productArrivalScanFail:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             break;
           case ProductArrivalStateStatus.success:
           case ProductArrivalStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:
@@ -318,27 +326,49 @@ class _ProductArrivalViewState extends State<_ProductArrivalView> {
 
   Widget _productArrivalPackageTile(BuildContext context, ProductArrivalPackageEx packageEx) {
     ProductArrivalPackage package = packageEx.package;
+    List<Widget> trailingWidgets = [];
 
     Widget leading = package.acceptStart == null ?
-        const Icon(Icons.close_rounded, color: Colors.red)
+        const Icon(Icons.close_rounded, color: Colors.red, size: 28)
       : (
         package.acceptEnd != null ?
-          const Icon(Icons.check, color: Colors.green) :
-          const Icon(Icons.hourglass_empty, color: Colors.yellow)
+          const Icon(Icons.check, color: Colors.green, size: 28) :
+          const Icon(Icons.hourglass_empty, color: Colors.yellow, size: 28)
       );
 
-    Widget? trailing = package.acceptEnd == null || package.placed != null ?
-      null :
-      IconButton(icon: const Icon(Icons.archive), onPressed: () => navigateToPackageCells(packageEx));
+    if (package.acceptEnd != null && package.needMarkingScan) {
+      trailingWidgets.add(
+        IconButton(icon: const Icon(Icons.barcode_reader), onPressed: () => navigateToPackageCodes(packageEx))
+      );
+    }
 
-    Widget? subtitle = package.placed == null ?
-      null :
-      Text('Размещен: ${Format.dateTimeStr(package.placed)}', style: Style.listTileText);
+    if (package.acceptEnd != null && package.placed == null) {
+      trailingWidgets.add(
+        IconButton(icon: const Icon(Icons.archive), onPressed: () => navigateToPackageCells(packageEx))
+      );
+    }
 
     return ListTile(
       leading: leading,
-      trailing: trailing,
-      subtitle: subtitle,
+      dense: true,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: trailingWidgets
+      ),
+      subtitle: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            package.placed != null ? 'Размещен: ${Format.dateTimeStr(package.placed)}' : '',
+            style: Style.listTileText
+          ),
+          Text(
+            package.markingScanned != null ? 'Отсканирован: ${Format.dateTimeStr(package.markingScanned)}' : '',
+            style: Style.listTileText
+          )
+        ],
+      ),
       title: Text('${package.typeName} ${package.number}', style: Style.listTileText),
       onTap: package.acceptStart == null ? null : () => navigateToPackage(packageEx)
     );

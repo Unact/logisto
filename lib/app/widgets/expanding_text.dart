@@ -41,7 +41,7 @@ class ExpandingTextState extends State<ExpandingText> {
                 },
                 child: Text(
                   _showAll ? '' : '...',
-                  style: const TextStyle(color: Colors.blue, fontSize: 12),
+                  style: const TextStyle(color: Colors.blue, fontSize: 15),
                 ),
               ),
             )

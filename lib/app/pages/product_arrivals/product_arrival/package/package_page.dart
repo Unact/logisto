@@ -10,6 +10,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/widgets/widgets.dart';
+import '/app/utils/misc.dart';
 import 'new_line/new_line_page.dart';
 
 part 'package_state.dart';
@@ -39,10 +40,6 @@ class _PackageView extends StatefulWidget {
 
 class _PackageViewState extends State<_PackageView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> showNewLineDialog() async {
     PackageViewModel vm = context.read<PackageViewModel>();
@@ -90,7 +87,7 @@ class _PackageViewState extends State<_PackageView> {
             break;
           case PackageStateStatus.success:
           case PackageStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:

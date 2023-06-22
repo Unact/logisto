@@ -9,6 +9,8 @@ class ApiProductArrivalPackage extends Equatable {
   final DateTime? acceptEnd;
   final DateTime? placed;
   final List<ApiProductArrivalPackageLine> lines;
+  final int needMarkingScan;
+  final DateTime? markingScanned;
 
   const ApiProductArrivalPackage({
     required this.id,
@@ -19,6 +21,8 @@ class ApiProductArrivalPackage extends Equatable {
     this.acceptEnd,
     this.placed,
     required this.lines,
+    required this.needMarkingScan,
+    this.markingScanned
   });
 
   factory ApiProductArrivalPackage.fromJson(dynamic json) {
@@ -31,6 +35,8 @@ class ApiProductArrivalPackage extends Equatable {
       acceptEnd: Parsing.parseDate(json['acceptEnd']),
       placed: Parsing.parseDate(json['placed']),
       lines: json['lines'].map<ApiProductArrivalPackageLine>((e) => ApiProductArrivalPackageLine.fromJson(e)).toList(),
+      needMarkingScan: json['needMarkingScan'],
+      markingScanned: Parsing.parseDate(json['markingScanned'])
     );
   }
 
@@ -43,6 +49,8 @@ class ApiProductArrivalPackage extends Equatable {
     acceptStart,
     acceptEnd,
     placed,
-    lines
+    lines,
+    needMarkingScan,
+    markingScanned
   ];
 }

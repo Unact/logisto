@@ -5,13 +5,12 @@ class ApiProduct extends Equatable {
   final String name;
   final String groupName;
   final String? article;
-  final String? barcodeCode;
-  final String? barcodeType;
   final int? length;
   final int? width;
   final int? height;
   final int? weight;
   final bool archived;
+  final bool needMarking;
 
   const ApiProduct({
     required this.id,
@@ -19,12 +18,11 @@ class ApiProduct extends Equatable {
     required this.groupName,
     required this.archived,
     this.article,
-    this.barcodeCode,
-    this.barcodeType,
     this.length,
     this.width,
     this.height,
     this.weight,
+    required this.needMarking
   });
 
   factory ApiProduct.fromJson(dynamic json) {
@@ -34,12 +32,11 @@ class ApiProduct extends Equatable {
       groupName: json['groupName'],
       archived: json['archived'],
       article: json['article'],
-      barcodeCode: json['barcodeCode'],
-      barcodeType: json['barcodeType'],
       length: json['length'],
       width: json['width'],
       height: json['height'],
       weight: json['weight'],
+      needMarking: json['needMarking']
     );
   }
 
@@ -50,12 +47,11 @@ class ApiProduct extends Equatable {
       groupName: groupName,
       archived: archived,
       article: article,
-      barcodeCode: barcodeCode,
-      barcodeType: barcodeType,
       length: length,
       width: width,
       height: height,
       weight: weight,
+      needMarking: needMarking
     );
   }
 
@@ -65,12 +61,11 @@ class ApiProduct extends Equatable {
     name,
     groupName,
     article,
-    barcodeCode,
-    barcodeType,
     length,
     width,
     height,
     weight,
-    archived
+    archived,
+    needMarking
   ];
 }

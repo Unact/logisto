@@ -24,6 +24,8 @@ class ApiOrder extends Equatable {
   final List<ApiOrderLine> lines;
   final ApiStorage? storageFrom;
   final ApiStorage? storageTo;
+  final int needMarkingScan;
+  final DateTime? markingScanned;
 
   const ApiOrder({
     required this.id,
@@ -48,7 +50,9 @@ class ApiOrder extends Equatable {
     required this.documentsReturn,
     required this.lines,
     this.storageFrom,
-    this.storageTo
+    this.storageTo,
+    required this.needMarkingScan,
+    this.markingScanned,
   });
 
   factory ApiOrder.fromJson(dynamic json) {
@@ -76,6 +80,8 @@ class ApiOrder extends Equatable {
       lines: json['lines'].map<ApiOrderLine>((e) => ApiOrderLine.fromJson(e)).toList(),
       storageFrom: json['storageFrom'] != null ? ApiStorage.fromJson(json['storageFrom']) : null,
       storageTo: json['storageTo'] != null ? ApiStorage.fromJson(json['storageTo']) : null,
+      needMarkingScan: json['needMarkingScan'],
+      markingScanned: Parsing.parseDate(json['markingScanned']),
     );
   }
 
@@ -102,16 +108,24 @@ class ApiOrder extends Equatable {
       delivered: delivered,
       paidSum: paidSum,
       paySum: paySum,
-      documentsReturn: documentsReturn == 1
+      documentsReturn: documentsReturn == 1,
+      needMarkingScan: needMarkingScan == 1,
+      markingScanned: markingScanned
     );
-    List<OrderLine> orderLines = lines.map((e) => OrderLine(
-      id: e.id,
-      orderId: id,
-      name: e.name,
-      amount: e.amount,
-      price: e.price,
-      factAmount: e.factAmount
-    )).toList();
+    List<OrderLineEx> orderLines = lines.map((line) {
+        final product = line.product?.toDatabaseEnt();
+        final orderLine = OrderLine(
+          id: line.id,
+          orderId: id,
+          name: line.name,
+          amount: line.amount,
+          price: line.price,
+          factAmount: line.factAmount,
+          productId: product?.id
+        );
+
+        return OrderLineEx(orderLine, product);
+    }).toList();
     Storage? storageFromOrder = storageFrom == null ? null : Storage(
       id: storageFrom!.id,
       name: storageFrom!.name,
@@ -150,6 +164,8 @@ class ApiOrder extends Equatable {
     documentsReturn,
     lines,
     storageFrom,
-    storageTo
+    storageTo,
+    needMarkingScan,
+    markingScanned
   ];
 }

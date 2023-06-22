@@ -9,6 +9,7 @@ import '/app/constants/qr_types.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import 'product_arrival/product_arrival_page.dart';
 
@@ -36,10 +37,6 @@ class _ProductArrivalsView extends StatefulWidget {
 
 class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> showManualInput() async {
     ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
@@ -123,7 +120,7 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
             await _progressDialog.open();
             break;
           case ProductArrivalsStateStatus.failure:
-            showMessage(state.message);
+            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           case ProductArrivalsStateStatus.success:
