@@ -33,7 +33,7 @@ dependencies:
     sdk: flutter
   flutter_secure_storage: ^8.0.0
   flutter_signature_pad: ^3.0.0
-  flutter_typeahead: ^4.0.0
+  flutter_typeahead: ^4.6.2
   fk_user_agent: ^2.1.0
   gs1_barcode_parser: ^1.0.4
   http_parser: ^4.0.2
