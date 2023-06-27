@@ -8,15 +8,21 @@ import 'app/constants/strings.dart';
 import 'app/pages/landing/landing_page.dart';
 
 void main() async {
-  await App.init();
 
   runZonedGuarded<Future<void>>(() async {
+    await App.init();
+
     runApp(MaterialApp(
       title: Strings.ruAppName,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         platform: TargetPlatform.android,
         visualDensity: VisualDensity.adaptivePlatformDensity
+      ),
+      builder: (context, child) => MediaQuery(
+        // Temporary fix for https://github.com/AbdulRahmanAlHamali/flutter_typeahead/issues/463
+        data: MediaQuery.of(context).copyWith(accessibleNavigation: false),
+        child: child!,
       ),
       home: LandingPage(),
       locale: const Locale('ru', 'RU'),
