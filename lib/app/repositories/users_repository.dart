@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/material.dart' show DateUtils;
 
 import '/app/app.dart';
 import '/app/constants/strings.dart';
@@ -45,7 +46,9 @@ class UsersRepository {
     }
 
     await loadUserData();
-    await dataStore.updatePref(PrefsCompanion(logoutAfter: Value(DateTime.now().add(const Duration(days: 1)))));
+    await dataStore.updatePref(
+      PrefsCompanion(logoutAfter: Value(DateUtils.dateOnly(DateTime.now().add(const Duration(days: 1)))))
+    );
   }
 
   Future<void> logout() async {
