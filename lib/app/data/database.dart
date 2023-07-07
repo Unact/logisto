@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart' show DateUtils;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -94,7 +95,7 @@ class AppDataStore extends _$AppDataStore {
         storageIds: []
       ));
       batch.insert(prefs, Pref(
-        logoutAfter: DateTime.now().add(const Duration(days: 1))
+        logoutAfter: DateUtils.dateOnly(DateTime.now())
       ));
     });
   }

@@ -131,15 +131,15 @@ class _ProductViewState extends State<_ProductView> {
         ),
         InfoRow(
           title: const Text('Длина, см'),
-          trailing: Text(product.weight != null ? (product.length!~/10).toString() : '')
+          trailing: Text(product.length != null ? (product.length!~/10).toString() : '')
         ),
         InfoRow(
           title: const Text('Высота, см'),
-          trailing: Text(product.weight != null ? (product.height!~/10).toString() : '')
+          trailing: Text(product.height != null ? (product.height!~/10).toString() : '')
         ),
         InfoRow(
           title: const Text('Ширина, см'),
-          trailing: Text(product.weight != null ? (product.width!~/10).toString() : '')
+          trailing: Text(product.width != null ? (product.width!~/10).toString() : '')
         ),
         InfoRow(title: const Text('Архив'), trailing: Text(product.archived ? 'Да' : 'Нет')),
         ExpansionTile(
