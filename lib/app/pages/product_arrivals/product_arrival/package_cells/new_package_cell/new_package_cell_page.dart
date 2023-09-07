@@ -139,6 +139,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => ScanView(
+          showScanner: true,
           barcodeMode: true,
           child: Column(
             children: [

@@ -44,6 +44,7 @@ class _PackageQRScanViewState extends State<_PackageQRScanView> {
         PackageQRScanViewModel vm = context.read<PackageQRScanViewModel>();
 
         return ScanView(
+          showScanner: true,
           onRead: vm.readQRCode,
           child: Column(
             children: [

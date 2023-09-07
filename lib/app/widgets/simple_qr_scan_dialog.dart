@@ -23,6 +23,7 @@ class SimpleQRScanDialog {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => ScanView(
+          showScanner: true,
           child: Column(
             children: [
               Container(

@@ -43,6 +43,7 @@ class _OrderQRScanViewState extends State<_OrderQRScanView> {
         OrderQRScanViewModel vm = context.read<OrderQRScanViewModel>();
 
         return ScanView(
+          showScanner: true,
           onRead: vm.readQRCode,
           child: Column(
             children: [

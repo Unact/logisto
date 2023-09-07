@@ -234,6 +234,7 @@ class _ProductViewState extends State<_ProductView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => ScanView(
+          showScanner: true,
           barcodeMode: true,
           child: Column(
             children: [

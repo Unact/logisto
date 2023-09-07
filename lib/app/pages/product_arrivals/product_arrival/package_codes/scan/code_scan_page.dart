@@ -46,6 +46,7 @@ class _CodeScanViewState extends State<_CodeScanView> {
         CodeScanViewModel vm = context.read<CodeScanViewModel>();
 
         return ScanView(
+          showScanner: true,
           onRead: vm.readCode,
           child: _infoWidget(context)
         );

@@ -30,6 +30,7 @@ class _StorageQRScanViewState extends State<_StorageQRScanView> {
         StorageQRScanViewModel vm = context.read<StorageQRScanViewModel>();
 
         return ScanView(
+          showScanner: true,
           onRead: vm.readQRCode,
           child: Column(
             children: [
