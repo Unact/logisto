@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/qr_types.dart';
 import '/app/constants/strings.dart';
-import '/app/widgets/scan_view.dart';
 
 class SimpleQRScanDialog {
   final Widget? child;

@@ -4,14 +4,13 @@ import 'package:cross_file/cross_file.dart';
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
-import '/app/widgets/widgets.dart';
 
 part 'product_state.dart';
 part 'product_view_model.dart';

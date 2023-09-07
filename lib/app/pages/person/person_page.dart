@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
-import '/app/widgets/widgets.dart';
 
 part 'person_state.dart';
 part 'person_view_model.dart';

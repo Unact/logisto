@@ -1,18 +1,18 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart' show DateUtils;
+import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/app.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/repositories/app_store.dart';
-import '/app/services/api.dart';
+import '/app/services/logisto_api.dart';
 
 class UsersRepository {
   final AppStore store;
 
   AppDataStore get dataStore => store.dataStore;
-  Api get api => store.api;
+  RenewApi get api => store.api;
 
   UsersRepository(this.store);
 
@@ -30,7 +30,7 @@ class UsersRepository {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
   }
@@ -41,7 +41,7 @@ class UsersRepository {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
 
@@ -57,7 +57,7 @@ class UsersRepository {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
 
@@ -70,7 +70,7 @@ class UsersRepository {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
   }

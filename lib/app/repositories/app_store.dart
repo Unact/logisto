@@ -1,8 +1,9 @@
-import '/app/app.dart';
+import 'package:u_app_utils/u_app_utils.dart';
+
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/services/api.dart';
+import '/app/services/logisto_api.dart';
 
 import 'orders_repository.dart';
 import 'product_arrivals_repository.dart';
@@ -13,7 +14,7 @@ import 'storages_repository.dart';
 
 class AppStore {
   final AppDataStore dataStore;
-  final Api api;
+  final RenewApi api;
 
   late final OrdersRepository ordersRepo = OrdersRepository(this);
   late final ProductArrivalsRepository productArrivalsRepo = ProductArrivalsRepository(this);
@@ -37,7 +38,7 @@ class AppStore {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
   }
@@ -101,7 +102,7 @@ class AppStore {
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
-      await App.reportError(e, trace);
+      await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
   }

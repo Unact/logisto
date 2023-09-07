@@ -6,13 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
-import '/app/widgets/widgets.dart';
 
 part 'product_search_state.dart';
 part 'product_search_view_model.dart';

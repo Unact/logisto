@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import 'app/app.dart';
 import 'app/constants/strings.dart';
 import 'app/pages/landing/landing_page.dart';
 
 void main() async {
-
   runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     await App.init();
 
     runApp(MaterialApp(
@@ -18,11 +19,6 @@ void main() async {
         primarySwatch: Colors.blue,
         platform: TargetPlatform.android,
         visualDensity: VisualDensity.adaptivePlatformDensity
-      ),
-      builder: (context, child) => MediaQuery(
-        // Temporary fix for https://github.com/AbdulRahmanAlHamali/flutter_typeahead/issues/463
-        data: MediaQuery.of(context).copyWith(accessibleNavigation: false),
-        child: child!,
       ),
       home: LandingPage(),
       locale: const Locale('ru', 'RU'),
@@ -37,6 +33,6 @@ void main() async {
       ]
     ));
   }, (Object error, StackTrace stackTrace) {
-    App.reportError(error, stackTrace);
+    Misc.reportError(error, stackTrace);
   });
 }

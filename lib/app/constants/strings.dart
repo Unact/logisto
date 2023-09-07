@@ -1,5 +1,6 @@
 class Strings {
   static const appName = 'Logisto';
+  static const repoName = 'logisto';
   static const ruAppName = 'Кладовщик';
   static const optsLoginKeyword = '81234567890';
   static const optsPasswordKeyword = '5005';

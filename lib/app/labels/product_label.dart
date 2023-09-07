@@ -1,7 +1,8 @@
+import 'package:u_app_utils/u_app_utils.dart';
+
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/services/printer.dart';
-import '/app/utils/format.dart';
 
 class ProductLabel {
   final Product product;

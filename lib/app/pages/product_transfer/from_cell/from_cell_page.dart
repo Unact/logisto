@@ -4,13 +4,12 @@ import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
-import '/app/widgets/widgets.dart';
 
 part 'from_cell_state.dart';
 part 'from_cell_view_model.dart';

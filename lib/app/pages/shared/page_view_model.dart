@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart' show TableUpdateQuery;
-import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/app/data/database.dart';
 import '/app/app.dart';
 import '/app/repositories/app_store.dart';
-import '/app/utils/misc.dart';
 
 abstract class PageViewModel<T, P> extends Cubit<T> {
   late final StreamSubscription _subscription;
@@ -40,13 +38,6 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
 
   @override
   void emit(T state) {
-    Map<String, String> stackFrame = Misc.stackFrame(1);
-    FLog.info(
-      className: stackFrame['className'],
-      methodName: stackFrame['methodName'],
-      text: status.runtimeType.toString()
-    );
-
     if (!isClosed) super.emit(state);
   }
 
