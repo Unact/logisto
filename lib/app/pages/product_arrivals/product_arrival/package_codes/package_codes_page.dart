@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/widgets/widgets.dart';
-import '/app/utils/misc.dart';
 import 'scan/code_scan_page.dart';
 
 part 'package_codes_state.dart';

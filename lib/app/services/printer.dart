@@ -6,8 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as blue;
 import 'package:flutter_bluetooth_basic/flutter_bluetooth_basic.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blue_serial;
-
-import '/app/utils/permissions.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 class Printer {
   static const int kPaperWidth = 560;
@@ -44,7 +43,7 @@ class Printer {
   }
 
   Future<void> printLabel(String labelCommand, { required Function onError }) async {
-    if (!await blue.FlutterBluePlus.instance.isOn) {
+    if (await blue.FlutterBluePlus.adapterState.first != blue.BluetoothAdapterState.on) {
       onError.call('Не включен Bluetooth');
 
       return;

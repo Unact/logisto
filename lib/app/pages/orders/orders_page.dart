@@ -4,12 +4,12 @@ import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/qr_types.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import 'order/order_page.dart';
 

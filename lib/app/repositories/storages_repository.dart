@@ -1,12 +1,13 @@
+import 'package:u_app_utils/u_app_utils.dart';
+
 import '/app/data/database.dart';
 import '/app/repositories/app_store.dart';
-import '/app/services/api.dart';
 
 class StoragesRepository {
   final AppStore store;
 
   AppDataStore get dataStore => store.dataStore;
-  Api get api => store.api;
+  RenewApi get api => store.api;
 
   StoragesRepository(this.store);
 

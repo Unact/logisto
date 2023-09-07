@@ -85,7 +85,7 @@ class AppDataStore extends _$AppDataStore {
 
   Future<void> _populateData() async {
     await batch((batch) {
-      batch.insert(users, User(
+      batch.insert(users, const User(
         id: UsersDao.kGuestId,
         username: UsersDao.kGuestUsername,
         email: '',

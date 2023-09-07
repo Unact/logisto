@@ -5,12 +5,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/services/iboxpro.dart';
-import '/app/utils/permissions.dart';
 
 part 'accept_payment_state.dart';
 part 'accept_payment_view_model.dart';

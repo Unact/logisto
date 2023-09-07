@@ -236,12 +236,12 @@ class JsonIntListConverter extends TypeConverter<List<int>, String> {
   const JsonIntListConverter();
 
   @override
-  List<int> mapToDart(String? fromDb) {
+  List<int> fromSql(String? fromDb) {
     return (json.decode(fromDb!) as List).cast<int>();
   }
 
   @override
-  String mapToSql(List<int>? value) {
+  String toSql(List<int>? value) {
     return json.encode(value!);
   }
 }
