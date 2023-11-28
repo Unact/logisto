@@ -26,6 +26,7 @@ class Products extends Table {
   IntColumn get weight => integer().nullable()();
   BoolColumn get archived => boolean()();
   BoolColumn get needMarking => boolean()();
+  BoolColumn get inPackage => boolean()();
 }
 
 class ProductArrivals extends Table {
