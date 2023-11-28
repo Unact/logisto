@@ -636,10 +636,10 @@ packages:
     dependency: "direct main"
     description:
       name: iboxpro_flutter
-      sha256: "19cb023aae3c40118c04675fe7360792c9e41689e1ee68a18d06c6e9738fa54d"
+      sha256: "31bd7557a2aea61d4f52998e857722b9d4a369465b10d70e4fb9c011f8921771"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "2.0.1"
   intl:
     dependency: transitive
     description:
