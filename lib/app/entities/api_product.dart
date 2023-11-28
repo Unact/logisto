@@ -11,6 +11,7 @@ class ApiProduct extends Equatable {
   final int? weight;
   final bool archived;
   final bool needMarking;
+  final bool inPackage;
 
   const ApiProduct({
     required this.id,
@@ -22,7 +23,8 @@ class ApiProduct extends Equatable {
     this.width,
     this.height,
     this.weight,
-    required this.needMarking
+    required this.needMarking,
+    required this.inPackage
   });
 
   factory ApiProduct.fromJson(dynamic json) {
@@ -36,7 +38,8 @@ class ApiProduct extends Equatable {
       width: json['width'],
       height: json['height'],
       weight: json['weight'],
-      needMarking: json['needMarking']
+      needMarking: json['needMarking'],
+      inPackage: json['inPackage']
     );
   }
 
@@ -51,7 +54,8 @@ class ApiProduct extends Equatable {
       width: width,
       height: height,
       weight: weight,
-      needMarking: needMarking
+      needMarking: needMarking,
+      inPackage: inPackage
     );
   }
 
@@ -66,6 +70,7 @@ class ApiProduct extends Equatable {
     height,
     weight,
     archived,
-    needMarking
+    needMarking,
+    inPackage
   ];
 }

@@ -35,6 +35,11 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
       return;
     }
 
+    if (state.product!.inPackage) {
+      emit(state.copyWith(status: NewLineStateStatus.failure, message: 'Нельзя указывать переупакованный товар'));
+      return;
+    }
+
     ProductArrivalPackageNewLinesCompanion line = ProductArrivalPackageNewLinesCompanion(
       productArrivalPackageId: Value(state.packageEx.package.id),
       productId: Value(state.product!.id),

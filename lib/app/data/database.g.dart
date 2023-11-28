@@ -61,9 +61,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   List<GeneratedColumn> get $columns =>
       [id, username, name, email, pickupStorageId, storageIds, version, total];
   @override
-  String get aliasedName => _alias ?? 'users';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'users';
+  String get actualTableName => $name;
+  static const String $name = 'users';
   @override
   VerificationContext validateIntegrity(Insertable<User> instance,
       {bool isInserting = false}) {
@@ -378,6 +379,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     }
     if (storageIds.present) {
       final converter = $UsersTable.$converterstorageIds;
+
       map['storage_ids'] = Variable<String>(converter.toSql(storageIds.value));
     }
     if (version.present) {
@@ -474,6 +476,15 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("need_marking" IN (0, 1))'));
+  static const VerificationMeta _inPackageMeta =
+      const VerificationMeta('inPackage');
+  @override
+  late final GeneratedColumn<bool> inPackage = GeneratedColumn<bool>(
+      'in_package', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("in_package" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -485,12 +496,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         height,
         weight,
         archived,
-        needMarking
+        needMarking,
+        inPackage
       ];
   @override
-  String get aliasedName => _alias ?? 'products';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'products';
+  String get actualTableName => $name;
+  static const String $name = 'products';
   @override
   VerificationContext validateIntegrity(Insertable<Product> instance,
       {bool isInserting = false}) {
@@ -545,6 +558,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     } else if (isInserting) {
       context.missing(_needMarkingMeta);
     }
+    if (data.containsKey('in_package')) {
+      context.handle(_inPackageMeta,
+          inPackage.isAcceptableOrUnknown(data['in_package']!, _inPackageMeta));
+    } else if (isInserting) {
+      context.missing(_inPackageMeta);
+    }
     return context;
   }
 
@@ -574,6 +593,8 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           .read(DriftSqlType.bool, data['${effectivePrefix}archived'])!,
       needMarking: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}need_marking'])!,
+      inPackage: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}in_package'])!,
     );
   }
 
@@ -594,6 +615,7 @@ class Product extends DataClass implements Insertable<Product> {
   final int? weight;
   final bool archived;
   final bool needMarking;
+  final bool inPackage;
   const Product(
       {required this.id,
       required this.name,
@@ -604,7 +626,8 @@ class Product extends DataClass implements Insertable<Product> {
       this.height,
       this.weight,
       required this.archived,
-      required this.needMarking});
+      required this.needMarking,
+      required this.inPackage});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -628,6 +651,7 @@ class Product extends DataClass implements Insertable<Product> {
     }
     map['archived'] = Variable<bool>(archived);
     map['need_marking'] = Variable<bool>(needMarking);
+    map['in_package'] = Variable<bool>(inPackage);
     return map;
   }
 
@@ -649,6 +673,7 @@ class Product extends DataClass implements Insertable<Product> {
           weight == null && nullToAbsent ? const Value.absent() : Value(weight),
       archived: Value(archived),
       needMarking: Value(needMarking),
+      inPackage: Value(inPackage),
     );
   }
 
@@ -666,6 +691,7 @@ class Product extends DataClass implements Insertable<Product> {
       weight: serializer.fromJson<int?>(json['weight']),
       archived: serializer.fromJson<bool>(json['archived']),
       needMarking: serializer.fromJson<bool>(json['needMarking']),
+      inPackage: serializer.fromJson<bool>(json['inPackage']),
     );
   }
   @override
@@ -682,6 +708,7 @@ class Product extends DataClass implements Insertable<Product> {
       'weight': serializer.toJson<int?>(weight),
       'archived': serializer.toJson<bool>(archived),
       'needMarking': serializer.toJson<bool>(needMarking),
+      'inPackage': serializer.toJson<bool>(inPackage),
     };
   }
 
@@ -695,7 +722,8 @@ class Product extends DataClass implements Insertable<Product> {
           Value<int?> height = const Value.absent(),
           Value<int?> weight = const Value.absent(),
           bool? archived,
-          bool? needMarking}) =>
+          bool? needMarking,
+          bool? inPackage}) =>
       Product(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -707,6 +735,7 @@ class Product extends DataClass implements Insertable<Product> {
         weight: weight.present ? weight.value : this.weight,
         archived: archived ?? this.archived,
         needMarking: needMarking ?? this.needMarking,
+        inPackage: inPackage ?? this.inPackage,
       );
   @override
   String toString() {
@@ -720,14 +749,15 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('height: $height, ')
           ..write('weight: $weight, ')
           ..write('archived: $archived, ')
-          ..write('needMarking: $needMarking')
+          ..write('needMarking: $needMarking, ')
+          ..write('inPackage: $inPackage')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, name, groupName, article, length, width,
-      height, weight, archived, needMarking);
+      height, weight, archived, needMarking, inPackage);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -741,7 +771,8 @@ class Product extends DataClass implements Insertable<Product> {
           other.height == this.height &&
           other.weight == this.weight &&
           other.archived == this.archived &&
-          other.needMarking == this.needMarking);
+          other.needMarking == this.needMarking &&
+          other.inPackage == this.inPackage);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -755,6 +786,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int?> weight;
   final Value<bool> archived;
   final Value<bool> needMarking;
+  final Value<bool> inPackage;
   const ProductsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -766,6 +798,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.weight = const Value.absent(),
     this.archived = const Value.absent(),
     this.needMarking = const Value.absent(),
+    this.inPackage = const Value.absent(),
   });
   ProductsCompanion.insert({
     this.id = const Value.absent(),
@@ -778,10 +811,12 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.weight = const Value.absent(),
     required bool archived,
     required bool needMarking,
+    required bool inPackage,
   })  : name = Value(name),
         groupName = Value(groupName),
         archived = Value(archived),
-        needMarking = Value(needMarking);
+        needMarking = Value(needMarking),
+        inPackage = Value(inPackage);
   static Insertable<Product> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -793,6 +828,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<int>? weight,
     Expression<bool>? archived,
     Expression<bool>? needMarking,
+    Expression<bool>? inPackage,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -805,6 +841,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (weight != null) 'weight': weight,
       if (archived != null) 'archived': archived,
       if (needMarking != null) 'need_marking': needMarking,
+      if (inPackage != null) 'in_package': inPackage,
     });
   }
 
@@ -818,7 +855,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<int?>? height,
       Value<int?>? weight,
       Value<bool>? archived,
-      Value<bool>? needMarking}) {
+      Value<bool>? needMarking,
+      Value<bool>? inPackage}) {
     return ProductsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -830,6 +868,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       weight: weight ?? this.weight,
       archived: archived ?? this.archived,
       needMarking: needMarking ?? this.needMarking,
+      inPackage: inPackage ?? this.inPackage,
     );
   }
 
@@ -866,6 +905,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (needMarking.present) {
       map['need_marking'] = Variable<bool>(needMarking.value);
     }
+    if (inPackage.present) {
+      map['in_package'] = Variable<bool>(inPackage.value);
+    }
     return map;
   }
 
@@ -881,7 +923,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('height: $height, ')
           ..write('weight: $weight, ')
           ..write('archived: $archived, ')
-          ..write('needMarking: $needMarking')
+          ..write('needMarking: $needMarking, ')
+          ..write('inPackage: $inPackage')
           ..write(')'))
         .toString();
   }
@@ -915,9 +958,10 @@ class $StoragesTable extends Storages with TableInfo<$StoragesTable, Storage> {
   @override
   List<GeneratedColumn> get $columns => [id, name, sequenceNumber];
   @override
-  String get aliasedName => _alias ?? 'storages';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'storages';
+  String get actualTableName => $name;
+  static const String $name = 'storages';
   @override
   VerificationContext validateIntegrity(Insertable<Storage> instance,
       {bool isInserting = false}) {
@@ -1186,9 +1230,10 @@ class $ProductArrivalsTable extends ProductArrivals
         comment
       ];
   @override
-  String get aliasedName => _alias ?? 'product_arrivals';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrivals';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrivals';
   @override
   VerificationContext validateIntegrity(Insertable<ProductArrival> instance,
       {bool isInserting = false}) {
@@ -1728,9 +1773,10 @@ class $ProductArrivalPackagesTable extends ProductArrivalPackages
         needMarkingScan
       ];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_packages';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_packages';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_packages';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackage> instance,
@@ -2189,9 +2235,10 @@ class $ProductArrivalLinesTable extends ProductArrivalLines
   List<GeneratedColumn> get $columns =>
       [id, productArrivalId, productId, amount, enumeratePiece];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_lines';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_lines';
   @override
   VerificationContext validateIntegrity(Insertable<ProductArrivalLine> instance,
       {bool isInserting = false}) {
@@ -2481,9 +2528,10 @@ class $ProductArrivalUnloadPackagesTable extends ProductArrivalUnloadPackages
   List<GeneratedColumn> get $columns =>
       [id, productArrivalId, amount, typeName];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_unload_packages';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_unload_packages';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_unload_packages';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalUnloadPackage> instance,
@@ -2723,9 +2771,10 @@ class $ProductArrivalPackageTypesTable extends ProductArrivalPackageTypes
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_package_types';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_package_types';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_package_types';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackageType> instance,
@@ -2920,9 +2969,10 @@ class $ProductArrivalPackageLinesTable extends ProductArrivalPackageLines
   List<GeneratedColumn> get $columns =>
       [id, productArrivalPackageId, productId, amount];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_package_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_package_lines';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_package_lines';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackageLine> instance,
@@ -3194,9 +3244,10 @@ class $ProductArrivalNewPackagesTable extends ProductArrivalNewPackages
   List<GeneratedColumn> get $columns =>
       [id, productArrivalId, typeId, typeName, number];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_new_packages';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_new_packages';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_new_packages';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalNewPackage> instance,
@@ -3490,9 +3541,10 @@ class $ProductArrivalPackageNewLinesTable extends ProductArrivalPackageNewLines
   List<GeneratedColumn> get $columns =>
       [id, productArrivalPackageId, productId, amount];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_package_new_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_package_new_lines';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_package_new_lines';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackageNewLine> instance,
@@ -3743,9 +3795,10 @@ class $StorageCellsTable extends StorageCells
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'storage_cells';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'storage_cells';
+  String get actualTableName => $name;
+  static const String $name = 'storage_cells';
   @override
   VerificationContext validateIntegrity(Insertable<StorageCell> instance,
       {bool isInserting = false}) {
@@ -3942,9 +3995,10 @@ class $ProductArrivalPackageNewCellsTable extends ProductArrivalPackageNewCells
   List<GeneratedColumn> get $columns =>
       [id, productArrivalPackageId, productId, storageCellId, amount];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_package_new_cells';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_package_new_cells';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_package_new_cells';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackageNewCell> instance,
@@ -4248,9 +4302,10 @@ class $ProductArrivalPackageNewCodesTable extends ProductArrivalPackageNewCodes
   List<GeneratedColumn> get $columns =>
       [id, productArrivalPackageId, productId, code];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_package_new_codes';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_package_new_codes';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_package_new_codes';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalPackageNewCode> instance,
@@ -4524,9 +4579,10 @@ class $ProductArrivalNewUnloadPackagesTable
   List<GeneratedColumn> get $columns =>
       [id, productArrivalId, amount, typeId, typeName];
   @override
-  String get aliasedName => _alias ?? 'product_arrival_new_unload_packages';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_arrival_new_unload_packages';
+  String get actualTableName => $name;
+  static const String $name = 'product_arrival_new_unload_packages';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductArrivalNewUnloadPackage> instance,
@@ -4795,9 +4851,10 @@ class $ProductStoresTable extends ProductStores
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'product_stores';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_stores';
+  String get actualTableName => $name;
+  static const String $name = 'product_stores';
   @override
   VerificationContext validateIntegrity(Insertable<ProductStore> instance,
       {bool isInserting = false}) {
@@ -5007,9 +5064,10 @@ class $ProductTransfersTable extends ProductTransfers
   List<GeneratedColumn> get $columns =>
       [id, storeFromId, storeToId, comment, gatherFinished];
   @override
-  String get aliasedName => _alias ?? 'product_transfers';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_transfers';
+  String get actualTableName => $name;
+  static const String $name = 'product_transfers';
   @override
   VerificationContext validateIntegrity(Insertable<ProductTransfer> instance,
       {bool isInserting = false}) {
@@ -5313,9 +5371,10 @@ class $ProductTransferFromCellsTable extends ProductTransferFromCells
   List<GeneratedColumn> get $columns =>
       [id, productTransferId, productId, storageCellId, amount];
   @override
-  String get aliasedName => _alias ?? 'product_transfer_from_cells';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_transfer_from_cells';
+  String get actualTableName => $name;
+  static const String $name = 'product_transfer_from_cells';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductTransferFromCell> instance,
@@ -5618,9 +5677,10 @@ class $ProductTransferToCellsTable extends ProductTransferToCells
   List<GeneratedColumn> get $columns =>
       [id, productTransferId, productId, storageCellId, amount];
   @override
-  String get aliasedName => _alias ?? 'product_transfer_to_cells';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'product_transfer_to_cells';
+  String get actualTableName => $name;
+  static const String $name = 'product_transfer_to_cells';
   @override
   VerificationContext validateIntegrity(
       Insertable<ProductTransferToCell> instance,
@@ -6059,9 +6119,10 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         needMarkingScan
       ];
   @override
-  String get aliasedName => _alias ?? 'orders';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'orders';
+  String get actualTableName => $name;
+  static const String $name = 'orders';
   @override
   VerificationContext validateIntegrity(Insertable<Order> instance,
       {bool isInserting = false}) {
@@ -7024,9 +7085,10 @@ class $OrderLinesTable extends OrderLines
   List<GeneratedColumn> get $columns =>
       [id, orderId, name, amount, price, factAmount, productId];
   @override
-  String get aliasedName => _alias ?? 'order_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'order_lines';
+  String get actualTableName => $name;
+  static const String $name = 'order_lines';
   @override
   VerificationContext validateIntegrity(Insertable<OrderLine> instance,
       {bool isInserting = false}) {
@@ -7366,9 +7428,10 @@ class $OrderLineNewCodesTable extends OrderLineNewCodes
   @override
   List<GeneratedColumn> get $columns => [id, orderLineId, code];
   @override
-  String get aliasedName => _alias ?? 'order_line_new_codes';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'order_line_new_codes';
+  String get actualTableName => $name;
+  static const String $name = 'order_line_new_codes';
   @override
   VerificationContext validateIntegrity(Insertable<OrderLineNewCode> instance,
       {bool isInserting = false}) {
@@ -7561,9 +7624,10 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
   @override
   List<GeneratedColumn> get $columns => [logoutAfter];
   @override
-  String get aliasedName => _alias ?? 'prefs';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'prefs';
+  String get actualTableName => $name;
+  static const String $name = 'prefs';
   @override
   VerificationContext validateIntegrity(Insertable<Pref> instance,
       {bool isInserting = false}) {
