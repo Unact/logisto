@@ -53,6 +53,12 @@ class ToCellViewState extends State<_ToCellView> {
   FocusNode amountFocus = FocusNode();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<ToCellViewModel, ToCellState>(
       builder: (context, state) {

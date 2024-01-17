@@ -51,6 +51,12 @@ class _ProductArrivalView extends StatefulWidget {
 class _ProductArrivalViewState extends State<_ProductArrivalView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> navigateToPackage(ProductArrivalPackageEx packageEx) async {
     await Navigator.push(
       context,

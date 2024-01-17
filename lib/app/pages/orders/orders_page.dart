@@ -42,6 +42,12 @@ class _OrdersView extends StatefulWidget {
 class _OrdersViewState extends State<_OrdersView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showManualInput() async {
     OrdersViewModel vm = context.read<OrdersViewModel>();
     TextEditingController trackingNumberController = TextEditingController();

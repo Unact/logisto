@@ -65,6 +65,12 @@ class ProductSearchViewState extends State<_ProductSearchView> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 

@@ -40,6 +40,12 @@ class _ProductArrivalsView extends StatefulWidget {
 class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showManualInput() async {
     ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();
     TextEditingController trackingNumberController = TextEditingController();

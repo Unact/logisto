@@ -45,6 +45,12 @@ class _ProductView extends StatefulWidget {
 class _ProductViewState extends State<_ProductView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showProductLabelPrintDialog(ApiProductBarcode productBarcode) async {
     ProductViewModel vm = context.read<ProductViewModel>();
     int? amount;

@@ -51,6 +51,12 @@ class _ProductTransferView extends StatefulWidget {
 class _ProductTransferViewState extends State<_ProductTransferView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showProductPage(Product product) async {
     await Navigator.push(
       context,

@@ -49,6 +49,12 @@ class _PackageCellsView extends StatefulWidget {
 class PackageCellsViewState extends State<_PackageCellsView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showNewCellDialog() async {
     PackageCellsViewModel vm = context.read<PackageCellsViewModel>();
 

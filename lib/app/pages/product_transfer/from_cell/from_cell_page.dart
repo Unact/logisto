@@ -52,6 +52,12 @@ class FromCellViewState extends State<_FromCellView> {
   FocusNode amountFocus = FocusNode();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<FromCellViewModel, FromCellState>(
       builder: (context, state) {

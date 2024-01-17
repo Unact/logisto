@@ -48,6 +48,12 @@ class NewLineViewState extends State<_NewLineView> {
   FocusNode amountFocus = FocusNode();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<NewLineViewModel, NewLineState>(
       builder: (context, state) {

@@ -43,6 +43,12 @@ class _PackageView extends StatefulWidget {
 class _PackageViewState extends State<_PackageView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showNewLineDialog() async {
     PackageViewModel vm = context.read<PackageViewModel>();
 

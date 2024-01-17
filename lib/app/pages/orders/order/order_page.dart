@@ -51,6 +51,12 @@ class _OrderViewState extends State<_OrderView> {
   final TextEditingController _volumeController = TextEditingController();
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<List<dynamic>?> _showAcceptDialog(bool showStoragePicker) async {
     OrderViewModel vm = context.read<OrderViewModel>();
 

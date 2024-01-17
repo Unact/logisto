@@ -53,6 +53,12 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
   FocusNode amountFocus = FocusNode();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<NewPackageCellViewModel, NewPackageCellState>(
       builder: (context, state) {

@@ -43,6 +43,12 @@ class _OrderLineCodesView extends StatefulWidget {
 class OrderLineCodesViewState extends State<_OrderLineCodesView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showNewCodeDialog(OrderLineEx orderLineEx) async {
     await Navigator.push(
       context,
