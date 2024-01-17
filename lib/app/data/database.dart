@@ -5,8 +5,11 @@ import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart' show DateUtils;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_semver/pub_semver.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '/app/constants/strings.dart';
 
@@ -52,16 +55,24 @@ part 'users_dao.dart';
     ProductsDao,
     StoragesDao,
     UsersDao,
-  ]
+  ],
+  queries: {
+    'appInfo': '''
+      SELECT
+        prefs.*,
+        (SELECT COUNT(*) FROM product_arrivals) AS "product_arrivals_total",
+        (SELECT COUNT(*) FROM orders) AS "orders_total"
+      FROM prefs
+    '''
+  },
 )
 class AppDataStore extends _$AppDataStore {
   AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
 
-
-  Future<Pref> getPref() async {
-    return select(prefs).getSingle();
+  Stream<AppInfoResult> watchAppInfo() {
+    return appInfo().watchSingle();
   }
 
   Future<int> updatePref(PrefsCompanion pref) {
@@ -95,7 +106,7 @@ class AppDataStore extends _$AppDataStore {
         storageIds: []
       ));
       batch.insert(prefs, Pref(
-        logoutAfter: DateUtils.dateOnly(DateTime.now())
+        logoutAfter: DateUtils.dateOnly(DateTime.now().add(const Duration(days: 1)))
       ));
     });
   }
@@ -124,4 +135,12 @@ LazyDatabase _openConnection(bool logStatements) {
 
     return NativeDatabase(file, logStatements: logStatements);
   });
+}
+
+extension UserX on User {
+  Future<bool> get newVersionAvailable async {
+    final currentVersion = (await PackageInfo.fromPlatform()).version;
+
+    return Version.parse(version) > Version.parse(currentVersion);
+  }
 }

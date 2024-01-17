@@ -9,8 +9,8 @@ part of 'database.dart';
 class StoragesDao extends DatabaseAccessor<AppDataStore> with _$StoragesDaoMixin {
   StoragesDao(AppDataStore db) : super(db);
 
-  Future<List<Storage>> getStorages() async {
-    return (select(storages)..orderBy([(u) => OrderingTerm(expression: u.sequenceNumber)])).get();
+  Stream<List<Storage>> watchStorages() {
+    return (select(storages)..orderBy([(u) => OrderingTerm(expression: u.sequenceNumber)])).watch();
   }
 
   Future<void> addStorage(Storage storage) async {

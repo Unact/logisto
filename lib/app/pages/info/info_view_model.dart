@@ -1,31 +1,47 @@
 part of 'info_page.dart';
 
 class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
-  InfoViewModel(BuildContext context) : super(context, InfoState());
+  final AppRepository appRepository;
+  final ProductTransfersRepository productTransfersRepository;
+  final UsersRepository usersRepository;
+
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
+  StreamSubscription<ProductTransferEx?>? productTransferExSubscription;
+  StreamSubscription<User>? userSubscription;
+
+  InfoViewModel(
+    this.appRepository,
+    this.productTransfersRepository,
+    this.usersRepository
+  ) : super(InfoState());
 
   @override
   InfoStateStatus get status => state.status;
-
-  @override
-  TableUpdateQuery get listenForTables => const TableUpdateQuery.any();
 
   @override
   Future<void> initViewModel() async {
     await super.initViewModel();
 
     emit(state.copyWith(status: InfoStateStatus.startLoad));
+
+    productTransferExSubscription = productTransfersRepository.watchCurrentTransfer().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, productTransferEx: Optional.fromNullable(event)));
+    });
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: InfoStateStatus.dataLoaded,
-      newVersionAvailable: await app.newVersionAvailable,
-      orderExList: await store.ordersRepo.getOrderExList(),
-      productArrivalExList: await store.productArrivalsRepo.getProductPackageExList(),
-      user: await store.usersRepo.getUser(),
-      productTransferEx: Optional.fromNullable(await store.productTransfersRepo.getCurrentTransfer())
-    ));
+  Future<void> close() async {
+    await super.close();
+
+    await productTransferExSubscription?.cancel();
+    await userSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> getData() async {
@@ -34,8 +50,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress, loading: true));
 
     try {
-      await store.usersRepo.loadUserData();
-      await store.loadData();
+      await usersRepository.loadUserData();
+      await appRepository.loadData();
 
       emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены', loading: false));
     } on AppError catch(e) {
@@ -49,10 +65,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       return;
     }
 
-    await store.productTransfersRepo.addProductTransfer(const ProductTransfersCompanion(gatherFinished: Value(false)));
+    final productTransferEx = await productTransfersRepository.addProductTransfer();
     emit(state.copyWith(
       status: InfoStateStatus.startTransfer,
-      productTransferEx: Optional.fromNullable(await store.productTransfersRepo.getCurrentTransfer())
+      productTransferEx: Optional.fromNullable(productTransferEx)
     ));
   }
 }

@@ -1,29 +1,36 @@
 part of 'product_arrivals_page.dart';
 
 class ProductArrivalsViewModel extends PageViewModel<ProductArrivalsState, ProductArrivalsStateStatus> {
-  ProductArrivalsViewModel(BuildContext context) : super(context, ProductArrivalsState());
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<List<ProductArrivalEx>>? productArrivalExListSubscription;
+
+  ProductArrivalsViewModel(this.productArrivalsRepository) : super(ProductArrivalsState());
 
   @override
   ProductArrivalsStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productArrivalExListSubscription = productArrivalsRepository.watchProductPackageExList().listen((event) {
+      emit(state.copyWith(status: ProductArrivalsStateStatus.dataLoaded, productArrivalExList: event));
+    });
+  }
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: ProductArrivalsStateStatus.dataLoaded,
-      productArrivalExList: await store.productArrivalsRepo.getProductPackageExList()
-    ));
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalExListSubscription?.cancel();
   }
 
   Future<Order?> findProductArrival(String number) async {
     emit(state.copyWith(status: ProductArrivalsStateStatus.inProgress));
 
     try {
-      ProductArrivalEx? orderEx = await store.productArrivalsRepo.findProductArrival(number);
+      ProductArrivalEx? orderEx = await productArrivalsRepository.findProductArrival(number);
 
       emit(state.copyWith(
         status: ProductArrivalsStateStatus.success,

@@ -10,6 +10,11 @@ PODS:
     - Flutter
   - flutter_bluetooth_basic (0.0.1):
     - Flutter
+  - flutter_image_compress_common (1.0.0):
+    - Flutter
+    - Mantle
+    - SDWebImage
+    - SDWebImageWebPCoder
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
   - flutter_secure_storage (6.0.0):
@@ -19,6 +24,21 @@ PODS:
   - FMDB/standard (2.7.5)
   - iboxpro_flutter (0.0.1):
     - Flutter
+  - libwebp (1.3.2):
+    - libwebp/demux (= 1.3.2)
+    - libwebp/mux (= 1.3.2)
+    - libwebp/sharpyuv (= 1.3.2)
+    - libwebp/webp (= 1.3.2)
+  - libwebp/demux (1.3.2):
+    - libwebp/webp
+  - libwebp/mux (1.3.2):
+    - libwebp/demux
+  - libwebp/sharpyuv (1.3.2)
+  - libwebp/webp (1.3.2):
+    - libwebp/sharpyuv
+  - Mantle (2.2.0):
+    - Mantle/extobjc (= 2.2.0)
+  - Mantle/extobjc (2.2.0)
   - MTBBarcodeScanner (5.0.11)
   - package_info_plus (0.4.5):
     - Flutter
@@ -27,9 +47,17 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
+  - pointer_interceptor_ios (0.0.1):
+    - Flutter
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
+  - SDWebImage (5.18.8):
+    - SDWebImage/Core (= 5.18.8)
+  - SDWebImage/Core (5.18.8)
+  - SDWebImageWebPCoder (0.14.2):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (~> 5.17)
   - Sentry/HybridSDK (8.15.2):
     - SentryPrivate (= 8.15.2)
   - sentry_flutter (0.0.1):
@@ -74,12 +102,14 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_blue_plus (from `.symlinks/plugins/flutter_blue_plus/ios`)
   - flutter_bluetooth_basic (from `.symlinks/plugins/flutter_bluetooth_basic/ios`)
+  - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - iboxpro_flutter (from `.symlinks/plugins/iboxpro_flutter/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - pointer_interceptor_ios (from `.symlinks/plugins/pointer_interceptor_ios/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -93,7 +123,11 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - FMDB
+    - libwebp
+    - Mantle
     - MTBBarcodeScanner
+    - SDWebImage
+    - SDWebImageWebPCoder
     - Sentry
     - SentryPrivate
     - sqlite3
@@ -111,6 +145,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_blue_plus/ios"
   flutter_bluetooth_basic:
     :path: ".symlinks/plugins/flutter_bluetooth_basic/ios"
+  flutter_image_compress_common:
+    :path: ".symlinks/plugins/flutter_image_compress_common/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_secure_storage:
@@ -123,6 +159,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  pointer_interceptor_ios:
+    :path: ".symlinks/plugins/pointer_interceptor_ios/ios"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   sentry_flutter:
@@ -149,15 +187,21 @@ SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_blue_plus: 5cb46a0d66c6cacebf7551e0e5a6bfa345ccc224
   flutter_bluetooth_basic: 0e4e27e22b50b3a25cc1d1e131953feb4af414f4
+  flutter_image_compress_common: ec1d45c362c9d30a3f6a0426c297f47c52007e3e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   iboxpro_flutter: fe944bd0a3f50fa4f18a7c633ead63603611016d
+  libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
+  Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  pointer_interceptor_ios: 9280618c0b2eeb80081a343924aa8ad756c21375
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  SDWebImage: a81bbb3ba4ea5f810f4069c68727cb118467a04a
+  SDWebImageWebPCoder: 633b813fca24f1de5e076bcd7f720c038b23892b
   Sentry: 6f5742b4c47c17c9adcf265f6f328cf4a0ed1923
   sentry_flutter: 2c309a1d4b45e59d02cfa15795705687f1e2081b
   SentryPrivate: b2f7996f37781080f04a946eb4e377ff63c64195

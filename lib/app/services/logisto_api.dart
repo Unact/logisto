@@ -258,7 +258,7 @@ extension LogistoApi on RenewApi {
     Uint8List fileBytes = await file.readAsBytes();
     String filename = file.path.split('/').last;
     final result = await post(
-      'url/v1/logisto/product_images',
+      'v1/logisto/product_images',
       dataGenerator: () => FormData.fromMap({
         'productId': productId,
         'file': MultipartFile.fromBytes(fileBytes, filename: filename, contentType: MediaType('image', 'jpeg'))

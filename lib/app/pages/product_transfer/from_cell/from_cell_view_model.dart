@@ -1,27 +1,30 @@
 part of 'from_cell_page.dart';
 
 class FromCellViewModel extends PageViewModel<FromCellState, FromCellStateStatus> {
-  FromCellViewModel(BuildContext context, {
-    required ProductTransferEx productTransferEx,
-    required StorageCell storageCell
-  }) : super(context, FromCellState(productTransferEx: productTransferEx, storageCell: storageCell));
+  final ProductTransfersRepository productTransfersRepository;
+  final ProductsRepository productsRepository;
+
+  StreamSubscription<ProductTransferEx?>? productTransferExSubscription;
+
+  FromCellViewModel(
+    this.productTransfersRepository,
+    this.productsRepository,
+    {
+      required ProductTransferEx productTransferEx,
+      required StorageCell storageCell
+    }
+  ) : super(FromCellState(productTransferEx: productTransferEx, storageCell: storageCell));
 
   @override
   FromCellStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productTransfers,
-    dataStore.productTransferFromCells,
-    dataStore.productTransferToCells
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-  @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: FromCellStateStatus.dataLoaded,
-      productTransferEx: await store.productTransfersRepo.getCurrentTransfer()
-    ));
+    productTransferExSubscription = productTransfersRepository.watchCurrentTransfer().listen((event) {
+      emit(state.copyWith(status: FromCellStateStatus.dataLoaded, productTransferEx: event));
+    });
   }
 
   void setProduct(Product product) {
@@ -49,14 +52,12 @@ class FromCellViewModel extends PageViewModel<FromCellState, FromCellStateStatus
       return;
     }
 
-    ProductTransferFromCellsCompanion fromCell = ProductTransferFromCellsCompanion(
-      productTransferId: Value(state.productTransferEx.productTransfer.id),
-      storageCellId: Value(state.storageCell.id),
-      productId: Value(state.product!.id),
-      amount: Value(state.amount!)
+    await productTransfersRepository.addProductTransferFromCell(
+      productTransferId: state.productTransferEx.productTransfer.id,
+      storageCellId: state.storageCell.id,
+      productId: state.product!.id,
+      amount: state.amount!
     );
-
-    await store.productTransfersRepo.addProductTransferFromCell(fromCell);
 
     emit(state.copyWith(
       status: FromCellStateStatus.cellAdded,

@@ -1,36 +1,46 @@
 part of 'package_page.dart';
 
 class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
-  PackageViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
-    super(context, PackageState(packageEx: packageEx));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<ProductArrivalPackageEx>? productArrivalPackageExSubscription;
+  StreamSubscription<List<ProductArrivalPackageNewLineEx>>? productArrivalPackageNewLineExListSubscription;
+
+  PackageViewModel(this.productArrivalsRepository, { required ProductArrivalPackageEx packageEx }) :
+    super(PackageState(packageEx: packageEx));
 
   @override
   PackageStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalPackageLines,
-    dataStore.productArrivalPackageNewLines,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-  @override
-  Future<void> loadData() async {
     int productArrivalPackageId = state.packageEx.package.id;
 
-    emit(state.copyWith(
-      status: PackageStateStatus.dataLoaded,
-      packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
-      newLineExList: await store.productArrivalsRepo.getProductArrivalPackageNewLinesEx(productArrivalPackageId)
-    ));
+    productArrivalPackageExSubscription = productArrivalsRepository
+      .watchProductArrivalPackageEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageStateStatus.dataLoaded, packageEx: event));
+      });
+    productArrivalPackageNewLineExListSubscription = productArrivalsRepository
+      .watchProductArrivalPackageNewLinesEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageStateStatus.dataLoaded, newLineExList: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalPackageExSubscription?.cancel();
+    await productArrivalPackageNewLineExListSubscription?.cancel();
   }
 
   Future<void> endAccept() async {
     emit(state.copyWith(status: PackageStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.endAccept(state.packageEx, state.newLineExList);
+      await productArrivalsRepository.endAccept(state.packageEx, state.newLineExList);
 
       emit(state.copyWith(status: PackageStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -39,6 +49,6 @@ class PackageViewModel extends PageViewModel<PackageState, PackageStateStatus> {
   }
 
   Future<void> deleteProductArrivalPackageNewLine(ProductArrivalPackageNewLineEx packageNewLineEx) async {
-    await store.productArrivalsRepo.deleteProductArrivalPackageNewLine(packageNewLineEx.line);
+    await productArrivalsRepository.deleteProductArrivalPackageNewLine(packageNewLineEx.line);
   }
 }

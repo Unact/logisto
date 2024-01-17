@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -9,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/users_repository.dart';
 
 part 'person_state.dart';
 part 'person_view_model.dart';
@@ -21,7 +21,9 @@ class PersonPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PersonViewModel>(
-      create: (context) => PersonViewModel(context),
+      create: (context) => PersonViewModel(
+        RepositoryProvider.of<UsersRepository>(context)
+      ),
       child: _PersonView(),
     );
   }
@@ -76,24 +78,36 @@ class _PersonViewState extends State<_PersonView> {
         InfoRow(title: const Text('Логин'), trailing: Text(state.user?.username ?? '')),
         InfoRow(title: const Text('Сотрудник'), trailing: Text(state.user?.name ?? '')),
         InfoRow(title: const Text('Версия'), trailing: Text(state.fullVersion)),
-        !state.newVersionAvailable ?
-          Container() :
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                    backgroundColor: Colors.blue,
-                  ),
-                  onPressed: vm.launchAppUpdate,
-                  child: const Text('Обновить приложение')
-                )
-              ],
-            )
+        InfoRow(
+          title: const Text('Версия'),
+          trailing: FutureBuilder(
+            future: Misc.fullVersion,
+            builder: (context, snapshot) => Text(snapshot.data ?? ''),
+          )
+        ),
+        FutureBuilder(
+          future: vm.state.user?.newVersionAvailable,
+          builder: (context, snapshot) {
+            if (!(snapshot.data ?? false)) return Container();
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                      backgroundColor: Theme.of(context).colorScheme.primary
+                    ),
+                    onPressed: vm.launchAppUpdate,
+                    child: const Text('Обновить приложение'),
+                  )
+                ],
+              )
+            );
+          }
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),

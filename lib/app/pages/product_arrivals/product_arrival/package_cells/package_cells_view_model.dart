@@ -1,35 +1,51 @@
 part of 'package_cells_page.dart';
 
 class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCellsStateStatus> {
-  PackageCellsViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
-    super(context, PackageCellsState(packageEx: packageEx));
+  final StoragesRepository storagesRepository;
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<List<ProductArrivalEx>>? productArrivalExListSubscription;
+  StreamSubscription<List<ProductArrivalPackageNewCellEx>>? productArrivalPackageNewCellExListSubscription;
+  StreamSubscription<ProductArrivalPackageEx>? productArrivalPackageExSubscription;
+
+  PackageCellsViewModel(
+    this.productArrivalsRepository,
+    this.storagesRepository,
+    {
+      required ProductArrivalPackageEx packageEx
+    }
+  ) : super(PackageCellsState(packageEx: packageEx));
 
   @override
   PackageCellsStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalPackageNewCells,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-  @override
-  Future<void> loadData() async {
     int productArrivalPackageId = state.packageEx.package.id;
 
-    emit(state.copyWith(
-      status: PackageCellsStateStatus.dataLoaded,
-      packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
-      newCells: await store.productArrivalsRepo.getProductArrivalPackageNewCellsEx(productArrivalPackageId)
-    ));
+    productArrivalPackageExSubscription = productArrivalsRepository
+      .watchProductArrivalPackageEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageCellsStateStatus.dataLoaded, packageEx: event));
+      });
+    productArrivalPackageNewCellExListSubscription = productArrivalsRepository
+      .watchProductArrivalPackageNewCellsEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageCellsStateStatus.dataLoaded, newCells: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalPackageExSubscription?.cancel();
+    await productArrivalPackageNewCellExListSubscription?.cancel();
   }
 
   Future<void> setCell(String storageCellIdStr, String storageCellName) async {
     int storageCellId = int.parse(storageCellIdStr);
-    StorageCell storageCell = StorageCell(id: storageCellId, name: storageCellName);
-
-    await store.storagesRepo.addStorageCell(storageCell);
+    StorageCell storageCell = await storagesRepository.addStorageCell(id: storageCellId, name: storageCellName);
 
     emit(state.copyWith(
       status: PackageCellsStateStatus.setCell,
@@ -41,7 +57,7 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
     emit(state.copyWith(status: PackageCellsStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.placeProducts(state.packageEx, state.newCells);
+      await productArrivalsRepository.placeProducts(state.packageEx, state.newCells);
 
       emit(state.copyWith(status: PackageCellsStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -50,6 +66,6 @@ class PackageCellsViewModel extends PageViewModel<PackageCellsState, PackageCell
   }
 
   Future<void> deleteProductArrivalPackageNewCell(ProductArrivalPackageNewCellEx packageNewCellEx) async {
-    await store.productArrivalsRepo.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
+    await productArrivalsRepository.deleteProductArrivalPackageNewCell(packageNewCellEx.newCell);
   }
 }

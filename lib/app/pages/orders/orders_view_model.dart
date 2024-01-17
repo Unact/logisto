@@ -1,39 +1,46 @@
 part of 'orders_page.dart';
 
 class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
-  OrdersViewModel(BuildContext context) : super(context, OrdersState());
+  final OrdersRepository ordersRepository;
+  final UsersRepository usersRepository;
+
+  StreamSubscription<List<OrderEx>>? orderExListSubscription;
+  StreamSubscription<User>? userSubscription;
+
+  OrdersViewModel(this.ordersRepository, this.usersRepository) : super(OrdersState());
 
   @override
   OrdersStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.users,
-    dataStore.orders,
-    dataStore.orderLines,
-    dataStore.storages,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-  @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: OrdersStateStatus.dataLoaded,
-      orderExList: await store.ordersRepo.getOrderExList(),
-      user: await store.usersRepo.getUser()
-    ));
+    orderExListSubscription = ordersRepository.watchOrderExList()
+      .listen((event) {
+        emit(state.copyWith(status: OrdersStateStatus.dataLoaded, orderExList: event));
+      });
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: OrdersStateStatus.dataLoaded, user: event));
+    });
   }
 
-  Future<Order?> findOrder(String trackingNumber) async {
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await orderExListSubscription?.cancel();
+  }
+
+  Future<void> findOrder(String trackingNumber) async {
     emit(state.copyWith(status: OrdersStateStatus.inProgress));
 
     try {
-      OrderEx? orderEx = await store.ordersRepo.findOrder(trackingNumber);
+      OrderEx? orderEx = await ordersRepository.findOrder(trackingNumber);
 
       emit(state.copyWith(status: OrdersStateStatus.success, foundOrderEx: Optional.fromNullable(orderEx)));
     } on AppError catch(e) {
       emit(state.copyWith(status: OrdersStateStatus.failure, message: e.message));
     }
-
-    return null;
   }
 }

@@ -7810,6 +7810,21 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final ProductsDao productsDao = ProductsDao(this as AppDataStore);
   late final StoragesDao storagesDao = StoragesDao(this as AppDataStore);
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
+  Selectable<AppInfoResult> appInfo() {
+    return customSelect(
+        'SELECT prefs.*, (SELECT COUNT(*) FROM product_arrivals) AS product_arrivals_total, (SELECT COUNT(*) FROM orders) AS orders_total FROM prefs',
+        variables: [],
+        readsFrom: {
+          productArrivals,
+          orders,
+          prefs,
+        }).map((QueryRow row) => AppInfoResult(
+          logoutAfter: row.read<DateTime>('logout_after'),
+          productArrivalsTotal: row.read<int>('product_arrivals_total'),
+          ordersTotal: row.read<int>('orders_total'),
+        ));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8041,6 +8056,17 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           ),
         ],
       );
+}
+
+class AppInfoResult {
+  final DateTime logoutAfter;
+  final int productArrivalsTotal;
+  final int ordersTotal;
+  AppInfoResult({
+    required this.logoutAfter,
+    required this.productArrivalsTotal,
+    required this.ordersTotal,
+  });
 }
 
 mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {

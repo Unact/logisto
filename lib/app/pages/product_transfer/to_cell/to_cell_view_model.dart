@@ -1,40 +1,48 @@
 part of 'to_cell_page.dart';
 
 class ToCellViewModel extends PageViewModel<ToCellState, ToCellStateStatus> {
+  final ProductTransfersRepository productTransfersRepository;
+  final ProductsRepository productsRepository;
+
+  StreamSubscription<ProductTransferEx?>? productTransferExSubscription;
+
   ToCellViewModel(
-    BuildContext context,
+    this.productTransfersRepository,
+    this.productsRepository,
     {
       required ProductTransferEx productTransferEx,
       required StorageCell storageCell
     }
-  ) : super(context, ToCellState(productTransferEx: productTransferEx, storageCell: storageCell));
+  ) : super(ToCellState(productTransferEx: productTransferEx, storageCell: storageCell));
 
   @override
   ToCellStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productTransfers,
-    dataStore.productTransferFromCells,
-    dataStore.productTransferToCells
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productTransferExSubscription = productTransfersRepository.watchCurrentTransfer().listen((event) {
+      emit(state.copyWith(
+        status: ToCellStateStatus.dataLoaded,
+        productTransferEx: event,
+        fromCellsProducts: _calcFromCellsProducts(event!)
+      ));
+    });
+  }
 
   @override
-  Future<void> loadData() async {
-    final productTransferEx = await store.productTransfersRepo.getCurrentTransfer();
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: ToCellStateStatus.dataLoaded,
-      productTransferEx: productTransferEx,
-      fromCellsProducts: _calcFromCellsProducts(productTransferEx!)
-    ));
+    await productTransferExSubscription?.cancel();
   }
 
   Future<void> findAndSetProductByCode(String code) async {
     emit(state.copyWith(status: ToCellStateStatus.inProgress));
 
     try {
-      List<Product> products = await store.productsRepo.findProduct(code: code);
+      List<Product> products = await productsRepository.findProduct(code: code);
 
       if (products.isEmpty) {
         emit(state.copyWith(status: ToCellStateStatus.failure, message: 'Не найден товар'));
@@ -93,14 +101,12 @@ class ToCellViewModel extends PageViewModel<ToCellState, ToCellStateStatus> {
       return;
     }
 
-    ProductTransferToCellsCompanion cell = ProductTransferToCellsCompanion(
-      productTransferId: Value(state.productTransferEx.productTransfer.id),
-      productId: Value(state.product!.id),
-      storageCellId: Value(state.storageCell.id),
-      amount: Value(state.amount!)
+    await productTransfersRepository.addProductTransferToCell(
+      productTransferId: state.productTransferEx.productTransfer.id,
+      productId: state.product!.id,
+      storageCellId: state.storageCell.id,
+      amount: state.amount!
     );
-
-    await store.productTransfersRepo.addProductTransferToCell(cell);
 
     emit(state.copyWith(
       status: ToCellStateStatus.cellAdded,

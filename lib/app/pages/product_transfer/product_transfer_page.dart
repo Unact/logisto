@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -12,6 +11,9 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_transfers_repository.dart';
+import '/app/repositories/products_repository.dart';
+import '/app/repositories/storages_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'from_cell/from_cell_page.dart';
 import 'to_cell/to_cell_page.dart';
@@ -30,7 +32,12 @@ class ProductTransferPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductTransferViewModel>(
-      create: (context) => ProductTransferViewModel(context, productTransferEx: productTransferEx),
+      create: (context) => ProductTransferViewModel(
+        RepositoryProvider.of<ProductTransfersRepository>(context),
+        RepositoryProvider.of<ProductsRepository>(context),
+        RepositoryProvider.of<StoragesRepository>(context),
+        productTransferEx: productTransferEx
+      ),
       child: _ProductTransferView(),
     );
   }

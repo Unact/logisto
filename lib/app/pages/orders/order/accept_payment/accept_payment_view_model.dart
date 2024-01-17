@@ -1,6 +1,8 @@
 part of 'accept_payment_page.dart';
 
 class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPaymentStateStatus> {
+  final AppRepository appRepository;
+  final OrdersRepository ordersRepository;
   late Iboxpro iboxpro = Iboxpro(
     onError: (String error) => emit(state.copyWith(message: error, status: AcceptPaymentStateStatus.failure)),
     onLogin: _startPayment,
@@ -32,20 +34,11 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
     onAdjust: _savePayment
   );
 
-  AcceptPaymentViewModel(BuildContext context, {
-    required bool cardPayment,
-    required Order order
-  }) : super(context, AcceptPaymentState(
-    message: 'Инициализация платежа',
-    cardPayment: cardPayment,
-    order: order
-  ));
+  AcceptPaymentViewModel(this.appRepository, this.ordersRepository, {required bool cardPayment, required Order order}) :
+    super(AcceptPaymentState(message: 'Инициализация платежа', cardPayment: cardPayment, order: order));
 
   @override
   AcceptPaymentStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   @override
   Future<void> initViewModel() async {
@@ -82,7 +75,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
     emit(state.copyWith(message: 'Установление связи с сервером', status: AcceptPaymentStateStatus.gettingCredentials));
 
     try {
-      ApiPaymentCredentials credentials = await store.getApiPaymentCredentials();
+      ApiPaymentCredentials credentials = await appRepository.getApiPaymentCredentials();
 
       await _apiLogin(credentials.login, credentials.password);
     } on AppError catch(e) {
@@ -128,7 +121,7 @@ class AcceptPaymentViewModel extends PageViewModel<AcceptPaymentState, AcceptPay
     ));
 
     try {
-      await store.ordersRepo.acceptPayment(state.order, transaction);
+      await ordersRepository.acceptPayment(state.order, transaction);
 
       emit(state.copyWith(message: 'Оплата успешно сохранена', status: AcceptPaymentStateStatus.finished));
     } on AppError catch(e) {

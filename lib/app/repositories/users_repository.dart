@@ -1,30 +1,32 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart' show DateUtils;
+import 'package:logisto/app/repositories/base_repository.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/repositories/app_store.dart';
 import '/app/services/logisto_api.dart';
 
-class UsersRepository {
-  final AppStore store;
+class UsersRepository extends BaseRepository {
+  UsersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
+  late final _loggedInController = BehaviorSubject<bool>.seeded(api.isLoggedIn);
 
-  UsersRepository(this.store);
+  Stream<bool> get isLoggedIn => _loggedInController.stream;
 
-  bool get isLoggedIn => api.isLoggedIn;
+  Stream<User> watchUser() {
+    return dataStore.usersDao.watchUser();
+  }
 
-  Future<User> getUser() {
-    return dataStore.usersDao.getUser();
+  Future<User> getCurrentUser() {
+    return dataStore.usersDao.getCurrentUser();
   }
 
   Future<void> loadUserData() async {
     try {
-      ApiUserData userData = await api.getUserData();
+      final userData = await api.getUserData();
 
       await dataStore.usersDao.loadUser(userData.toDatabaseEnt());
     } on ApiException catch(e) {
@@ -38,6 +40,7 @@ class UsersRepository {
   Future<void> login(String url, String login, String password) async {
     try {
       await api.login(url: url, login: login, password: password);
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -54,19 +57,19 @@ class UsersRepository {
   Future<void> logout() async {
     try {
       await api.logout();
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
       await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
-
-    await dataStore.clearData();
   }
 
   Future<void> resetPassword(String url, String login) async {
     try {
       await api.resetPassword(url: url, login: login);
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

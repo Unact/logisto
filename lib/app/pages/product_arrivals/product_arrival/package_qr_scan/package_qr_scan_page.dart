@@ -25,7 +25,7 @@ class PackageQRScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PackageQRScanViewModel>(
-      create: (context) => PackageQRScanViewModel(context, packages: packages),
+      create: (context) => PackageQRScanViewModel(packages: packages),
       child: _PackageQRScanView(),
     );
   }

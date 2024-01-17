@@ -3,9 +3,8 @@ part of 'order_qr_scan_page.dart';
 class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanStateStatus> {
   static const String qrType = 'ORDER';
 
-  OrderQRScanViewModel(BuildContext context, { required Order order }) :
+  OrderQRScanViewModel({ required Order order }) :
     super(
-      context,
       OrderQRScanState(
         order: order,
         orderPackageScanned: List.filled(order.packages, false),
@@ -14,9 +13,6 @@ class OrderQRScanViewModel extends PageViewModel<OrderQRScanState, OrderQRScanSt
 
   @override
   OrderQRScanStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;

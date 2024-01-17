@@ -1,31 +1,36 @@
 part of 'person_page.dart';
 
 class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
-  PersonViewModel(BuildContext context) : super(context, PersonState());
+  final UsersRepository usersRepository;
+
+  StreamSubscription<User>? userSubscription;
+
+  PersonViewModel(this.usersRepository) : super(PersonState());
 
   @override
   PersonStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.users
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: PersonStateStatus.dataLoaded, user: event));
+    });
+  }
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: PersonStateStatus.dataLoaded,
-      user: await store.usersRepo.getUser(),
-      fullVersion: app.fullVersion,
-      newVersionAvailable: await app.newVersionAvailable,
-    ));
+  Future<void> close() async {
+    await super.close();
+
+    await userSubscription?.cancel();
   }
 
   Future<void> apiLogout() async {
     emit(state.copyWith(status: PersonStateStatus.inProgress));
 
     try {
-      await store.usersRepo.logout();
+      await usersRepository.logout();
 
       emit(state.copyWith(status: PersonStateStatus.loggedOut));
     } on AppError catch(e) {

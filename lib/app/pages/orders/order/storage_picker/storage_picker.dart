@@ -10,6 +10,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/storages_repository.dart';
 
 part 'storage_qr_scan_page.dart';
 part 'storage_qr_scan_state.dart';

@@ -1,33 +1,48 @@
 part of 'product_transfer_page.dart';
 
 class ProductTransferViewModel extends PageViewModel<ProductTransferState, ProductTransferStateStatus> {
-  ProductTransferViewModel(BuildContext context, { required ProductTransferEx productTransferEx }) :
-    super(context, ProductTransferState(productTransferEx: productTransferEx));
+  final ProductTransfersRepository productTransfersRepository;
+  final ProductsRepository productsRepository;
+  final StoragesRepository storagesRepository;
+
+  StreamSubscription<List<ProductStore>>? productStoresSubscription;
+  StreamSubscription<ProductTransferEx?>? productTransferExSubscription;
+
+  ProductTransferViewModel(
+    this.productTransfersRepository,
+    this.productsRepository,
+    this.storagesRepository,
+    {
+      required ProductTransferEx productTransferEx
+    }
+  ) : super(ProductTransferState(productTransferEx: productTransferEx));
 
   @override
   ProductTransferStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productTransfers,
-    dataStore.productTransferFromCells,
-    dataStore.productTransferToCells
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productStoresSubscription = productsRepository.watchProductStores().listen((event) {
+      emit(state.copyWith(status: ProductTransferStateStatus.dataLoaded, productStores: event));
+    });
+    productTransferExSubscription = productTransfersRepository.watchCurrentTransfer().listen((event) {
+      emit(state.copyWith(status: ProductTransferStateStatus.dataLoaded, productTransferEx: event));
+    });
+  }
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: ProductTransferStateStatus.dataLoaded,
-      productStores: await store.productsRepo.getProductStores(),
-      productTransferEx: await store.productTransfersRepo.getCurrentTransfer()
-    ));
+  Future<void> close() async {
+    await super.close();
+
+    await productStoresSubscription?.cancel();
+    await productTransferExSubscription?.cancel();
   }
 
   Future<void> scanCell(String storageCellIdStr, String storageCellName) async {
     int storageCellId = int.parse(storageCellIdStr);
-    StorageCell storageCell = StorageCell(id: storageCellId, name: storageCellName);
-
-    await store.storagesRepo.addStorageCell(storageCell);
+    StorageCell storageCell = await storagesRepository.addStorageCell(id: storageCellId, name: storageCellName);
 
     if (state.gatherFinished) {
       emit(state.copyWith(
@@ -44,29 +59,32 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
   }
 
   Future<void> setComment(String comment) async {
-    await store.productTransfersRepo.upsertProductTransfer(
-      state.productTransferEx.productTransfer.toCompanion(false).copyWith(comment: Value(comment))
+    await productTransfersRepository.upsertProductTransfer(
+      state.productTransferEx.productTransfer,
+      comment: Optional.of(comment)
     );
   }
 
   Future<void> setProductStoreFrom(String productStoreId) async {
-    await store.productTransfersRepo.upsertProductTransfer(
-      state.productTransferEx.productTransfer.toCompanion(false).copyWith(storeFromId: Value(productStoreId))
+    await productTransfersRepository.upsertProductTransfer(
+      state.productTransferEx.productTransfer,
+      storeFromId: Optional.of(productStoreId)
     );
   }
 
   Future<void> setProductStoreTo(String productStoreId) async {
-    await store.productTransfersRepo.upsertProductTransfer(
-      state.productTransferEx.productTransfer.toCompanion(false).copyWith(storeToId: Value(productStoreId))
+    await productTransfersRepository.upsertProductTransfer(
+      state.productTransferEx.productTransfer,
+      storeToId: Optional.of(productStoreId)
     );
   }
 
   Future<void> deleteFromCell(ProductTransferFromCellEx fromCellEx) async {
-    await store.productTransfersRepo.deleteProductTransferFromCell(fromCellEx);
+    await productTransfersRepository.deleteProductTransferFromCell(fromCellEx);
   }
 
   Future<void> deleteToCell(ProductTransferToCellEx toCellEx) async {
-    await store.productTransfersRepo.deleteProductTransferToCell(toCellEx);
+    await productTransfersRepository.deleteProductTransferToCell(toCellEx);
   }
 
   Future<void> finishTransfer() async {
@@ -83,7 +101,7 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
     }
 
     try {
-      await store.productTransfersRepo.finishProductTransfer(state.productTransferEx);
+      await productTransfersRepository.finishProductTransfer(state.productTransferEx);
 
       emit(state.copyWith(status: ProductTransferStateStatus.success, message: 'Перемещение успешно произведено'));
     } on AppError catch(e) {
@@ -92,7 +110,7 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
   }
 
   Future<void> finishGather() async {
-    await store.productTransfersRepo.finishProductTransferGather(state.productTransferEx);
+    await productTransfersRepository.finishProductTransferGather(state.productTransferEx);
 
     emit(state.copyWith(
       status: ProductTransferStateStatus.gatherFinished,
@@ -101,7 +119,7 @@ class ProductTransferViewModel extends PageViewModel<ProductTransferState, Produ
   }
 
   Future<void> cancelGather() async {
-    await store.productTransfersRepo.cancelProductTransferGather(state.productTransferEx);
+    await productTransfersRepository.cancelProductTransferGather(state.productTransferEx);
 
     emit(state.copyWith(
       status: ProductTransferStateStatus.gatherFinishCanceled,

@@ -3,39 +3,48 @@ part of 'product_page.dart';
 class ProductViewModel extends PageViewModel<ProductState, ProductStateStatus> {
   static const String _kBarcodeType = 'ean13';
 
-  ProductViewModel(BuildContext context, { required Product product }) : super(context, ProductState(product: product));
+  final ProductsRepository productsRepository;
+  final UsersRepository usersRepository;
+
+  StreamSubscription<User>? userSubscription;
+
+  ProductViewModel(
+    this.productsRepository,
+    this.usersRepository,
+    {
+      required Product product
+    }
+  ) : super(ProductState(product: product));
 
   @override
   ProductStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.products
-  ]);
-
-  @override
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    await getData();
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: ProductStateStatus.dataLoaded, user: event));
+    });
+
+    await loadData();
   }
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: ProductStateStatus.dataLoaded,
-      user: await store.usersRepo.getUser()
-    ));
+  Future<void> close() async {
+    await super.close();
+
+    await userSubscription?.cancel();
   }
 
-  Future<void> getData() async {
+  Future<void> loadData() async {
     emit(state.copyWith(status: ProductStateStatus.inProgress));
 
     try {
       emit(state.copyWith(
         status: ProductStateStatus.success,
-        productBarcodes: await store.productsRepo.getProductBarcodes(state.product),
-        productImages: await store.productsRepo.getProductImages(state.product)
+        productBarcodes: await productsRepository.getProductBarcodes(state.product),
+        productImages: await productsRepository.getProductImages(state.product)
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: ProductStateStatus.failure, message: e.message));
@@ -53,7 +62,7 @@ class ProductViewModel extends PageViewModel<ProductState, ProductStateStatus> {
     emit(state.copyWith(status: ProductStateStatus.inProgress));
 
     try {
-      ApiProductBarcode newBarcode = await store.productsRepo.createProductBarcode(
+      ApiProductBarcode newBarcode = await productsRepository.createProductBarcode(
         state.product,
         code: code,
         type: _kBarcodeType
@@ -72,7 +81,7 @@ class ProductViewModel extends PageViewModel<ProductState, ProductStateStatus> {
     emit(state.copyWith(status: ProductStateStatus.inProgress));
 
     try {
-      ApiProductImage newImage = await store.productsRepo.createProductImage(state.product, file: file);
+      ApiProductImage newImage = await productsRepository.createProductImage(state.product, file: file);
 
       emit(state.copyWith(
         status: ProductStateStatus.success,

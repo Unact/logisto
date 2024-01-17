@@ -8,6 +8,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/users_repository.dart';
 
 part 'login_state.dart';
 part 'login_view_model.dart';
@@ -20,7 +21,9 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LoginViewModel>(
-      create: (context) => LoginViewModel(context),
+      create: (context) => LoginViewModel(
+        RepositoryProvider.of<UsersRepository>(context),
+      ),
       child: _LoginView(),
     );
   }
@@ -62,7 +65,10 @@ class _LoginViewState extends State<_LoginView> {
               Expanded(child: Container()),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: Text('Версия ${state.fullVersion}')
+                child: FutureBuilder(
+                  future: Misc.fullVersion,
+                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}'),
+                )
               )
             ]
           );

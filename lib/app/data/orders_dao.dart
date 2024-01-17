@@ -20,36 +20,44 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     });
   }
 
-  Future<List<OrderEx>> getOrderExList() async {
+  Stream<List<OrderEx>> watchOrderExList() {
     final storageFrom = alias(storages, 'from_storage');
     final storageTo = alias(storages, 'to_storage');
-    final ordersQuery = select(orders)
-      .join(
-        [
-          leftOuterJoin(storageFrom, storageFrom.id.equalsExp(orders.storageFromId)),
-          leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
-        ],
-      )
-      ..orderBy([OrderingTerm(expression: orders.trackingNumber)]);
-    final orderLinesRes = await (
+    final ordersStream = (
+      select(orders)
+        .join(
+          [
+            leftOuterJoin(storageFrom, storageFrom.id.equalsExp(orders.storageFromId)),
+            leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
+          ],
+        )
+        ..orderBy([OrderingTerm(expression: orders.trackingNumber)])
+    ).watch();
+    final orderLinesStream = (
       select(orderLines)
       .join([leftOuterJoin(products, products.id.equalsExp(orderLines.productId))])
       ..orderBy([OrderingTerm(expression: orderLines.name)])
-    ).get();
+    ).watch();
 
-    return (await ordersQuery.get()).map((orderRow) {
-      final orderLinesEx = orderLinesRes
-        .where((element) => element.readTable(orderLines).orderId == orderRow.readTable(orders).id)
-        .map((element) => OrderLineEx(element.readTable(orderLines), element.readTableOrNull(products)))
-        .toList();
+    return Rx.combineLatest2(
+      ordersStream,
+      orderLinesStream,
+      (ordersRes, orderLinesRes) {
+        return ordersRes.map((orderRow) {
+          final orderLinesEx = orderLinesRes
+            .where((element) => element.readTable(orderLines).orderId == orderRow.readTable(orders).id)
+            .map((element) => OrderLineEx(element.readTable(orderLines), element.readTableOrNull(products)))
+            .toList();
 
-      return OrderEx(
-        orderRow.readTable(orders),
-        orderLinesEx,
-        orderRow.readTableOrNull(storageFrom),
-        orderRow.readTableOrNull(storageTo)
-      );
-    }).toList();
+          return OrderEx(
+            orderRow.readTable(orders),
+            orderLinesEx,
+            orderRow.readTableOrNull(storageFrom),
+            orderRow.readTableOrNull(storageTo)
+          );
+        }).toList();
+      }
+    );
   }
 
   Future<int> upsertOrder(int id, OrdersCompanion order) {
@@ -81,48 +89,59 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     await delete(orderLineNewCodes).go();
   }
 
-  Future<OrderEx> getOrderEx(int id) async {
-    return (await _getOrderEx(orders.id.equals(id)))!;
+  Stream<OrderEx?> watchOrderEx(int id) {
+    return _getOrderEx(orders.id.equals(id));
   }
 
-  Future<OrderEx?> getOrderExByTrackingNumber(String trackingNumber) async {
+  Stream<OrderEx?> getOrderExByTrackingNumber(String trackingNumber) {
     return _getOrderEx(orders.trackingNumber.equals(trackingNumber));
   }
 
-  Future<OrderEx?> _getOrderEx(Expression<bool> whereExp) async {
+  Stream<OrderEx?> _getOrderEx(Expression<bool> whereExp) {
+    final orderIdQuery = selectOnly(orders)
+      ..addColumns([orders.id])
+      ..where(whereExp);
+
     final storageFrom = alias(storages, 'from_storage');
     final storageTo = alias(storages, 'to_storage');
-    final orderQuery = select(orders)
-      .join(
-        [
-          leftOuterJoin(storageFrom, storageFrom.id.equalsExp(orders.storageFromId)),
-          leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
-        ],
-      )
-      ..where(whereExp);
-    final orderRow = await orderQuery.getSingleOrNull();
+    final orderStream = (
+      select(orders)
+        .join(
+          [
+            leftOuterJoin(storageFrom, storageFrom.id.equalsExp(orders.storageFromId)),
+            leftOuterJoin(storageTo, storageTo.id.equalsExp(orders.storageToId))
+          ],
+        )
+        ..where(whereExp)
+    ).watchSingleOrNull();
+    final orderLinesStream = (
+      select(orderLines)
+        .join([leftOuterJoin(products, products.id.equalsExp(orderLines.productId))])
+        ..where(orderLines.orderId.isInQuery(orderIdQuery))
+        ..orderBy([OrderingTerm(expression: orderLines.name)])
+    ).watch();
 
-    if (orderRow == null) return null;
+    return Rx.combineLatest2(
+      orderStream,
+      orderLinesStream,
+      (orderRow, orderLinesRes) {
+        if (orderRow == null) return null;
 
-    final id = orderRow.readTable(orders).id;
-    final orderLinesQuery = select(orderLines)
-      .join([leftOuterJoin(products, products.id.equalsExp(orderLines.productId))])
-      ..where(orderLines.orderId.equals(id))
-      ..orderBy([OrderingTerm(expression: orderLines.name)]);
-    final orderLinesEx = (await orderLinesQuery.get())
+        final orderLinesEx = orderLinesRes
         .where((element) => element.readTable(orderLines).orderId == orderRow.readTable(orders).id)
         .map((element) => OrderLineEx(element.readTable(orderLines), element.readTableOrNull(products)))
         .toList();
 
-    return OrderEx(
-      orderRow.readTable(orders),
-      orderLinesEx,
-      orderRow.readTableOrNull(storageFrom),
-      orderRow.readTableOrNull(storageTo)
-    );
+        return OrderEx(
+          orderRow.readTable(orders),
+          orderLinesEx,
+          orderRow.readTableOrNull(storageFrom),
+          orderRow.readTableOrNull(storageTo)
+        );
+      });
   }
 
-  Future<List<OrderLineNewCodeEx>> getOrderLineNewCodesEx(int orderId) async {
+  Stream<List<OrderLineNewCodeEx>> watchOrderLineNewCodesEx(int orderId) {
     final orderLineNewCodesQuery = select(orderLineNewCodes)
       .join([
         innerJoin(orderLines, orderLines.id.equalsExp(orderLineNewCodes.orderLineId)),
@@ -130,14 +149,13 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ])
       ..where(orderLines.orderId.equals(orderId))
       ..orderBy([OrderingTerm(expression: products.name)]);
-    final orderLineNewCodesRes = await orderLineNewCodesQuery.get();
 
-    return orderLineNewCodesRes.map((orderLineCode) {
+    return orderLineNewCodesQuery.watch().map((event) => event.map((orderLineCode) {
       return OrderLineNewCodeEx(
         orderLineCode.readTable(orderLineNewCodes),
         OrderLineEx(orderLineCode.readTable(orderLines), orderLineCode.readTable(products))
       );
-    }).toList();
+    }).toList());
   }
 }
 

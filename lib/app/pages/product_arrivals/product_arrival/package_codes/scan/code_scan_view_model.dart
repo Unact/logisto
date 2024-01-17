@@ -1,31 +1,37 @@
 part of 'code_scan_page.dart';
 
 class CodeScanViewModel extends PageViewModel<CodeScanState, CodeScanStateStatus> {
+  final ProductArrivalsRepository productArrivalsRepository;
   final GS1BarcodeParser parser = GS1BarcodeParser.defaultParser();
 
-  CodeScanViewModel(BuildContext context, {required ProductArrivalPackageEx packageEx, required Product product}) :
-    super(context, CodeScanState(packageEx: packageEx, product: product));
+  StreamSubscription<List<ProductArrivalPackageNewCodeEx>>? productArrivalPackageNewCodesExListSubscription;
+
+  CodeScanViewModel(
+    this.productArrivalsRepository,
+    {
+      required ProductArrivalPackageEx packageEx,
+      required Product product
+    }
+  ) : super(CodeScanState(packageEx: packageEx, product: product));
 
   @override
   CodeScanStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalPackageNewCodes,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productArrivalPackageNewCodesExListSubscription = productArrivalsRepository
+      .watchProductArrivalPackageNewCodesEx(state.packageEx.package.id).listen((event) {
+        emit(state.copyWith(status: CodeScanStateStatus.dataLoaded, newCodes: event));
+      });
+  }
 
   @override
-  Future<void> loadData() async {
-    List<ProductArrivalPackageNewCodeEx> codes = (
-      await store.productArrivalsRepo.getProductArrivalPackageNewCodesEx(state.packageEx.package.id)
-    ).where((e) => e.product == state.product).toList();
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: CodeScanStateStatus.dataLoaded,
-      newCodes: codes
-    ));
+    await productArrivalPackageNewCodesExListSubscription?.cancel();
   }
 
   Future<void> readCode(String? barcode) async {
@@ -48,13 +54,11 @@ class CodeScanViewModel extends PageViewModel<CodeScanState, CodeScanStateStatus
       return;
     }
 
-    ProductArrivalPackageNewCodesCompanion code = ProductArrivalPackageNewCodesCompanion(
-      productArrivalPackageId: Value(state.packageEx.package.id),
-      productId: Value(state.product.id),
-      code: Value(barcode)
+    await productArrivalsRepository.addProductArrivalPackageNewCode(
+      productArrivalPackageId: state.packageEx.package.id,
+      productId: state.product.id,
+      code: barcode
     );
-
-    await store.productArrivalsRepo.addProductArrivalPackageNewCode(code);
 
     return;
   }

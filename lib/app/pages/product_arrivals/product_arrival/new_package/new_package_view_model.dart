@@ -1,18 +1,31 @@
 part of 'new_package_page.dart';
 
 class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageStateStatus> {
-  NewPackageViewModel(BuildContext context, {required ProductArrivalEx productArrivalEx}) :
-    super(context, NewPackageState(productArrivalEx: productArrivalEx));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<List<ProductArrivalPackageType>>? productArrivalPackageTypesSubscription;
+
+  NewPackageViewModel(this.productArrivalsRepository, {required ProductArrivalEx productArrivalEx}) :
+    super(NewPackageState(productArrivalEx: productArrivalEx));
 
   @override
   NewPackageStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: NewPackageStateStatus.dataLoaded,
-      types: await store.productArrivalsRepo.getProductArrivalPackageTypes(),
-    ));
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productArrivalPackageTypesSubscription = productArrivalsRepository
+      .watchProductArrivalPackageTypes().listen((event) {
+        emit(state.copyWith(status: NewPackageStateStatus.dataLoaded, types: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalPackageTypesSubscription?.cancel();
   }
 
   void setType(ProductArrivalPackageType type) {
@@ -41,14 +54,12 @@ class NewPackageViewModel extends PageViewModel<NewPackageState, NewPackageState
     }
 
     for (var i = 1; i <= state.amount!; i++) {
-      ProductArrivalNewPackagesCompanion package = ProductArrivalNewPackagesCompanion(
-        productArrivalId: Value(state.productArrivalEx.productArrival.id),
-        typeName: Value(state.type!.name),
-        typeId: Value(state.type!.id),
-        number: const Value(Strings.undefinedNumber)
+      await productArrivalsRepository.addProductArrivalNewPackage(
+        productArrivalId: state.productArrivalEx.productArrival.id,
+        typeName: state.type!.name,
+        typeId: state.type!.id,
+        number: Strings.undefinedNumber
       );
-
-      await store.productArrivalsRepo.addProductArrivalNewPackage(package);
     }
 
     emit(state.copyWith(status: NewPackageStateStatus.packagesAdded));

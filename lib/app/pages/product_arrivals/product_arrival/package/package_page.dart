@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -10,6 +9,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 import 'new_line/new_line_page.dart';
 
 part 'package_state.dart';
@@ -26,7 +26,10 @@ class PackagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PackageViewModel>(
-      create: (context) => PackageViewModel(context, packageEx: packageEx),
+      create: (context) => PackageViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        packageEx: packageEx
+      ),
       child: _PackageView(),
     );
   }

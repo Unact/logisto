@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -10,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 
 part 'new_package_state.dart';
 part 'new_package_view_model.dart';
@@ -25,7 +25,10 @@ class NewPackagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<NewPackageViewModel>(
-      create: (context) => NewPackageViewModel(context, productArrivalEx: productArrivalEx),
+      create: (context) => NewPackageViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        productArrivalEx: productArrivalEx
+      ),
       child: ScaffoldMessenger(child: _NewPackageView()),
     );
   }

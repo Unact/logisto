@@ -1,18 +1,31 @@
 part of 'new_unload_package_page.dart';
 
 class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, NewUnloadPackageStateStatus> {
-  NewUnloadPackageViewModel(BuildContext context, {required ProductArrivalEx productArrivalEx}) :
-    super(context, NewUnloadPackageState(productArrivalEx: productArrivalEx));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<List<ProductArrivalPackageType>>? productArrivalPackageTypesSubscription;
+
+  NewUnloadPackageViewModel(this.productArrivalsRepository, {required ProductArrivalEx productArrivalEx}) :
+    super(NewUnloadPackageState(productArrivalEx: productArrivalEx));
 
   @override
   NewUnloadPackageStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    emit(state.copyWith(
-      status: NewUnloadPackageStateStatus.dataLoaded,
-      types: await store.productArrivalsRepo.getProductArrivalPackageTypes(),
-    ));
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productArrivalPackageTypesSubscription = productArrivalsRepository
+      .watchProductArrivalPackageTypes().listen((event) {
+        emit(state.copyWith(status: NewUnloadPackageStateStatus.dataLoaded, types: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalPackageTypesSubscription?.cancel();
   }
 
   void setType(ProductArrivalPackageType type) {
@@ -40,14 +53,12 @@ class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, New
       return;
     }
 
-    ProductArrivalNewUnloadPackagesCompanion unloadPackage = ProductArrivalNewUnloadPackagesCompanion(
-      productArrivalId: Value(state.productArrivalEx.productArrival.id),
-      typeName: Value(state.type!.name),
-      typeId: Value(state.type!.id),
-      amount: Value(state.amount!)
+    await productArrivalsRepository.addProductArrivalNewUnloadPackage(
+      productArrivalId: state.productArrivalEx.productArrival.id,
+      typeName: state.type!.name,
+      typeId: state.type!.id,
+      amount: state.amount!
     );
-
-    await store.productArrivalsRepo.addProductArrivalNewUnloadPackage(unloadPackage);
 
     emit(state.copyWith(status: NewUnloadPackageStateStatus.unloadPackageAdded));
   }
