@@ -83,15 +83,14 @@ class ProductSearchViewState extends State<_ProductSearchView> {
       builder: (context, state) {
         ProductSearchViewModel vm = context.read<ProductSearchViewModel>();
 
-        return TypeAheadField<Product>(
+        return TypeAheadField(
           hideOnError: true,
-          controller: _nameController,
-          focusNode: widget.focusNode,
-          builder: (context, controller, focusNode) => TextField(
+          minCharsForSuggestions: 5,
+          textFieldConfiguration: TextFieldConfiguration(
             style: Style.listTileText,
-            focusNode: focusNode,
+            focusNode: widget.focusNode,
             autofocus: true,
-            controller: controller,
+            controller: _nameController,
             autocorrect: false,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
@@ -99,24 +98,20 @@ class ProductSearchViewState extends State<_ProductSearchView> {
               suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
             )
           ),
-          emptyBuilder: (BuildContext ctx) {
+          noItemsFoundBuilder: (BuildContext ctx) {
             return Padding(
               padding: const EdgeInsets.all(8),
               child: Text('Ничего не найдено', style: TextStyle(color: theme.disabledColor)),
             );
           },
-          suggestionsCallback: (String pattern) {
-            if (pattern.length < 5) return <Product>[];
-
-            return vm.findProductsByName(pattern);
-          },
+          suggestionsCallback: (String pattern) => vm.findProductsByName(pattern),
           itemBuilder: (BuildContext ctx, Product suggestion) {
             return ListTile(
               isThreeLine: false,
               title: Text(suggestion.name, style: Theme.of(context).textTheme.bodySmall)
             );
           },
-          onSelected: (product) async {
+          onSuggestionSelected: (product) async {
             setState(() { _nameController.text = product.name; });
 
             vm.setProduct(product);

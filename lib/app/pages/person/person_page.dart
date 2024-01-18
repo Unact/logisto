@@ -8,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/users_repository.dart';
 
 part 'person_state.dart';
@@ -22,6 +23,7 @@ class PersonPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<PersonViewModel>(
       create: (context) => PersonViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<UsersRepository>(context)
       ),
       child: _PersonView(),

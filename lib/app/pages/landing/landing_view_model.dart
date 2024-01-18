@@ -19,11 +19,12 @@ class LandingViewModel extends PageViewModel<LandingState, LandingStateStatus> {
     isLoggedInSubscription = usersRepository.isLoggedIn.listen((event) {
       emit(state.copyWith(status: LandingStateStatus.dataLoaded, isLoggedIn: event));
     });
-    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) async {
 
       if (event.logoutAfter.difference(DateTime.now()).inSeconds >= 0) return;
 
-      usersRepository.logout();
+      await appRepository.clearData();
+      await usersRepository.logout();
     });
   }
 

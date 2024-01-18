@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart' show DateUtils;
-import 'package:logisto/app/repositories/base_repository.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
 class UsersRepository extends BaseRepository {
