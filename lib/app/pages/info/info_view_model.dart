@@ -33,6 +33,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
     });
+
+    await _checkNeedRefresh();
   }
 
   @override
@@ -45,18 +47,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> getData() async {
-    if (state.status == InfoStateStatus.inProgress) return;
-
-    emit(state.copyWith(status: InfoStateStatus.inProgress, loading: true));
-
-    try {
-      await usersRepository.loadUserData();
-      await appRepository.loadData();
-
-      emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены', loading: false));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message, loading: false));
-    }
+    await usersRepository.loadUserData();
+    await appRepository.loadData();
   }
 
   Future<void> startTransfer() async {
@@ -70,5 +62,21 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       status: InfoStateStatus.startTransfer,
       productTransferEx: Optional.fromNullable(productTransferEx)
     ));
+  }
+
+  Future<void> _checkNeedRefresh() async {
+    final pref = await appRepository.watchAppInfo().first;
+
+    if (pref.lastLoadTime == null) {
+      emit(state.copyWith(status: InfoStateStatus.startLoad));
+      return;
+    }
+
+    DateTime lastAttempt = pref.lastLoadTime!;
+    DateTime time = DateTime.now();
+
+    if (lastAttempt.year != time.year || lastAttempt.month != time.month || lastAttempt.day != time.day) {
+      emit(state.copyWith(status: InfoStateStatus.startLoad));
+    }
   }
 }

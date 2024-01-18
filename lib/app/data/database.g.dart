@@ -7621,8 +7621,14 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
   late final GeneratedColumn<DateTime> logoutAfter = GeneratedColumn<DateTime>(
       'logout_after', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastLoadTimeMeta =
+      const VerificationMeta('lastLoadTime');
   @override
-  List<GeneratedColumn> get $columns => [logoutAfter];
+  late final GeneratedColumn<DateTime> lastLoadTime = GeneratedColumn<DateTime>(
+      'last_load_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [logoutAfter, lastLoadTime];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -7641,6 +7647,12 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
     } else if (isInserting) {
       context.missing(_logoutAfterMeta);
     }
+    if (data.containsKey('last_load_time')) {
+      context.handle(
+          _lastLoadTimeMeta,
+          lastLoadTime.isAcceptableOrUnknown(
+              data['last_load_time']!, _lastLoadTimeMeta));
+    }
     return context;
   }
 
@@ -7652,6 +7664,8 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
     return Pref(
       logoutAfter: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}logout_after'])!,
+      lastLoadTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_load_time']),
     );
   }
 
@@ -7663,17 +7677,24 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
 
 class Pref extends DataClass implements Insertable<Pref> {
   final DateTime logoutAfter;
-  const Pref({required this.logoutAfter});
+  final DateTime? lastLoadTime;
+  const Pref({required this.logoutAfter, this.lastLoadTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['logout_after'] = Variable<DateTime>(logoutAfter);
+    if (!nullToAbsent || lastLoadTime != null) {
+      map['last_load_time'] = Variable<DateTime>(lastLoadTime);
+    }
     return map;
   }
 
   PrefsCompanion toCompanion(bool nullToAbsent) {
     return PrefsCompanion(
       logoutAfter: Value(logoutAfter),
+      lastLoadTime: lastLoadTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastLoadTime),
     );
   }
 
@@ -7682,6 +7703,7 @@ class Pref extends DataClass implements Insertable<Pref> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Pref(
       logoutAfter: serializer.fromJson<DateTime>(json['logoutAfter']),
+      lastLoadTime: serializer.fromJson<DateTime?>(json['lastLoadTime']),
     );
   }
   @override
@@ -7689,52 +7711,70 @@ class Pref extends DataClass implements Insertable<Pref> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'logoutAfter': serializer.toJson<DateTime>(logoutAfter),
+      'lastLoadTime': serializer.toJson<DateTime?>(lastLoadTime),
     };
   }
 
-  Pref copyWith({DateTime? logoutAfter}) => Pref(
+  Pref copyWith(
+          {DateTime? logoutAfter,
+          Value<DateTime?> lastLoadTime = const Value.absent()}) =>
+      Pref(
         logoutAfter: logoutAfter ?? this.logoutAfter,
+        lastLoadTime:
+            lastLoadTime.present ? lastLoadTime.value : this.lastLoadTime,
       );
   @override
   String toString() {
     return (StringBuffer('Pref(')
-          ..write('logoutAfter: $logoutAfter')
+          ..write('logoutAfter: $logoutAfter, ')
+          ..write('lastLoadTime: $lastLoadTime')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => logoutAfter.hashCode;
+  int get hashCode => Object.hash(logoutAfter, lastLoadTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Pref && other.logoutAfter == this.logoutAfter);
+      (other is Pref &&
+          other.logoutAfter == this.logoutAfter &&
+          other.lastLoadTime == this.lastLoadTime);
 }
 
 class PrefsCompanion extends UpdateCompanion<Pref> {
   final Value<DateTime> logoutAfter;
+  final Value<DateTime?> lastLoadTime;
   final Value<int> rowid;
   const PrefsCompanion({
     this.logoutAfter = const Value.absent(),
+    this.lastLoadTime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PrefsCompanion.insert({
     required DateTime logoutAfter,
+    this.lastLoadTime = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : logoutAfter = Value(logoutAfter);
   static Insertable<Pref> custom({
     Expression<DateTime>? logoutAfter,
+    Expression<DateTime>? lastLoadTime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (logoutAfter != null) 'logout_after': logoutAfter,
+      if (lastLoadTime != null) 'last_load_time': lastLoadTime,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  PrefsCompanion copyWith({Value<DateTime>? logoutAfter, Value<int>? rowid}) {
+  PrefsCompanion copyWith(
+      {Value<DateTime>? logoutAfter,
+      Value<DateTime?>? lastLoadTime,
+      Value<int>? rowid}) {
     return PrefsCompanion(
       logoutAfter: logoutAfter ?? this.logoutAfter,
+      lastLoadTime: lastLoadTime ?? this.lastLoadTime,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -7744,6 +7784,9 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
     final map = <String, Expression>{};
     if (logoutAfter.present) {
       map['logout_after'] = Variable<DateTime>(logoutAfter.value);
+    }
+    if (lastLoadTime.present) {
+      map['last_load_time'] = Variable<DateTime>(lastLoadTime.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -7755,6 +7798,7 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
   String toString() {
     return (StringBuffer('PrefsCompanion(')
           ..write('logoutAfter: $logoutAfter, ')
+          ..write('lastLoadTime: $lastLoadTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7820,6 +7864,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           prefs,
         }).map((QueryRow row) => AppInfoResult(
           logoutAfter: row.read<DateTime>('logout_after'),
+          lastLoadTime: row.readNullable<DateTime>('last_load_time'),
           productArrivalsTotal: row.read<int>('product_arrivals_total'),
           ordersTotal: row.read<int>('orders_total'),
         ));
@@ -8060,10 +8105,12 @@ abstract class _$AppDataStore extends GeneratedDatabase {
 
 class AppInfoResult {
   final DateTime logoutAfter;
+  final DateTime? lastLoadTime;
   final int productArrivalsTotal;
   final int ordersTotal;
   AppInfoResult({
     required this.logoutAfter,
+    this.lastLoadTime,
     required this.productArrivalsTotal,
     required this.ordersTotal,
   });

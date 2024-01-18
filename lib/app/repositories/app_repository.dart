@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -79,6 +80,7 @@ class AppRepository extends BaseRepository {
         await dataStore.productArrivalsDao.clearProductArrivalPackageNewCells();
         await dataStore.productArrivalsDao.clearProductArrivalPackageNewCodes();
         await dataStore.productArrivalsDao.clearProductArrivalNewUnloadPackages();
+        await dataStore.updatePref(PrefsCompanion(lastLoadTime: Value(DateTime.now())));
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
