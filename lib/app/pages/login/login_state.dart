@@ -41,8 +41,7 @@ class LoginState {
     String? password,
     String? url,
     bool? optsEnabled,
-    String? message,
-    String? fullVersion
+    String? message
   }) {
     return LoginState(
       status: status ?? this.status,

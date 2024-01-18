@@ -33,7 +33,6 @@ class InfoState {
   InfoState copyWith({
     InfoStateStatus? status,
     AppInfoResult? appInfo,
-    bool? newVersionAvailable,
     String? message,
     bool? loading,
     User? user,
