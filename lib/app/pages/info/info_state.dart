@@ -14,18 +14,14 @@ enum InfoStateStatus {
 class InfoState {
   InfoState({
     this.status = InfoStateStatus.initial,
-    this.orderExList = const [],
-    this.productArrivalExList = const [],
-    this.newVersionAvailable = false,
+    this.appInfo,
     this.message = '',
     this.loading = false,
     this.user,
     this.productTransferEx
   });
 
-  final List<OrderEx> orderExList;
-  final List<ProductArrivalEx> productArrivalExList;
-  final bool newVersionAvailable;
+  final AppInfoResult? appInfo;
   final InfoStateStatus status;
   final String message;
   final bool loading;
@@ -36,9 +32,7 @@ class InfoState {
 
   InfoState copyWith({
     InfoStateStatus? status,
-    List<OrderEx>? orderExList,
-    List<ProductArrivalEx>? productArrivalExList,
-    bool? newVersionAvailable,
+    AppInfoResult? appInfo,
     String? message,
     bool? loading,
     User? user,
@@ -46,9 +40,7 @@ class InfoState {
   }) {
     return InfoState(
       status: status ?? this.status,
-      orderExList: orderExList ?? this.orderExList,
-      productArrivalExList: productArrivalExList ?? this.productArrivalExList,
-      newVersionAvailable: newVersionAvailable ?? this.newVersionAvailable,
+      appInfo: appInfo ?? this.appInfo,
       message: message ?? this.message,
       loading: loading ?? this.loading,
       user: user ?? this.user,

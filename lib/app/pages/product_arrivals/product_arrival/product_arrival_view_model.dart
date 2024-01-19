@@ -1,39 +1,55 @@
 part of 'product_arrival_page.dart';
 
 class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, ProductArrivalStateStatus> {
-  ProductArrivalViewModel(BuildContext context, { required ProductArrivalEx productArrivalEx }) :
-    super(context, ProductArrivalState(productArrivalEx: productArrivalEx));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<ProductArrivalEx?>? productArrivalExSubscription;
+  StreamSubscription<List<ProductArrivalNewPackage>>? newPackagesListSubscription;
+  StreamSubscription<List<ProductArrivalNewUnloadPackage>>? newUnloadPackagesListSubscription;
+
+  ProductArrivalViewModel(
+    this.productArrivalsRepository,
+    {
+      required ProductArrivalEx productArrivalEx
+    }
+  ) :
+    super(ProductArrivalState(productArrivalEx: productArrivalEx));
 
   @override
   ProductArrivalStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalUnloadPackages,
-    dataStore.productArrivalPackageLines,
-    dataStore.productArrivalNewPackages,
-    dataStore.productArrivalNewUnloadPackages,
-  ]);
-
-  @override
-  Future<void> loadData() async {
+  Future<void> initViewModel() async {
+    await super.initViewModel();
     int productArrivalId = state.productArrivalEx.productArrival.id;
 
-    emit(state.copyWith(
-      status: ProductArrivalStateStatus.dataLoaded,
-      productArrivalEx: await store.productArrivalsRepo.getProductArrivalEx(productArrivalId),
-      newPackages: await store.productArrivalsRepo.getProductArrivalNewPackages(productArrivalId),
-      newUnloadPackages: await store.productArrivalsRepo.getProductArrivalNewUnloadPackages(productArrivalId),
-    ));
+    productArrivalExSubscription = productArrivalsRepository.watchProductArrivalEx(productArrivalId).listen((event) {
+      emit(state.copyWith(status: ProductArrivalStateStatus.dataLoaded, productArrivalEx: event));
+    });
+    newPackagesListSubscription = productArrivalsRepository
+      .watchProductArrivalNewPackages(productArrivalId).listen((event) {
+        emit(state.copyWith(status: ProductArrivalStateStatus.dataLoaded, newPackages: event));
+      });
+    newUnloadPackagesListSubscription = productArrivalsRepository
+      .watchProductArrivalNewUnloadPackages(productArrivalId).listen((event) {
+        emit(state.copyWith(status: ProductArrivalStateStatus.dataLoaded, newUnloadPackages: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalExSubscription?.cancel();
+    await newPackagesListSubscription?.cancel();
+    await newUnloadPackagesListSubscription?.cancel();
   }
 
   Future<void> startUnload(String storageUnloadPointIdStr) async {
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.startUnload(state.productArrivalEx, int.parse(storageUnloadPointIdStr));
+      await productArrivalsRepository.startUnload(state.productArrivalEx, int.parse(storageUnloadPointIdStr));
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено начало разгрузки'));
     } on AppError catch(e) {
@@ -45,7 +61,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.endUnload(state.productArrivalEx, state.newPackages, state.newUnloadPackages);
+      await productArrivalsRepository.endUnload(state.productArrivalEx, state.newPackages, state.newUnloadPackages);
 
       emit(state.copyWith(status: ProductArrivalStateStatus.success, message: 'Отмечено завершение разгрузки'));
     } on AppError catch(e) {
@@ -94,7 +110,7 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
     emit(state.copyWith(status: ProductArrivalStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.startAccept(
+      await productArrivalsRepository.startAccept(
         state.scannedProductArrivalPackageEx!,
         int.parse(storageAcceptPointIdStr)
       );
@@ -106,24 +122,22 @@ class ProductArrivalViewModel extends PageViewModel<ProductArrivalState, Product
   }
 
   Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) async {
-    await store.productArrivalsRepo.deleteProductArrivalNewPackage(newPackage);
+    await productArrivalsRepository.deleteProductArrivalNewPackage(newPackage);
   }
 
   Future<void> deleteProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackage newUnloadPackage) async {
-    await store.productArrivalsRepo.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
+    await productArrivalsRepository.deleteProductArrivalNewUnloadPackage(newUnloadPackage);
   }
 
   Future<void> copyUnloadPackages() async {
     for (var newUnloadPackage in state.newUnloadPackages) {
       for (var i = 1; i <= newUnloadPackage.amount; i++) {
-        ProductArrivalNewPackagesCompanion package = ProductArrivalNewPackagesCompanion(
-          productArrivalId: Value(state.productArrivalEx.productArrival.id),
-          typeName: Value(newUnloadPackage.typeName),
-          typeId: Value(newUnloadPackage.typeId),
-          number: const Value(Strings.undefinedNumber)
+        await productArrivalsRepository.addProductArrivalNewPackage(
+          productArrivalId: state.productArrivalEx.productArrival.id,
+          typeName: newUnloadPackage.typeName,
+          typeId: newUnloadPackage.typeId,
+          number: Strings.undefinedNumber
         );
-
-        await store.productArrivalsRepo.addProductArrivalNewPackage(package);
       }
     }
   }

@@ -1,14 +1,13 @@
 part of 'new_line_page.dart';
 
 class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
-  NewLineViewModel(BuildContext context, {required ProductArrivalPackageEx packageEx}) :
-    super(context, NewLineState(packageEx: packageEx));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  NewLineViewModel(this.productArrivalsRepository, {required ProductArrivalPackageEx packageEx}) :
+    super(NewLineState(packageEx: packageEx));
 
   @override
   NewLineStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   void setProduct(Product product) {
     emit(state.copyWith(
@@ -40,13 +39,11 @@ class NewLineViewModel extends PageViewModel<NewLineState, NewLineStateStatus> {
       return;
     }
 
-    ProductArrivalPackageNewLinesCompanion line = ProductArrivalPackageNewLinesCompanion(
-      productArrivalPackageId: Value(state.packageEx.package.id),
-      productId: Value(state.product!.id),
-      amount: Value(state.amount!)
+    await productArrivalsRepository.addProductArrivalPackageNewLine(
+      productArrivalPackageId: state.packageEx.package.id,
+      productId: state.product!.id,
+      amount: state.amount!
     );
-
-    await store.productArrivalsRepo.addProductArrivalPackageNewLine(line);
 
     emit(state.copyWith(
       status: NewLineStateStatus.lineAdded,

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -12,6 +11,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_arrival_packages_label.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'new_package/new_package_page.dart';
 import 'new_unload_package/new_unload_package_page.dart';
@@ -34,7 +34,10 @@ class ProductArrivalPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductArrivalViewModel>(
-      create: (context) => ProductArrivalViewModel(context, productArrivalEx: productArrivalEx),
+      create: (context) => ProductArrivalViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        productArrivalEx: productArrivalEx
+      ),
       child: _ProductArrivalView(),
     );
   }
@@ -47,6 +50,12 @@ class _ProductArrivalView extends StatefulWidget {
 
 class _ProductArrivalViewState extends State<_ProductArrivalView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   Future<void> navigateToPackage(ProductArrivalPackageEx packageEx) async {
     await Navigator.push(

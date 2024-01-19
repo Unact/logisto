@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gs1_barcode_parser/gs1_barcode_parser.dart';
@@ -8,6 +7,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 
 part 'code_scan_state.dart';
 part 'code_scan_view_model.dart';
@@ -25,7 +25,11 @@ class CodeScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CodeScanViewModel>(
-      create: (context) => CodeScanViewModel(context, packageEx: packageEx, product: product),
+      create: (context) => CodeScanViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        packageEx: packageEx,
+        product: product
+      ),
       child: _CodeScanView(),
     );
   }

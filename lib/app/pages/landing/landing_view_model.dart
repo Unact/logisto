@@ -1,37 +1,38 @@
 part of 'landing_page.dart';
 
 class LandingViewModel extends PageViewModel<LandingState, LandingStateStatus> {
-  LandingViewModel(BuildContext context) : super(context, LandingState());
+  final AppRepository appRepository;
+  final UsersRepository usersRepository;
+
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
+  StreamSubscription<bool>? isLoggedInSubscription;
+
+  LandingViewModel(this.appRepository, this.usersRepository) : super(LandingState());
 
   @override
   LandingStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.users
-  ]);
-
-  @override
   Future<void> initViewModel() async {
-    await _maybeLogout();
     await super.initViewModel();
+
+    isLoggedInSubscription = usersRepository.isLoggedIn.listen((event) {
+      emit(state.copyWith(status: LandingStateStatus.dataLoaded, isLoggedIn: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) async {
+
+      if (event.logoutAfter.difference(DateTime.now()).inSeconds >= 0) return;
+
+      await appRepository.clearData();
+      await usersRepository.logout();
+    });
   }
 
   @override
-  Future<void> loadData() async {
-    bool isLoggedIn = store.usersRepo.isLoggedIn;
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: LandingStateStatus.dataLoaded,
-      isLoggedIn: isLoggedIn
-    ));
-  }
-
-  Future<void> _maybeLogout() async {
-    Pref pref = await store.getPref();
-
-    if (pref.logoutAfter.difference(DateTime.now()).inSeconds >= 0) return;
-
-    await store.usersRepo.logout();
+    await isLoggedInSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 }

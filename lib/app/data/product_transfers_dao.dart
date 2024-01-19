@@ -44,52 +44,68 @@ class ProductTransfersDao extends DatabaseAccessor<AppDataStore> with _$ProductT
     await delete(productTransfers).go();
   }
 
-  Future<ProductTransferEx?> getCurrentTransfer() async {
+  Stream<ProductTransferEx?> watchCurrentTransfer() {
     final storeFrom = alias(productStores, 'storeFrom');
     final storeTo = alias(productStores, 'storeTo');
 
-    final productTransferQuery = select(productTransfers)
+    final productTransferStream = select(productTransfers)
       .join([
         leftOuterJoin(storeFrom, storeFrom.id.equalsExp(productTransfers.storeFromId)),
         leftOuterJoin(storeTo, storeTo.id.equalsExp(productTransfers.storeToId))
-      ]);
-    final productTransferRes = await productTransferQuery.getSingleOrNull();
-
-    if (productTransferRes == null) return null;
-
-    final productTransferFromCellQuery = select(productTransferFromCells)
+      ]).watch();
+    final productTransferFromCellStream = select(productTransferFromCells)
       .join([
         innerJoin(products, products.id.equalsExp(productTransferFromCells.productId)),
-        innerJoin(storageCells, storageCells.id.equalsExp(productTransferFromCells.storageCellId))
-      ])
-      ..where(productTransferFromCells.productTransferId.equals(productTransferRes.readTable(productTransfers).id));
-    final productTransferFromCellRes = await productTransferFromCellQuery.get();
-    final productTransferToCellQuery = select(productTransferToCells)
+        innerJoin(storageCells, storageCells.id.equalsExp(productTransferFromCells.storageCellId)),
+        innerJoin(productTransfers, productTransfers.id.equalsExp(productTransferFromCells.productTransferId))
+      ]).watch();
+    final productTransferToCellStream = select(productTransferToCells)
       .join([
         innerJoin(products, products.id.equalsExp(productTransferToCells.productId)),
-        innerJoin(storageCells, storageCells.id.equalsExp(productTransferToCells.storageCellId))
-      ])
-      ..where(productTransferToCells.productTransferId.equals(productTransferRes.readTable(productTransfers).id));
-    final productTransferToCellRes = await productTransferToCellQuery.get();
+        innerJoin(storageCells, storageCells.id.equalsExp(productTransferToCells.storageCellId)),
+        innerJoin(productTransfers, productTransfers.id.equalsExp(productTransferToCells.productTransferId))
+      ]).watch();
 
-    return ProductTransferEx(
-      productTransferRes.readTable(productTransfers),
-      productTransferRes.readTableOrNull(storeFrom),
-      productTransferRes.readTableOrNull(storeTo),
-      productTransferFromCellRes.map((p0) {
-        return ProductTransferFromCellEx(
-          p0.readTable(productTransferFromCells),
-          p0.readTable(products),
-          p0.readTable(storageCells)
+    return Rx.combineLatest3(
+      productTransferStream,
+      productTransferFromCellStream,
+      productTransferToCellStream,
+      (
+        List<TypedResult> productTransferList,
+        List<TypedResult> productTransferFromCellList,
+        List<TypedResult> productTransferToCellList
+      ) {
+        final productTransferRes = productTransferList.firstOrNull;
+
+        if (productTransferRes == null) return null;
+
+        final productTransferFromCellRes = productTransferFromCellList.where((e) =>
+          e.readTable(productTransferFromCells).productTransferId == productTransferRes.readTable(productTransfers).id
         );
-      }).toList(),
-      productTransferToCellRes.map((p0) {
-        return ProductTransferToCellEx(
-          p0.readTable(productTransferToCells),
-          p0.readTable(products),
-          p0.readTable(storageCells)
+        final productTransferToCellRes = productTransferToCellList.where((e) =>
+          e.readTable(productTransferToCells).productTransferId == productTransferRes.readTable(productTransfers).id
         );
-      }).toList()
+
+        return ProductTransferEx(
+          productTransferRes.readTable(productTransfers),
+          productTransferRes.readTableOrNull(storeFrom),
+          productTransferRes.readTableOrNull(storeTo),
+          productTransferFromCellRes.map((p0) {
+            return ProductTransferFromCellEx(
+              p0.readTable(productTransferFromCells),
+              p0.readTable(products),
+              p0.readTable(storageCells)
+            );
+          }).toList(),
+          productTransferToCellRes.map((p0) {
+            return ProductTransferToCellEx(
+              p0.readTable(productTransferToCells),
+              p0.readTable(products),
+              p0.readTable(storageCells)
+            );
+          }).toList()
+        );
+      }
     );
   }
 }

@@ -1,31 +1,35 @@
 part of 'code_scan_page.dart';
 
 class CodeScanViewModel extends PageViewModel<CodeScanState, CodeScanStateStatus> {
+  final OrdersRepository ordersRepository;
   final GS1BarcodeParser parser = GS1BarcodeParser.defaultParser();
 
-  CodeScanViewModel(BuildContext context, {required OrderLineEx orderLineEx}) :
-    super(context, CodeScanState(orderLineEx: orderLineEx));
+  StreamSubscription<List<OrderLineNewCodeEx>>? orderLineNewCodesExListSubscription;
+
+  CodeScanViewModel(this.ordersRepository, {required OrderLineEx orderLineEx}) :
+    super(CodeScanState(orderLineEx: orderLineEx));
 
   @override
   CodeScanStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.orders,
-    dataStore.orderLines,
-    dataStore.orderLineNewCodes,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    orderLineNewCodesExListSubscription = ordersRepository.watchOrderLineNewCodesEx(state.orderLineEx.line.orderId)
+      .listen((event) {
+        emit(state.copyWith(
+          status: CodeScanStateStatus.dataLoaded,
+          newCodes: event.where((e) => e.line.line == state.orderLineEx.line).toList()
+        ));
+      });
+  }
 
   @override
-  Future<void> loadData() async {
-    List<OrderLineNewCodeEx> codes = (
-      await store.ordersRepo.getOrderLineNewCodesEx(state.orderLineEx.line.orderId)
-    ).where((e) => e.line.line == state.orderLineEx.line).toList();
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: CodeScanStateStatus.dataLoaded,
-      newCodes: codes
-    ));
+    await orderLineNewCodesExListSubscription?.cancel();
   }
 
   Future<void> readCode(String? barcode) async {
@@ -48,14 +52,7 @@ class CodeScanViewModel extends PageViewModel<CodeScanState, CodeScanStateStatus
       return;
     }
 
-    OrderLineNewCodesCompanion code = OrderLineNewCodesCompanion(
-      orderLineId: Value(state.orderLineEx.line.id),
-      code: Value(barcode)
-    );
-
-    await store.ordersRepo.addOrderLineNewCode(code);
-
-    return;
+    await ordersRepository.addOrderLineNewCode(orderLineId: state.orderLineEx.line.id, code: barcode);
   }
 
   String? _parseBarcode(String barcode) {

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cross_file/cross_file.dart';
-import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -11,6 +10,8 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/products_repository.dart';
+import '/app/repositories/users_repository.dart';
 
 part 'product_state.dart';
 part 'product_view_model.dart';
@@ -26,7 +27,11 @@ class ProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductViewModel>(
-      create: (context) => ProductViewModel(context, product: product),
+      create: (context) => ProductViewModel(
+        RepositoryProvider.of<ProductsRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
+        product: product
+      ),
       child: _ProductView(),
     );
   }
@@ -39,6 +44,12 @@ class _ProductView extends StatefulWidget {
 
 class _ProductViewState extends State<_ProductView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   Future<void> showProductLabelPrintDialog(ApiProductBarcode productBarcode) async {
     ProductViewModel vm = context.read<ProductViewModel>();

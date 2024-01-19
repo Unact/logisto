@@ -1,34 +1,56 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/data/database.dart';
-import '/app/repositories/app_store.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
-class ProductTransfersRepository {
-  final AppStore store;
+class ProductTransfersRepository extends BaseRepository {
+  ProductTransfersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
-
-  ProductTransfersRepository(this.store);
-
-  Future<ProductTransferEx?> getCurrentTransfer() {
-    return dataStore.productTransfersDao.getCurrentTransfer();
+  Stream<ProductTransferEx?> watchCurrentTransfer() {
+    return dataStore.productTransfersDao.watchCurrentTransfer();
   }
 
-  Future<void> addProductTransfer(ProductTransfersCompanion transfer) {
-    return dataStore.productTransfersDao.addProductTransfer(transfer);
+  Future<ProductTransferEx> addProductTransfer() async {
+    await dataStore.productTransfersDao.addProductTransfer(ProductTransfersCompanion.insert(gatherFinished: false));
+
+    return (await dataStore.productTransfersDao.watchCurrentTransfer().first)!;
   }
 
-  Future<void> addProductTransferFromCell(ProductTransferFromCellsCompanion fromCell) {
-    return dataStore.productTransfersDao.addProductTransferFromCell(fromCell);
+  Future<void> addProductTransferFromCell({
+    required int productTransferId,
+    required int productId,
+    required int storageCellId,
+    required int amount
+  }) {
+    return dataStore.productTransfersDao.addProductTransferFromCell(
+      ProductTransferFromCellsCompanion.insert(
+        productTransferId: productTransferId,
+        productId: productId,
+        storageCellId: storageCellId,
+        amount: amount
+      )
+    );
   }
 
-  Future<void> addProductTransferToCell(ProductTransferToCellsCompanion toCell) {
-    return dataStore.productTransfersDao.addProductTransferToCell(toCell);
+  Future<void> addProductTransferToCell({
+    required int productTransferId,
+    required int productId,
+    required int storageCellId,
+    required int amount
+  }) {
+    return dataStore.productTransfersDao.addProductTransferToCell(
+      ProductTransferToCellsCompanion.insert(
+        productTransferId: productTransferId,
+        productId: productId,
+        storageCellId: storageCellId,
+        amount: amount
+      )
+    );
   }
 
   Future<void> deleteProductTransferFromCell(ProductTransferFromCellEx fromCellEx) {
@@ -39,8 +61,19 @@ class ProductTransfersRepository {
     return dataStore.productTransfersDao.deleteProductTransferToCell(toCellEx.toCell);
   }
 
-  Future<void> upsertProductTransfer(ProductTransfersCompanion transfer) {
-    return dataStore.productTransfersDao.upsertProductTransfer(transfer.id.value, transfer);
+  Future<void> upsertProductTransfer(ProductTransfer productTransfer, {
+    Optional<String?>? storeFromId,
+    Optional<String?>? storeToId,
+    Optional<String?>? comment,
+    Optional<bool>? gatherFinished
+  }) {
+    final updatedProductTransfer = productTransfer.toCompanion(false).copyWith(
+      storeFromId: storeFromId == null ? null : Value(storeFromId.orNull),
+      storeToId: storeToId == null ? null : Value(storeToId.orNull),
+      comment: comment == null ? null : Value(comment.orNull),
+      gatherFinished: gatherFinished == null ? null : Value(gatherFinished.value)
+    );
+    return dataStore.productTransfersDao.upsertProductTransfer(productTransfer.id, updatedProductTransfer);
   }
 
   Future<void> finishProductTransfer(ProductTransferEx transferEx) async {
@@ -57,7 +90,11 @@ class ProductTransfersRepository {
           (e) => { 'productId': e.product.id, 'storageCellId': e.storageCell.id, 'amount': e.toCell.amount }
         ).toList()
       );
-      await dataStore.productTransfersDao.clearProductTransfers();
+      await dataStore.transaction(() async {
+        await dataStore.productTransfersDao.addProductTransfer(ProductTransfersCompanion.insert(gatherFinished: false));
+        await dataStore.productTransfersDao.clearProductTransfers();
+      });
+
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

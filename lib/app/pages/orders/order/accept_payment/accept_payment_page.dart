@@ -10,6 +10,8 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
+import '/app/repositories/orders_repository.dart';
 import '/app/services/iboxpro.dart';
 
 part 'accept_payment_state.dart';
@@ -29,7 +31,8 @@ class AcceptPaymentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<AcceptPaymentViewModel>(
       create: (context) => AcceptPaymentViewModel(
-        context,
+        RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<OrdersRepository>(context),
         order: order,
         cardPayment: cardPayment
       ),

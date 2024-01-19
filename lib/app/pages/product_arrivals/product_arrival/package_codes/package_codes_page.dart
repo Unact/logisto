@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -10,6 +9,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 import 'scan/code_scan_page.dart';
 
 part 'package_codes_state.dart';
@@ -26,7 +26,10 @@ class PackageCodesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PackageCodesViewModel>(
-      create: (context) => PackageCodesViewModel(context, packageEx: packageEx),
+      create: (context) => PackageCodesViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        packageEx: packageEx
+      ),
       child: _PackageCodesView(),
     );
   }
@@ -39,6 +42,12 @@ class _PackageCodesView extends StatefulWidget {
 
 class PackageCodesViewState extends State<_PackageCodesView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   Future<void> showNewCodeDialog(Product product) async {
     PackageCodesViewModel vm = context.read<PackageCodesViewModel>();

@@ -1,14 +1,11 @@
 part of 'package_qr_scan_page.dart';
 
 class PackageQRScanViewModel extends PageViewModel<PackageQRScanState, PackageQRScanStateStatus> {
-  PackageQRScanViewModel(BuildContext context, { required List<ProductArrivalPackageEx> packages }) :
-    super(context, PackageQRScanState(packages: packages));
+  PackageQRScanViewModel({ required List<ProductArrivalPackageEx> packages }) :
+    super(PackageQRScanState(packages: packages));
 
   @override
   PackageQRScanStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;

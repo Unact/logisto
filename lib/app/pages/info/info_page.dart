@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -16,6 +16,9 @@ import '/app/pages/product/product_page.dart';
 import '/app/pages/product_transfer/product_transfer_page.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
+import '/app/repositories/product_transfers_repository.dart';
+import '/app/repositories/users_repository.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -28,7 +31,11 @@ class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<InfoViewModel>(
-      create: (context) => InfoViewModel(context),
+      create: (context) => InfoViewModel(
+        RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<ProductTransfersRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
+      ),
       child: _InfoView(),
     );
   }
@@ -40,8 +47,8 @@ class _InfoView extends StatefulWidget {
 }
 
 class _InfoViewState extends State<_InfoView> {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  Completer<void> _refresherCompleter = Completer();
+  final ScrollController scrollController = ScrollController();
+  final EasyRefreshController refreshController = EasyRefreshController();
 
   Future<void> showProductSearch() async {
     Product? product = await showDialog<Product?>(
@@ -84,22 +91,15 @@ class _InfoViewState extends State<_InfoView> {
       )
     );
   }
-  Future<void> openRefresher() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshIndicatorKey.currentState!.show();
-    });
-  }
-
-  void closeRefresher() {
-    _refresherCompleter.complete();
-    _refresherCompleter = Completer();
-  }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InfoViewModel, InfoState>(
       builder: (context, state) {
         InfoViewModel vm = context.read<InfoViewModel>();
+        final lastLoadTime = state.appInfo?.lastLoadTime != null ?
+          Format.dateTimeStr(state.appInfo?.lastLoadTime) :
+          'Загрузка не проводилась';
 
         return Scaffold(
           appBar: AppBar(
@@ -133,14 +133,17 @@ class _InfoViewState extends State<_InfoView> {
               )
             ]
           ),
-          body: RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () async {
-              vm.getData();
-              return _refresherCompleter.future;
+          body: Refreshable(
+            scrollController: scrollController,
+            refreshController: refreshController,
+            confirmRefresh: false,
+            messageText: 'Последнее обновление: $lastLoadTime',
+            onRefresh: vm.getData,
+            onError: (error, stackTrace) {
+              if (error is! AppError) Misc.reportError(error, stackTrace);
             },
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+            childBuilder: (context, physics) => ListView(
+              physics: physics,
               padding: const EdgeInsets.only(top: 24, left: 8, right: 8, bottom: 24),
               children: <Widget>[
                 Column(
@@ -156,12 +159,7 @@ class _InfoViewState extends State<_InfoView> {
       listener: (context, state) {
         switch (state.status) {
           case InfoStateStatus.startLoad:
-            openRefresher();
-            break;
-          case InfoStateStatus.failure:
-          case InfoStateStatus.success:
-            Misc.showMessage(context, state.message);
-            closeRefresher();
+            refreshController.callRefresh(scrollController: scrollController);
             break;
           case InfoStateStatus.startTransfer:
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -206,7 +204,7 @@ class _InfoViewState extends State<_InfoView> {
             style: const TextStyle(color: Colors.grey),
             children: <TextSpan>[
               TextSpan(
-                text: 'Кол-во: ${vm.state.productArrivalExList.length}\n',
+                text: 'Кол-во: ${vm.state.appInfo?.productArrivalsTotal ?? 0}\n',
                 style: const TextStyle(fontSize: 12.0)
               ),
             ]
@@ -232,7 +230,7 @@ class _InfoViewState extends State<_InfoView> {
           text: TextSpan(
             style: const TextStyle(color: Colors.grey),
             children: <TextSpan>[
-              TextSpan(text: 'Кол-во: ${vm.state.orderExList.length}\n', style: const TextStyle(fontSize: 12.0)),
+              TextSpan(text: 'Кол-во: ${vm.state.appInfo?.ordersTotal ?? 0}\n', style: const TextStyle(fontSize: 12.0)),
             ]
           )
         ),
@@ -243,17 +241,20 @@ class _InfoViewState extends State<_InfoView> {
   Widget _buildInfoCard(BuildContext context) {
     InfoViewModel vm = context.read<InfoViewModel>();
 
-    if (vm.state.newVersionAvailable) {
-      return const Card(
-        child: ListTile(
-          isThreeLine: true,
-          title: Text('Информация'),
-          subtitle: Text('Доступна новая версия приложения'),
-        )
-      );
-    } else {
-      return Container();
-    }
+    return FutureBuilder(
+      future: vm.state.user?.newVersionAvailable,
+      builder: (context, snapshot) {
+        if (!(snapshot.data ?? false)) return Container();
+
+        return const Card(
+          child: ListTile(
+            isThreeLine: true,
+            title: Text('Информация'),
+            subtitle: Text('Доступна новая версия приложения'),
+          )
+        );
+      }
+    );
   }
 
   Widget _buildUserCard(BuildContext context) {

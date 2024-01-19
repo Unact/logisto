@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +11,7 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/products_repository.dart';
 
 part 'product_search_state.dart';
 part 'product_search_view_model.dart';
@@ -31,7 +31,9 @@ class ProductSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductSearchViewModel>(
-      create: (context) => ProductSearchViewModel(context),
+      create: (context) => ProductSearchViewModel(
+        RepositoryProvider.of<ProductsRepository>(context)
+      ),
       child: ScaffoldMessenger(child: _ProductSearchView(
         focusNode: focusNode,
         product: product,
@@ -63,12 +65,20 @@ class ProductSearchViewState extends State<_ProductSearchView> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() { _nameController.text = widget.product?.name ?? ''; });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String name = widget.product?.name ?? '';
-
-    _nameController.text = name;
-    _nameController.selection = TextSelection.fromPosition(TextPosition(offset: name.length));
-
     return BlocConsumer<ProductSearchViewModel, ProductSearchState>(
       builder: (context, state) {
         ProductSearchViewModel vm = context.read<ProductSearchViewModel>();
@@ -101,7 +111,11 @@ class ProductSearchViewState extends State<_ProductSearchView> {
               title: Text(suggestion.name, style: Theme.of(context).textTheme.bodySmall)
             );
           },
-          onSuggestionSelected: vm.setProduct
+          onSuggestionSelected: (product) async {
+            setState(() { _nameController.text = product.name; });
+
+            vm.setProduct(product);
+          }
         );
       },
       listener: (context, state) async {

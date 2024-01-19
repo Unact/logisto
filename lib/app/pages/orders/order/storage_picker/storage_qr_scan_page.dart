@@ -11,7 +11,10 @@ class StorageQRScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<StorageQRScanViewModel>(
-      create: (context) => StorageQRScanViewModel(context, storages: storages),
+      create: (context) => StorageQRScanViewModel(
+        RepositoryProvider.of<StoragesRepository>(context),
+        storages: storages
+      ),
       child: _StorageQRScanView(),
     );
   }

@@ -5,19 +5,14 @@ import '/app/constants/strings.dart';
 
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/repositories/app_store.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
-class ProductsRepository {
-  final AppStore store;
+class ProductsRepository extends BaseRepository {
+  ProductsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
-
-  ProductsRepository(this.store);
-
-  Future<List<ProductStore>> getProductStores() {
-    return dataStore.productsDao.getProductStores();
+  Stream<List<ProductStore>> watchProductStores() {
+    return dataStore.productsDao.watchProductStores();
   }
 
   Future<List<Product>> findProduct({String? code, String? name}) async {

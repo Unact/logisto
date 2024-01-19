@@ -1,25 +1,27 @@
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
-import '/app/repositories/app_store.dart';
+import '/app/repositories/base_repository.dart';
 
-class StoragesRepository {
-  final AppStore store;
+class StoragesRepository extends BaseRepository {
+  StoragesRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
-
-  StoragesRepository(this.store);
-
-  Future<List<Storage>> getStorages() {
-    return dataStore.storagesDao.getStorages();
+  Stream<List<Storage>> watchStorages() {
+    return dataStore.storagesDao.watchStorages();
   }
 
   Future<Storage?> getStorageById(int id) {
     return dataStore.storagesDao.getStorageById(id);
   }
 
-  Future<void> addStorageCell(StorageCell storageCell) {
-    return dataStore.storagesDao.addStorageCell(storageCell);
+  Future<StorageCell> addStorageCell({
+    required int id,
+    required String name
+  }) async {
+    final storageCell = StorageCell(id: id, name: name);
+
+    await dataStore.storagesDao.addStorageCell(storageCell);
+
+    return storageCell;
   }
 }

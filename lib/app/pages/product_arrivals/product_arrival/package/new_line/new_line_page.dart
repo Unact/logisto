@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -9,6 +8,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
 
@@ -26,7 +26,10 @@ class NewLinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<NewLineViewModel>(
-      create: (context) => NewLineViewModel(context, packageEx: packageEx),
+      create: (context) => NewLineViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+        packageEx: packageEx
+      ),
       child: ScaffoldMessenger(child: _NewLineView()),
     );
   }
@@ -43,6 +46,12 @@ class NewLineViewState extends State<_NewLineView> {
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

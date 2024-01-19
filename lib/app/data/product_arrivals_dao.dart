@@ -157,33 +157,32 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await delete(productArrivalNewUnloadPackages).go();
   }
 
-  Future<List<ProductArrivalPackageType>> getProductArrivalPackageTypes() async {
-    return select(productArrivalPackageTypes).get();
+  Stream<List<ProductArrivalPackageType>> watchProductArrivalPackageTypes() {
+    return select(productArrivalPackageTypes).watch();
   }
 
-  Future<List<ProductArrivalNewPackage>> getProductArrivalNewPackages(int productArrivalId) async {
+  Stream<List<ProductArrivalNewPackage>> watchProductArrivalNewPackages(int productArrivalId) {
     return (
       select(productArrivalNewPackages)
       ..where((e)=> e.productArrivalId.equals(productArrivalId))
-    ).get();
+    ).watch();
   }
 
-  Future<List<ProductArrivalPackageNewLineEx>> getProductArrivalPackageNewLinesEx(int productArrivalPackageId) async {
+  Stream<List<ProductArrivalPackageNewLineEx>> watchProductArrivalPackageNewLinesEx(int productArrivalPackageId) {
     final packageNewLinesQuery = select(productArrivalPackageNewLines)
       .join([innerJoin(products, products.id.equalsExp(productArrivalPackageNewLines.productId))])
       ..where(productArrivalPackageNewLines.productArrivalPackageId.equals(productArrivalPackageId))
       ..orderBy([OrderingTerm(expression: products.name)]);
-    final packageNewLinesRes = await packageNewLinesQuery.get();
 
-    return packageNewLinesRes.map((packageLine) {
+    return packageNewLinesQuery.watch().map((event) => event.map((packageLine) {
       return ProductArrivalPackageNewLineEx(
         packageLine.readTable(productArrivalPackageNewLines),
         packageLine.readTable(products)
       );
-    }).toList();
+    }).toList());
   }
 
-  Future<List<ProductArrivalPackageNewCellEx>> getProductArrivalPackageNewCellsEx(int productArrivalPackageId) async {
+  Stream<List<ProductArrivalPackageNewCellEx>> watchProductArrivalPackageNewCellsEx(int productArrivalPackageId) {
     final packageNewCellsQuery = select(productArrivalPackageNewCells)
       .join([
         innerJoin(products, products.id.equalsExp(productArrivalPackageNewCells.productId)),
@@ -191,190 +190,239 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
       ])
       ..where(productArrivalPackageNewCells.productArrivalPackageId.equals(productArrivalPackageId))
       ..orderBy([OrderingTerm(expression: products.name)]);
-    final packageNewCellsRes = await packageNewCellsQuery.get();
 
-    return packageNewCellsRes.map((packageCell) {
+    return packageNewCellsQuery.watch().map((event) => event.map((packageCell) {
       return ProductArrivalPackageNewCellEx(
         packageCell.readTable(productArrivalPackageNewCells),
         packageCell.readTable(products),
         packageCell.readTable(storageCells)
       );
-    }).toList();
+    }).toList());
   }
 
-  Future<List<ProductArrivalPackageNewCodeEx>> getProductArrivalPackageNewCodesEx(int productArrivalPackageId) async {
+  Stream<List<ProductArrivalPackageNewCodeEx>> watchProductArrivalPackageNewCodesEx(int productArrivalPackageId) {
     final packageNewCodesQuery = select(productArrivalPackageNewCodes)
       .join([
         innerJoin(products, products.id.equalsExp(productArrivalPackageNewCodes.productId)),
       ])
       ..where(productArrivalPackageNewCodes.productArrivalPackageId.equals(productArrivalPackageId))
       ..orderBy([OrderingTerm(expression: products.name)]);
-    final packageNewCodesRes = await packageNewCodesQuery.get();
 
-    return packageNewCodesRes.map((packageCode) {
+    return packageNewCodesQuery.watch().map((event) => event.map((packageCode) {
       return ProductArrivalPackageNewCodeEx(
         packageCode.readTable(productArrivalPackageNewCodes),
         packageCode.readTable(products)
       );
-    }).toList();
+    }).toList());
   }
 
-  Future<List<ProductArrivalNewUnloadPackage>> getProductArrivalNewUnloadPackages(int productArrivalId) async {
+  Stream<List<ProductArrivalNewUnloadPackage>> watchProductArrivalNewUnloadPackages(int productArrivalId) {
     return (
       select(productArrivalNewUnloadPackages)
       ..where((e)=> e.productArrivalId.equals(productArrivalId))
-    ).get();
+    ).watch();
   }
 
-  Future<List<ProductArrivalEx>> getProductPackageExList() async {
-    final productArrivalsRes = await (
+  Stream<List<ProductArrivalEx>> watchProductPackageExList() {
+    final productArrivalsStream = (
       select(productArrivals)
       .join([innerJoin(storages, storages.id.equalsExp(productArrivals.storageId))])
       ..orderBy([
         OrderingTerm(expression: productArrivals.id),
         OrderingTerm(expression: productArrivals.arrivalDate)
       ])
-    ).get();
-    final productArrivalLinesRes = await (
+    ).watch();
+    final productArrivalLinesStream = (
       select(productArrivalLines)
       .join([innerJoin(products, products.id.equalsExp(productArrivalLines.productId))])
       ..orderBy([OrderingTerm(expression: products.name)])
-    ).get();
-    final productArrivalPackagesRes = await (
+    ).watch();
+    final productArrivalPackagesStream = (
       select(productArrivalPackages)..orderBy([(u) => OrderingTerm(expression: u.id)])
-    ).get();
-    final productArrivalUnloadPackagesRes = await (
+    ).watch();
+    final productArrivalUnloadPackagesStream = (
       select(productArrivalUnloadPackages)..orderBy([(u) => OrderingTerm(expression: u.typeName)])
-    ).get();
-    final productArrivalPackageLinesRes = await (
+    ).watch();
+    final productArrivalPackageLinesStream = (
       select(productArrivalPackageLines)
       .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
       ..orderBy([OrderingTerm(expression: products.name)])
-    ).get();
+    ).watch();
 
-    return productArrivalsRes.map((productArrival) {
-      final lines = productArrivalLinesRes
-        .where((e) => e.readTable(productArrivalLines).productArrivalId == productArrival.readTable(productArrivals).id)
-        .map((e) => ProductArrivalLineEx(e.readTable(productArrivalLines), e.readTable(products)))
-        .toList();
-      final packages = productArrivalPackagesRes
-        .where((e) => e.productArrivalId == productArrival.readTable(productArrivals).id)
-        .map((e) {
-          final packageLinesRows = productArrivalPackageLinesRes
-            .where((line) => line.readTable(productArrivalPackageLines).productArrivalPackageId == e.id)
-            .map((line) {
-              return ProductArrivalPackageLineEx(
-                line.readTable(productArrivalPackageLines),
-                line.readTable(products)
-              );
-            }).toList();
+    return Rx.combineLatest5(
+      productArrivalsStream,
+      productArrivalLinesStream,
+      productArrivalPackagesStream,
+      productArrivalUnloadPackagesStream,
+      productArrivalPackageLinesStream,
+      (
+        productArrivalsRes,
+        productArrivalLinesRes,
+        productArrivalPackagesRes,
+        productArrivalUnloadPackagesRes,
+        productArrivalPackageLinesRes
+      ) {
+        return productArrivalsRes.map((pa) {
+          final lines = productArrivalLinesRes
+            .where((e) => e.readTable(productArrivalLines).productArrivalId == pa.readTable(productArrivals).id)
+            .map((e) => ProductArrivalLineEx(e.readTable(productArrivalLines), e.readTable(products)))
+            .toList();
+          final packages = productArrivalPackagesRes
+            .where((e) => e.productArrivalId == pa.readTable(productArrivals).id)
+            .map((e) {
+              final packageLinesRows = productArrivalPackageLinesRes
+                .where((line) => line.readTable(productArrivalPackageLines).productArrivalPackageId == e.id)
+                .map((line) {
+                  return ProductArrivalPackageLineEx(
+                    line.readTable(productArrivalPackageLines),
+                    line.readTable(products)
+                  );
+                }).toList();
 
-          return ProductArrivalPackageEx(e, packageLinesRows);
-        })
-        .toList();
-      final unloadPackages = productArrivalUnloadPackagesRes
-        .where((e) => e.productArrivalId == productArrival.readTable(productArrivals).id).toList();
+              return ProductArrivalPackageEx(e, packageLinesRows);
+            })
+            .toList();
+          final unloadPackages = productArrivalUnloadPackagesRes
+            .where((e) => e.productArrivalId == pa.readTable(productArrivals).id).toList();
 
-      return ProductArrivalEx(
-        productArrival.readTable(productArrivals),
-        lines,
-        productArrival.readTable(storages),
-        packages,
-        unloadPackages
-      );
-    }).toList();
+          return ProductArrivalEx(
+            pa.readTable(productArrivals),
+            lines,
+            pa.readTable(storages),
+            packages,
+            unloadPackages
+          );
+        }).toList();
+      }
+    );
   }
 
-  Future<ProductArrivalEx> getProductArrivalEx(int id) async {
-    return (await _getProductArrivalEx(productArrivals.id.equals(id))).first;
+  Stream<ProductArrivalEx?> watchProductArrivalEx(int id) {
+    return _watchProductArrivalEx(productArrivals.id.equals(id));
   }
 
-  Future<ProductArrivalEx?> getProductArrivalExByNumber(String number) async {
-    return(await _getProductArrivalEx(productArrivals.number.equals(number))).firstOrNull;
+  Stream<ProductArrivalEx?> watchProductArrivalExByNumber(String number) {
+    return _watchProductArrivalEx(productArrivals.number.equals(number));
   }
 
-  Future<ProductArrivalPackageEx> getProductArrivalPackageEx(int id) async {
-    final packageRow = await (select(productArrivalPackages)..where((t) => t.id.equals(id))).getSingle();
-    final packageLinesQuery = select(productArrivalPackageLines)
-      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
-      ..where(productArrivalPackageLines.productArrivalPackageId.equals(packageRow.id))
-      ..orderBy([OrderingTerm(expression: products.name)]);
-    final packageLinesRes = await packageLinesQuery.get();
-    final packageLinesRows = packageLinesRes.map((packageLine) {
-      return ProductArrivalPackageLineEx(
-        packageLine.readTable(productArrivalPackageLines),
-        packageLine.readTable(products)
-      );
-    }).toList();
+  Stream<ProductArrivalPackageEx> watchProductArrivalPackageEx(int id) {
+    final packageStream = (select(productArrivalPackages)..where((t) => t.id.equals(id))).watchSingle();
+    final packageLinesStream = (
+      select(productArrivalPackageLines)
+        .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
+        ..where(productArrivalPackageLines.productArrivalPackageId.equals(id))
+        ..orderBy([OrderingTerm(expression: products.name)])
+    ).watch();
 
-    return ProductArrivalPackageEx(packageRow, packageLinesRows);
+    return Rx.combineLatest2(
+      packageStream,
+      packageLinesStream,
+      (packageRow, packageLinesRes) {
+        final packageLinesRows = packageLinesRes.map((packageLine) {
+          return ProductArrivalPackageLineEx(
+            packageLine.readTable(productArrivalPackageLines),
+            packageLine.readTable(products)
+          );
+        }).toList();
+
+        return ProductArrivalPackageEx(packageRow, packageLinesRows);
+      }
+    );
   }
 
-  Future<List<ProductArrivalEx>> _getProductArrivalEx(Expression<bool> whereExp) async {
-    final productArrivalsQuery = select(productArrivals)
-      .join([innerJoin(storages, storages.id.equalsExp(productArrivals.storageId))])
-      ..orderBy([
-        OrderingTerm(expression: productArrivals.id),
-        OrderingTerm(expression: productArrivals.arrivalDate)
-      ])
+  Stream<ProductArrivalEx?> _watchProductArrivalEx(Expression<bool> whereExp) {
+    final productArrivalsIdQuery = selectOnly(productArrivals)
+      ..addColumns([productArrivals.id])
       ..where(whereExp);
-    final productArrivalRows = await productArrivalsQuery.get();
+    final productArrivalUnloadPackagesIdQuery = selectOnly(productArrivalUnloadPackages)
+      ..addColumns([productArrivalUnloadPackages.id])
+      ..where(productArrivalUnloadPackages.productArrivalId.isInQuery(productArrivalsIdQuery));
 
-    final productArrivalLinesQuery = select(productArrivalLines)
-      .join([innerJoin(products, products.id.equalsExp(productArrivalLines.productId))])
-      ..where(productArrivalLines.productArrivalId.isIn(productArrivalRows.map((e) => e.readTable(productArrivals).id)))
-      ..orderBy([OrderingTerm(expression: products.name)]);
-    final productArrivalLinesRes = await productArrivalLinesQuery.get();
-    final productArrivalLinesRows = productArrivalLinesRes.map((line) {
-      return ProductArrivalLineEx(
-        line.readTable(productArrivalLines),
-        line.readTable(products)
-      );
-    }).toList();
-    final productArrivalPackagesQuery = select(productArrivalPackages)
-      ..where((t) => t.productArrivalId.isIn(productArrivalRows.map((e) => e.readTable(productArrivals).id)))
-      ..orderBy([(u) => OrderingTerm(expression: u.id)]);
-    final productArrivalPackagesRes = await productArrivalPackagesQuery.get();
-    final productArrivalUnloadPackagesQuery = select(productArrivalUnloadPackages)
-      ..where((t) => t.productArrivalId.isIn(productArrivalRows.map((e) => e.readTable(productArrivals).id)))
-      ..orderBy([(u) => OrderingTerm(expression: u.typeName)]);
-    final productArrivalUnloadPackagesRows = await productArrivalUnloadPackagesQuery.get();
-    final productArrivalPackageLinesQuery = select(productArrivalPackageLines)
-      .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
-      ..where(productArrivalPackageLines.productArrivalPackageId.isIn(productArrivalPackagesRes.map((e) => e.id)))
-      ..orderBy([OrderingTerm(expression: products.name)]);
-    final productArrivalPackageLinesRes = await productArrivalPackageLinesQuery.get();
-    final productArrivalPackageLinesRows = productArrivalPackageLinesRes.map((packageLine) {
-      return ProductArrivalPackageLineEx(
-        packageLine.readTable(productArrivalPackageLines),
-        packageLine.readTable(products)
-      );
-    }).toList();
-    final productArrivalPackagesRows = productArrivalPackagesRes.map((e) => ProductArrivalPackageEx(
-      e,
-      productArrivalPackageLinesRows.where((lineEx) => lineEx.line.productArrivalPackageId == e.id).toList()
-    )).toList();
+    final productArrivalsStream = (
+      select(productArrivals)
+        .join([innerJoin(storages, storages.id.equalsExp(productArrivals.storageId))])
+        ..orderBy([
+          OrderingTerm(expression: productArrivals.id),
+          OrderingTerm(expression: productArrivals.arrivalDate)
+        ])
+        ..where(whereExp)
+    ).watch();
+    final productArrivalLinesStream = (
+      select(productArrivalLines)
+        .join([innerJoin(products, products.id.equalsExp(productArrivalLines.productId))])
+        ..where(productArrivalLines.productArrivalId.isInQuery(productArrivalsIdQuery))
+        ..orderBy([OrderingTerm(expression: products.name)])
+    ).watch();
+    final productArrivalPackagesStream = (
+      select(productArrivalPackages)
+        ..where((t) => t.productArrivalId.isInQuery(productArrivalsIdQuery))
+        ..orderBy([(u) => OrderingTerm(expression: u.id)])
+    ).watch();
+    final productArrivalUnloadPackagesStream = (
+      select(productArrivalUnloadPackages)
+        ..where((t) => t.productArrivalId.isInQuery(productArrivalsIdQuery))
+        ..orderBy([(u) => OrderingTerm(expression: u.typeName)])
+    ).watch();
+    final productArrivalPackageLinesStream = (
+      select(productArrivalPackageLines)
+        .join([innerJoin(products, products.id.equalsExp(productArrivalPackageLines.productId))])
+        ..where(productArrivalPackageLines.productArrivalPackageId.isInQuery(productArrivalUnloadPackagesIdQuery))
+        ..orderBy([OrderingTerm(expression: products.name)])
+    ).watch();
 
-    return productArrivalRows.map((productArrivalRow) {
-      final productArrival = productArrivalRow.readTable(productArrivals);
-      final lines = productArrivalLinesRows
-        .where((lineEx) => lineEx.line.productArrivalId == productArrival.id)
-        .toList();
-      final packages = productArrivalPackagesRows
-        .where((packageEx) => packageEx.package.productArrivalId == productArrival.id)
-        .toList();
-      final unloadPackages = productArrivalUnloadPackagesRows
-        .where((unloadPackage) => unloadPackage.productArrivalId == productArrival.id)
-        .toList();
+    return Rx.combineLatest5(
+      productArrivalsStream,
+      productArrivalLinesStream,
+      productArrivalPackagesStream,
+      productArrivalUnloadPackagesStream,
+      productArrivalPackageLinesStream,
+      (
+        productArrivalsRes,
+        productArrivalLinesRes,
+        productArrivalPackagesRes,
+        productArrivalUnloadPackagesRows,
+        productArrivalPackageLinesRes
+      ) {
+        final productArrivalLinesRows = productArrivalLinesRes.map((line) {
+          return ProductArrivalLineEx(
+            line.readTable(productArrivalLines),
+            line.readTable(products)
+          );
+        }).toList();
+        final productArrivalPackageLinesRows = productArrivalPackageLinesRes.map((packageLine) {
+          return ProductArrivalPackageLineEx(
+            packageLine.readTable(productArrivalPackageLines),
+            packageLine.readTable(products)
+          );
+        }).toList();
+        final productArrivalPackagesRows = productArrivalPackagesRes.map((e) => ProductArrivalPackageEx(
+          e,
+          productArrivalPackageLinesRows.where((lineEx) => lineEx.line.productArrivalPackageId == e.id).toList()
+        )).toList();
 
-      return ProductArrivalEx(
-        productArrival,
-        lines,
-        productArrivalRow.readTable(storages),
-        packages,
-        unloadPackages
-      );
-    }).toList();
+        final productArrivalRow = productArrivalsRes.firstOrNull;
+
+        if (productArrivalRow == null) return null;
+
+        final lines = productArrivalLinesRows
+          .where((lineEx) => lineEx.line.productArrivalId == productArrivalRow.readTable(productArrivals).id)
+          .toList();
+        final packages = productArrivalPackagesRows
+          .where((packageEx) => packageEx.package.productArrivalId == productArrivalRow.readTable(productArrivals).id)
+          .toList();
+        final unloadPackages = productArrivalUnloadPackagesRows
+          .where((unloadPackage) => unloadPackage.productArrivalId == productArrivalRow.readTable(productArrivals).id)
+          .toList();
+
+        return ProductArrivalEx(
+          productArrivalRow.readTable(productArrivals),
+          lines,
+          productArrivalRow.readTable(storages),
+          packages,
+          unloadPackages
+        );
+      }
+    );
   }
 }
 

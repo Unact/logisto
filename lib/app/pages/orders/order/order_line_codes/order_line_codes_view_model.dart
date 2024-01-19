@@ -1,28 +1,38 @@
 part of 'order_line_codes_page.dart';
 
 class OrderLineCodesViewModel extends PageViewModel<OrderLineCodesState, OrderLineCodesStateStatus> {
-  OrderLineCodesViewModel(BuildContext context, { required OrderEx orderEx }) :
-    super(context, OrderLineCodesState(orderEx: orderEx, confirmationCallback: () {}));
+  final OrdersRepository ordersRepository;
+
+  StreamSubscription<List<OrderLineNewCodeEx>>? orderLineNewCodesExListSubscription;
+  StreamSubscription<OrderEx?>? orderExSubscription;
+
+  OrderLineCodesViewModel(this.ordersRepository, {required OrderEx orderEx}) :
+    super(OrderLineCodesState(orderEx: orderEx, confirmationCallback: () {}));
 
   @override
   OrderLineCodesStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.orders,
-    dataStore.orderLines,
-    dataStore.orderLineNewCodes,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-  @override
-  Future<void> loadData() async {
     int orderId = state.orderEx.order.id;
 
-    emit(state.copyWith(
-      status: OrderLineCodesStateStatus.dataLoaded,
-      orderEx: await store.ordersRepo.getOrderEx(orderId),
-      newCodes: await store.ordersRepo.getOrderLineNewCodesEx(orderId)
-    ));
+    orderLineNewCodesExListSubscription = ordersRepository.watchOrderLineNewCodesEx(orderId)
+      .listen((event) {
+        emit(state.copyWith(status: OrderLineCodesStateStatus.dataLoaded, newCodes: event));
+      });
+    orderExSubscription = ordersRepository.watchOrderEx(orderId)
+      .listen((event) {
+        emit(state.copyWith(status: OrderLineCodesStateStatus.dataLoaded, orderEx: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await orderLineNewCodesExListSubscription?.cancel();
   }
 
   Future<void> trySaveOrderLineCodes() async {
@@ -49,7 +59,7 @@ class OrderLineCodesViewModel extends PageViewModel<OrderLineCodesState, OrderLi
     emit(state.copyWith(status: OrderLineCodesStateStatus.inProgress));
 
     try {
-      await store.ordersRepo.saveOrderLineCodes(state.orderEx, state.newCodes);
+      await ordersRepository.saveOrderLineCodes(state.orderEx, state.newCodes);
 
       emit(state.copyWith(status: OrderLineCodesStateStatus.success, message: 'Коды успешно сохранены'));
     } on AppError catch(e) {
@@ -60,7 +70,7 @@ class OrderLineCodesViewModel extends PageViewModel<OrderLineCodesState, OrderLi
   Future<void> deleteOrderLineNewCodes(OrderLineEx orderLineEx) async {
     await Future.forEach<OrderLineNewCodeEx>(
       state.newCodes.where((e) => e.line.line == orderLineEx.line),
-      (e) => store.ordersRepo.deleteOrderLineNewCode(e.newCode)
+      (e) => ordersRepository.deleteOrderLineNewCode(e.newCode)
     );
   }
 }

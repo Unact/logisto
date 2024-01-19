@@ -1,28 +1,38 @@
 part of 'package_codes_page.dart';
 
 class PackageCodesViewModel extends PageViewModel<PackageCodesState, PackageCodesStateStatus> {
-  PackageCodesViewModel(BuildContext context, { required ProductArrivalPackageEx packageEx }) :
-    super(context, PackageCodesState(packageEx: packageEx, confirmationCallback: () {}));
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<ProductArrivalPackageEx?>? productArrivalPackageExSubscription;
+  StreamSubscription<List<ProductArrivalPackageNewCodeEx>>? productArrivalPackageNewCodeExListSubscription;
+
+  PackageCodesViewModel(this.productArrivalsRepository, { required ProductArrivalPackageEx packageEx }) :
+    super(PackageCodesState(packageEx: packageEx, confirmationCallback: () {}));
 
   @override
   PackageCodesStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalPackageNewCodes,
-  ]);
-
-  @override
-  Future<void> loadData() async {
+  Future<void> initViewModel() async {
+    await super.initViewModel();
     int productArrivalPackageId = state.packageEx.package.id;
 
-    emit(state.copyWith(
-      status: PackageCodesStateStatus.dataLoaded,
-      packageEx: await store.productArrivalsRepo.getProductArrivalPackageEx(productArrivalPackageId),
-      newCodes: await store.productArrivalsRepo.getProductArrivalPackageNewCodesEx(productArrivalPackageId)
-    ));
+    productArrivalPackageExSubscription = productArrivalsRepository
+      .watchProductArrivalPackageEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageCodesStateStatus.dataLoaded, packageEx: event));
+      });
+    productArrivalPackageNewCodeExListSubscription = productArrivalsRepository
+      .watchProductArrivalPackageNewCodesEx(productArrivalPackageId).listen((event) {
+        emit(state.copyWith(status: PackageCodesStateStatus.dataLoaded, newCodes: event));
+      });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await productArrivalPackageExSubscription?.cancel();
+    await productArrivalPackageNewCodeExListSubscription?.cancel();
   }
 
   Future<void> trySavePackageCodes() async {
@@ -50,7 +60,7 @@ class PackageCodesViewModel extends PageViewModel<PackageCodesState, PackageCode
     emit(state.copyWith(status: PackageCodesStateStatus.inProgress));
 
     try {
-      await store.productArrivalsRepo.savePackageCodes(state.packageEx, state.newCodes);
+      await productArrivalsRepository.savePackageCodes(state.packageEx, state.newCodes);
 
       emit(state.copyWith(status: PackageCodesStateStatus.success, message: 'Коды успешно сохранены'));
     } on AppError catch(e) {
@@ -61,7 +71,7 @@ class PackageCodesViewModel extends PageViewModel<PackageCodesState, PackageCode
   Future<void> deleteProductArrivalPackageNewCodes(Product product) async {
     await Future.forEach<ProductArrivalPackageNewCodeEx>(
       state.newCodes.where((e) => e.product == product),
-      (e) => store.productArrivalsRepo.deleteProductArrivalPackageNewCode(e.newCode)
+      (e) => productArrivalsRepository.deleteProductArrivalPackageNewCode(e.newCode)
     );
   }
 }

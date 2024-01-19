@@ -1,37 +1,43 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/repositories/app_store.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
-class OrdersRepository {
-  final AppStore store;
+class OrdersRepository extends BaseRepository {
+  OrdersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
-
-  OrdersRepository(this.store);
-
-  Future<List<OrderEx>> getOrderExList() {
-    return dataStore.ordersDao.getOrderExList();
+  Stream<List<OrderEx>> watchOrderExList() {
+    return dataStore.ordersDao.watchOrderExList();
   }
 
-  Future<OrderEx> getOrderEx(int id) {
-    return dataStore.ordersDao.getOrderEx(id);
+  Stream<OrderEx?> watchOrderEx(int id) {
+    return dataStore.ordersDao.watchOrderEx(id);
   }
 
-  Future<List<OrderLineNewCodeEx>> getOrderLineNewCodesEx(int id) {
-    return dataStore.ordersDao.getOrderLineNewCodesEx(id);
+  Stream<List<OrderLineNewCodeEx>> watchOrderLineNewCodesEx(int id) {
+    return dataStore.ordersDao.watchOrderLineNewCodesEx(id);
   }
 
-  Future<int> upsertOrderLine(int id, OrderLinesCompanion orderLine) {
-    return dataStore.ordersDao.upsertOrderLine(id, orderLine);
+  Future<int> upsertOrderLine(int id, {
+    required int? factAmount
+  }) {
+    return dataStore.ordersDao.upsertOrderLine(id, OrderLinesCompanion(factAmount: Value.ofNullable(factAmount)));
   }
 
-  Future<void> addOrderLineNewCode(OrderLineNewCodesCompanion newCode) {
-    return dataStore.ordersDao.addOrderLineNewCode(newCode);
+  Future<void> addOrderLineNewCode({
+    required int orderLineId,
+    required String code
+  }) {
+    return dataStore.ordersDao.addOrderLineNewCode(
+      OrderLineNewCodesCompanion.insert(
+        orderLineId: orderLineId,
+        code: code
+      )
+    );
   }
 
   Future<void> deleteOrderLineNewCode(OrderLineNewCode newCode) {
@@ -40,7 +46,7 @@ class OrdersRepository {
 
   Future<OrderEx> findOrder(String trackingNumber) async {
     try {
-      OrderEx? orderEx = await dataStore.ordersDao.getOrderExByTrackingNumber(trackingNumber);
+      OrderEx? orderEx = await dataStore.ordersDao.getOrderExByTrackingNumber(trackingNumber).first;
       if (orderEx != null) return orderEx;
 
       ApiOrder apiOrder = await api.findOrder(trackingNumber: trackingNumber);
@@ -61,8 +67,15 @@ class OrdersRepository {
     }
   }
 
-  Future<void> updateOrder(OrderEx orderEx, Map<String, dynamic> data) async {
+  Future<void> updateOrder(OrderEx orderEx, {
+    int? volume,
+    int? weight
+  }) async {
     try {
+      Map<String, dynamic> data = {};
+      if (volume != null) data['volume'] = volume;
+      if (weight != null) data['weight'] = weight;
+
       ApiOrder newOrder = await api.updateOrder(id: orderEx.order.id, data: data);
 
       await _saveApiOrder(newOrder);

@@ -1,40 +1,49 @@
 part of 'new_package_cell_page.dart';
 
 class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPackageCellStateStatus> {
+  final ProductsRepository productsRepository;
+  final ProductArrivalsRepository productArrivalsRepository;
+
+  StreamSubscription<List<ProductArrivalPackageNewCellEx>>? productArrivalPackageNewCellExListSubscription;
+
   NewPackageCellViewModel(
-    BuildContext context,
+    this.productsRepository,
+    this.productArrivalsRepository,
     {
       required ProductArrivalPackageEx packageEx,
       required StorageCell storageCell
     }
-  ) : super(context, NewPackageCellState(packageEx: packageEx, storageCell: storageCell));
+  ) : super(NewPackageCellState(packageEx: packageEx, storageCell: storageCell));
 
   @override
   NewPackageCellStateStatus get status => state.status;
 
   @override
-  TableUpdateQuery get listenForTables => TableUpdateQuery.onAllTables([
-    dataStore.productArrivals,
-    dataStore.productArrivalPackages,
-    dataStore.productArrivalPackageNewCells,
-  ]);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    productArrivalPackageNewCellExListSubscription = productArrivalsRepository
+      .watchProductArrivalPackageNewCellsEx(state.packageEx.package.id).listen((event) {
+        emit(state.copyWith(
+          status: NewPackageCellStateStatus.dataLoaded,
+          packageLineProducts: _calcNewCellsProducts(state.packageEx.packageLines, event),
+          newCells: event
+        ));
+      });
+  }
 
   @override
-  Future<void> loadData() async {
-    final newCells = await store.productArrivalsRepo.getProductArrivalPackageNewCellsEx(state.packageEx.package.id);
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: NewPackageCellStateStatus.dataLoaded,
-      packageLineProducts: _calcNewCellsProducts(state.packageEx.packageLines, newCells),
-      newCells: newCells
-    ));
+    await productArrivalPackageNewCellExListSubscription?.cancel();
   }
 
   Future<void> findAndSetProductByCode(String code) async {
     emit(state.copyWith(status: NewPackageCellStateStatus.inProgress));
 
     try {
-      List<Product> products = await store.productsRepo.findProduct(code: code);
+      List<Product> products = await productsRepository.findProduct(code: code);
 
       if (products.isEmpty) {
         emit(state.copyWith(status: NewPackageCellStateStatus.failure, message: 'Не найден товар'));
@@ -96,14 +105,12 @@ class NewPackageCellViewModel extends PageViewModel<NewPackageCellState, NewPack
       return;
     }
 
-    ProductArrivalPackageNewCellsCompanion cell = ProductArrivalPackageNewCellsCompanion(
-      productArrivalPackageId: Value(state.packageEx.package.id),
-      productId: Value(state.product!.id),
-      storageCellId: Value(state.storageCell.id),
-      amount: Value(state.amount!)
+    await productArrivalsRepository.addProductArrivalPackageNewCell(
+      productArrivalPackageId: state.packageEx.package.id,
+      productId: state.product!.id,
+      storageCellId: state.storageCell.id,
+      amount: state.amount!
     );
-
-    await store.productArrivalsRepo.addProductArrivalPackageNewCell(cell);
 
     emit(state.copyWith(
       status: NewPackageCellStateStatus.lineAdded,

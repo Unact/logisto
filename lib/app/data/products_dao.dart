@@ -27,7 +27,7 @@ class ProductsDao extends DatabaseAccessor<AppDataStore> with _$ProductsDaoMixin
     await into(products).insert(product, mode: InsertMode.insertOrReplace);
   }
 
-  Future<List<ProductStore>> getProductStores() {
-    return (select(productStores)..orderBy([(u) => OrderingTerm(expression: u.name)])).get();
+  Stream<List<ProductStore>> watchProductStores() {
+    return (select(productStores)..orderBy([(u) => OrderingTerm(expression: u.name)])).watch();
   }
 }

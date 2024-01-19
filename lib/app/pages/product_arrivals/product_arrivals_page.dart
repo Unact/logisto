@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -10,6 +9,7 @@ import '/app/constants/qr_types.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_arrivals_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'product_arrival/product_arrival_page.dart';
 
@@ -24,7 +24,9 @@ class ProductArrivalsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductArrivalsViewModel>(
-      create: (context) => ProductArrivalsViewModel(context),
+      create: (context) => ProductArrivalsViewModel(
+        RepositoryProvider.of<ProductArrivalsRepository>(context),
+      ),
       child: _ProductArrivalsView(),
     );
   }
@@ -37,6 +39,12 @@ class _ProductArrivalsView extends StatefulWidget {
 
 class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   Future<void> showManualInput() async {
     ProductArrivalsViewModel vm = context.read<ProductArrivalsViewModel>();

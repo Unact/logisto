@@ -3,71 +3,122 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/repositories/app_store.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
-class ProductArrivalsRepository {
-  final AppStore store;
+class ProductArrivalsRepository extends BaseRepository {
+  ProductArrivalsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  AppDataStore get dataStore => store.dataStore;
-  RenewApi get api => store.api;
-
-  ProductArrivalsRepository(this.store);
-
-  Future<ProductArrivalEx> getProductArrivalEx(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalEx(id);
+  Stream<ProductArrivalEx?> watchProductArrivalEx(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalEx(id);
   }
 
-  Future<List<ProductArrivalNewPackage>> getProductArrivalNewPackages(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalNewPackages(id);
+  Stream<List<ProductArrivalNewPackage>> watchProductArrivalNewPackages(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalNewPackages(id);
   }
 
-  Future<List<ProductArrivalNewUnloadPackage>> getProductArrivalNewUnloadPackages(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalNewUnloadPackages(id);
+  Stream<List<ProductArrivalNewUnloadPackage>> watchProductArrivalNewUnloadPackages(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalNewUnloadPackages(id);
   }
 
-  Future<List<ProductArrivalEx>> getProductPackageExList() {
-    return dataStore.productArrivalsDao.getProductPackageExList();
+  Stream<List<ProductArrivalEx>> watchProductPackageExList() {
+    return dataStore.productArrivalsDao.watchProductPackageExList();
   }
 
-  Future<ProductArrivalPackageEx> getProductArrivalPackageEx(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalPackageEx(id);
+  Stream<ProductArrivalPackageEx> watchProductArrivalPackageEx(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalPackageEx(id);
   }
 
-  Future<List<ProductArrivalPackageNewCellEx>> getProductArrivalPackageNewCellsEx(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalPackageNewCellsEx(id);
+  Stream<List<ProductArrivalPackageNewCellEx>> watchProductArrivalPackageNewCellsEx(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalPackageNewCellsEx(id);
   }
 
-  Future<List<ProductArrivalPackageNewCodeEx>> getProductArrivalPackageNewCodesEx(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalPackageNewCodesEx(id);
+  Stream<List<ProductArrivalPackageNewCodeEx>> watchProductArrivalPackageNewCodesEx(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalPackageNewCodesEx(id);
   }
 
-  Future<List<ProductArrivalPackageNewLineEx>> getProductArrivalPackageNewLinesEx(int id) {
-    return dataStore.productArrivalsDao.getProductArrivalPackageNewLinesEx(id);
+  Stream<List<ProductArrivalPackageNewLineEx>> watchProductArrivalPackageNewLinesEx(int id) {
+    return dataStore.productArrivalsDao.watchProductArrivalPackageNewLinesEx(id);
   }
 
-  Future<List<ProductArrivalPackageType>> getProductArrivalPackageTypes() {
-    return dataStore.productArrivalsDao.getProductArrivalPackageTypes();
+  Stream<List<ProductArrivalPackageType>> watchProductArrivalPackageTypes() {
+    return dataStore.productArrivalsDao.watchProductArrivalPackageTypes();
   }
 
-  Future<void> addProductArrivalNewPackage(ProductArrivalNewPackagesCompanion newPackage) {
-    return dataStore.productArrivalsDao.addProductArrivalNewPackage(newPackage);
+  Future<void> addProductArrivalNewPackage({
+    required int productArrivalId,
+    required int typeId,
+    required String typeName,
+    required String number,
+  }) {
+    return dataStore.productArrivalsDao.addProductArrivalNewPackage(
+      ProductArrivalNewPackagesCompanion.insert(
+        productArrivalId: productArrivalId,
+        typeId: typeId,
+        typeName: typeName,
+        number: number
+      )
+    );
   }
 
-  Future<void> addProductArrivalPackageNewLine(ProductArrivalPackageNewLinesCompanion newLine) {
-    return dataStore.productArrivalsDao.addProductArrivalPackageNewLine(newLine);
+  Future<void> addProductArrivalPackageNewLine({
+    required int productArrivalPackageId,
+    required int productId,
+    required int amount
+  }) {
+    return dataStore.productArrivalsDao.addProductArrivalPackageNewLine(
+      ProductArrivalPackageNewLinesCompanion.insert(
+        productArrivalPackageId: productArrivalPackageId,
+        productId: productId,
+        amount: amount
+      )
+    );
   }
 
-  Future<void> addProductArrivalPackageNewCell(ProductArrivalPackageNewCellsCompanion newCell) {
-    return dataStore.productArrivalsDao.addProductArrivalPackageNewCell(newCell);
+  Future<void> addProductArrivalPackageNewCell({
+    required int productArrivalPackageId,
+    required int productId,
+    required int storageCellId,
+    required int amount
+  }) {
+    return dataStore.productArrivalsDao.addProductArrivalPackageNewCell(
+      ProductArrivalPackageNewCellsCompanion.insert(
+        productArrivalPackageId: productArrivalPackageId,
+        productId: productId,
+        storageCellId: storageCellId,
+        amount: amount
+      )
+    );
   }
 
-  Future<void> addProductArrivalPackageNewCode(ProductArrivalPackageNewCodesCompanion newCode) {
-    return dataStore.productArrivalsDao.addProductArrivalPackageNewCode(newCode);
+  Future<void> addProductArrivalPackageNewCode({
+    required int productArrivalPackageId,
+    required int productId,
+    required String code
+  }) {
+    return dataStore.productArrivalsDao.addProductArrivalPackageNewCode(
+      ProductArrivalPackageNewCodesCompanion.insert(
+        productArrivalPackageId: productArrivalPackageId,
+        productId: productId,
+        code: code
+      )
+    );
   }
 
-  Future<void> addProductArrivalNewUnloadPackage(ProductArrivalNewUnloadPackagesCompanion newUnloadPackage) {
-    return dataStore.productArrivalsDao.addProductArrivalNewUnloadPackage(newUnloadPackage);
+  Future<void> addProductArrivalNewUnloadPackage({
+    required int productArrivalId,
+    required String typeName,
+    required int typeId,
+    required int amount
+  }) {
+    return dataStore.productArrivalsDao.addProductArrivalNewUnloadPackage(
+      ProductArrivalNewUnloadPackagesCompanion.insert(
+        productArrivalId: productArrivalId,
+        amount: amount,
+        typeId: typeId,
+        typeName: typeName
+      )
+    );
   }
 
   Future<void> deleteProductArrivalNewPackage(ProductArrivalNewPackage newPackage) {
@@ -115,7 +166,8 @@ class ProductArrivalsRepository {
 
   Future<ProductArrivalEx> findProductArrival(String number) async {
     try {
-      ProductArrivalEx? productArrivalEx = await dataStore.productArrivalsDao.getProductArrivalExByNumber(number);
+      ProductArrivalEx? productArrivalEx =
+        await dataStore.productArrivalsDao.watchProductArrivalExByNumber(number).first;
       if (productArrivalEx != null) return productArrivalEx;
 
       ApiProductArrival apiProductArrival = await api.findProductArrival(number: number);

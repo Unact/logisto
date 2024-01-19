@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,6 +7,8 @@ import '/app/data/database.dart';
 import '/app/pages/home/home_page.dart';
 import '/app/pages/login/login_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
+import '/app/repositories/users_repository.dart';
 
 part 'landing_state.dart';
 part 'landing_view_model.dart';
@@ -20,7 +21,10 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LandingViewModel>(
-      create: (context) => LandingViewModel(context),
+      create: (context) => LandingViewModel(
+        RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
+      ),
       child: _LandingView(),
     );
   }

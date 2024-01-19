@@ -1,15 +1,12 @@
 part of 'login_page.dart';
 
 class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
-  LoginViewModel(BuildContext context) : super(context, LoginState());
+  final UsersRepository usersRepository;
+
+  LoginViewModel(this.usersRepository) : super(LoginState());
 
   @override
   LoginStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {
-    emit(state.copyWith(fullVersion: app.fullVersion));
-  }
 
   Future<void> apiLogin(String url, String login, String password) async {
     if (!state.optsEnabled) login = _formatLogin(login);
@@ -43,7 +40,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     ));
 
     try {
-      await store.usersRepo.login(url, login, password);
+      await usersRepository.login(url, login, password);
 
       emit(state.copyWith(status: LoginStateStatus.loggedIn));
     } on AppError catch(e) {
@@ -67,7 +64,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     ));
 
     try {
-      await store.usersRepo.resetPassword(url, login);
+      await usersRepository.resetPassword(url, login);
       emit(state.copyWith(status: LoginStateStatus.passwordSent, message: 'Пароль отправлен на почту'));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));

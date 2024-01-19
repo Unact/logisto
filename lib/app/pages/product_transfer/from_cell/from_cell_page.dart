@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -10,6 +9,8 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/product_transfers_repository.dart';
+import '/app/repositories/products_repository.dart';
 
 part 'from_cell_state.dart';
 part 'from_cell_view_model.dart';
@@ -27,7 +28,12 @@ class FromCellPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FromCellViewModel>(
-      create: (context) => FromCellViewModel(context, productTransferEx: productTransferEx, storageCell: storageCell),
+      create: (context) => FromCellViewModel(
+        RepositoryProvider.of<ProductTransfersRepository>(context),
+        RepositoryProvider.of<ProductsRepository>(context),
+        productTransferEx: productTransferEx,
+        storageCell: storageCell
+      ),
       child: ScaffoldMessenger(child: _FromCellView()),
     );
   }
@@ -44,6 +50,12 @@ class FromCellViewState extends State<_FromCellView> {
   final TextEditingController _amountController = TextEditingController();
   FocusNode productFocus = FocusNode();
   FocusNode amountFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

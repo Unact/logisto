@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show TableUpdateQuery, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -9,6 +8,9 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/orders_repository.dart';
+import '/app/repositories/storages_repository.dart';
+import '/app/repositories/users_repository.dart';
 import 'accept_payment/accept_payment_page.dart';
 import 'order_line_codes/order_line_codes_page.dart';
 import 'order_qr_scan/order_qr_scan_page.dart';
@@ -28,7 +30,12 @@ class OrderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderViewModel>(
-      create: (context) => OrderViewModel(context, orderEx: orderEx),
+      create: (context) => OrderViewModel(
+        RepositoryProvider.of<OrdersRepository>(context),
+        RepositoryProvider.of<StoragesRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
+        orderEx: orderEx
+      ),
       child: _OrderView(),
     );
   }
@@ -43,6 +50,12 @@ class _OrderViewState extends State<_OrderView> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _volumeController = TextEditingController();
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    _progressDialog.close();
+    super.dispose();
+  }
 
   Future<List<dynamic>?> _showAcceptDialog(bool showStoragePicker) async {
     OrderViewModel vm = context.read<OrderViewModel>();

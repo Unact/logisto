@@ -24,7 +24,7 @@ class OrderQRScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderQRScanViewModel>(
-      create: (context) => OrderQRScanViewModel(context, order: order),
+      create: (context) => OrderQRScanViewModel(order: order),
       child: _OrderQRScanView(),
     );
   }

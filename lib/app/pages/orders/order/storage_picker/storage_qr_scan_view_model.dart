@@ -1,14 +1,13 @@
 part of 'storage_picker.dart';
 
 class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQRScanStateStatus> {
-  StorageQRScanViewModel(BuildContext context, { required List<Storage> storages }) :
-    super(context, StorageQRScanState(storages: storages));
+  final StoragesRepository storagesRepository;
+
+  StorageQRScanViewModel(this.storagesRepository, {required List<Storage> storages}) :
+    super(StorageQRScanState(storages: storages));
 
   @override
   StorageQRScanStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   Future<void> readQRCode(String? qrCode) async {
     if (qrCode == null) return;
@@ -42,7 +41,7 @@ class StorageQRScanViewModel extends PageViewModel<StorageQRScanState, StorageQR
   }
 
   Future<void> _processQR(int storageId) async {
-    Storage? storage = await store.storagesRepo.getStorageById(storageId);
+    Storage? storage = await storagesRepository.getStorageById(storageId);
 
     if (storage == null) {
       emit(state.copyWith(status: StorageQRScanStateStatus.failure, message: 'Склад не найден'));

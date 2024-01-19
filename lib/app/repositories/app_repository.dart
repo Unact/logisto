@@ -1,35 +1,17 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/repositories/base_repository.dart';
 import '/app/services/logisto_api.dart';
 
-import 'orders_repository.dart';
-import 'product_arrivals_repository.dart';
-import 'product_transfers_repository.dart';
-import 'products_repository.dart';
-import 'users_repository.dart';
-import 'storages_repository.dart';
+class AppRepository extends BaseRepository {
+  AppRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-class AppStore {
-  final AppDataStore dataStore;
-  final RenewApi api;
-
-  late final OrdersRepository ordersRepo = OrdersRepository(this);
-  late final ProductArrivalsRepository productArrivalsRepo = ProductArrivalsRepository(this);
-  late final ProductTransfersRepository productTransfersRepo = ProductTransfersRepository(this);
-  late final ProductsRepository productsRepo = ProductsRepository(this);
-  late final UsersRepository usersRepo = UsersRepository(this);
-  late final StoragesRepository storagesRepo = StoragesRepository(this);
-
-  AppStore({
-    required this.dataStore,
-    required this.api
-  });
-
-  Future<Pref> getPref() {
-    return dataStore.getPref();
+  Stream<AppInfoResult> watchAppInfo() {
+    return dataStore.watchAppInfo();
   }
 
   Future<ApiPaymentCredentials> getApiPaymentCredentials() async {
@@ -98,6 +80,7 @@ class AppStore {
         await dataStore.productArrivalsDao.clearProductArrivalPackageNewCells();
         await dataStore.productArrivalsDao.clearProductArrivalPackageNewCodes();
         await dataStore.productArrivalsDao.clearProductArrivalNewUnloadPackages();
+        await dataStore.updatePref(PrefsCompanion(lastLoadTime: Value(DateTime.now())));
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -105,5 +88,9 @@ class AppStore {
       await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+  }
+
+  Future<void> clearData() async {
+    await dataStore.clearData();
   }
 }
