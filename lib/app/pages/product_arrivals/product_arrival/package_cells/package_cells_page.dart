@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
