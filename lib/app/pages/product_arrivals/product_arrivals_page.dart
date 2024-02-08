@@ -53,8 +53,7 @@ class _ProductArrivalsViewState extends State<_ProductArrivalsView> {
     bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          alignment: Alignment.topCenter,
+        return SimpleAlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

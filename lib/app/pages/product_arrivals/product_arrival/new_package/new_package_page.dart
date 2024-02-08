@@ -10,6 +10,7 @@ import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/product_arrivals_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'new_package_state.dart';
 part 'new_package_view_model.dart';
@@ -51,9 +52,8 @@ class NewPackageViewState extends State<_NewPackageView> {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: AlertDialog(
+          body: SimpleAlertDialog(
             title: const Text('Новое место приемки'),
-            alignment: Alignment.topCenter,
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[

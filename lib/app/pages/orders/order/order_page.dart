@@ -11,6 +11,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/storages_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'accept_payment/accept_payment_page.dart';
 import 'order_line_codes/order_line_codes_page.dart';
 import 'order_qr_scan/order_qr_scan_page.dart';
@@ -75,8 +76,7 @@ class _OrderViewState extends State<_OrderView> {
 
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              alignment: Alignment.topCenter,
+            return SimpleAlertDialog(
               title: const Text('Подтвердите заказ'),
               content: SingleChildScrollView(
                 child: ListBody(
@@ -165,8 +165,7 @@ class _OrderViewState extends State<_OrderView> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          alignment: Alignment.topCenter,
+        return SimpleAlertDialog(
           title: const Text('Предупреждение'),
           content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
           actions: <Widget>[
@@ -190,9 +189,7 @@ class _OrderViewState extends State<_OrderView> {
 
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              alignment: Alignment.topCenter,
-              contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 8, 24.0),
+            return SimpleAlertDialog(
               title: const Text('Выберите склад'),
               content: SingleChildScrollView(
                 child: ListBody(

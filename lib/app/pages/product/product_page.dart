@@ -12,6 +12,7 @@ import '/app/labels/product_label.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/products_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'product_state.dart';
 part 'product_view_model.dart';
@@ -60,8 +61,7 @@ class _ProductViewState extends State<_ProductView> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              alignment: Alignment.topCenter,
+            return SimpleAlertDialog(
               title: const Text('Укажите кол-во этикеток'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,

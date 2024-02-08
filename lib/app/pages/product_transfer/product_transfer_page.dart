@@ -84,8 +84,7 @@ class _ProductTransferViewState extends State<_ProductTransferView> {
     bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          alignment: Alignment.topCenter,
+        return SimpleAlertDialog(
           title: const Text('Отменить перемещение?'),
           actions: [
             TextButton(

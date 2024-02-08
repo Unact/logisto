@@ -10,6 +10,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/product/product_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'scan/code_scan_page.dart';
 
 part 'order_line_codes_state.dart';
@@ -74,8 +75,7 @@ class OrderLineCodesViewState extends State<_OrderLineCodesView> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          alignment: Alignment.topCenter,
+        return SimpleAlertDialog(
           title: const Text('Предупреждение'),
           content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
           actions: <Widget>[

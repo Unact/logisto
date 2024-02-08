@@ -11,6 +11,7 @@ import '/app/data/database.dart';
 import '/app/repositories/product_arrivals_repository.dart';
 import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/widgets/widgets.dart';
 
 part 'new_line_state.dart';
 part 'new_line_view_model.dart';
@@ -65,8 +66,7 @@ class NewLineViewState extends State<_NewLineView> {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: AlertDialog(
-            alignment: Alignment.topCenter,
+          body: SimpleAlertDialog(
             title: const Text('Новая позиция'),
             content: SingleChildScrollView(
               child: ListBody(

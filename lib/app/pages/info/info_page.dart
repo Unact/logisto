@@ -19,6 +19,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/product_transfers_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -58,8 +59,7 @@ class _InfoViewState extends State<_InfoView> {
 
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              alignment: Alignment.topCenter,
+            return SimpleAlertDialog(
               title: const Text('Поиск товара'),
               content: ProductSearchField(
                 onProductSelect: (product) => setState(() => newProduct = product),
