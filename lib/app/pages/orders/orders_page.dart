@@ -55,8 +55,7 @@ class _OrdersViewState extends State<_OrdersView> {
     bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          alignment: Alignment.topCenter,
+        return SimpleAlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

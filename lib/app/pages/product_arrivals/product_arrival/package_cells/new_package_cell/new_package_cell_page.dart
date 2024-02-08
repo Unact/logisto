@@ -12,6 +12,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/products_repository.dart';
 import '/app/repositories/product_arrivals_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'new_package_cell_state.dart';
 part 'new_package_cell_view_model.dart';
@@ -70,8 +71,7 @@ class NewPackageCellViewState extends State<_NewPackageCellView> {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: AlertDialog(
-            alignment: Alignment.topCenter,
+          body: SimpleAlertDialog(
             title: Text('Ячейка ${state.storageCell.name}'),
             content: SingleChildScrollView(
               child: ListBody(

@@ -11,6 +11,7 @@ import '/app/pages/shared/product_search_field/product_search_field.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/product_transfers_repository.dart';
 import '/app/repositories/products_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'from_cell_state.dart';
 part 'from_cell_view_model.dart';
@@ -69,8 +70,7 @@ class FromCellViewState extends State<_FromCellView> {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: AlertDialog(
-            alignment: Alignment.topCenter,
+          body: SimpleAlertDialog(
             title: const Text('Новая позиция'),
             content: SingleChildScrollView(
               child: ListBody(
