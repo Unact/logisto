@@ -78,6 +78,13 @@ class ProductSearchViewState extends State<_ProductSearchView> {
   }
 
   @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.product != widget.product) setState(() { _nameController.text = widget.product?.name ?? ''; });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProductSearchViewModel, ProductSearchState>(
       builder: (context, state) {
