@@ -102,7 +102,8 @@ class ProductSearchViewState extends State<_ProductSearchView> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               labelText: 'Товар',
-              suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan)
+              suffixIcon: IconButton(icon: const Icon(CupertinoIcons.barcode), onPressed: _onScan),
+              errorText: state.message.isEmpty ? null : state.message
             )
           ),
           noItemsFoundBuilder: (BuildContext ctx) {
@@ -136,7 +137,6 @@ class ProductSearchViewState extends State<_ProductSearchView> {
             break;
           case ProductSearchStateStatus.success:
           case ProductSearchStateStatus.failure:
-            Misc.showMessage(context, state.message);
             _progressDialog.close();
             break;
           default:

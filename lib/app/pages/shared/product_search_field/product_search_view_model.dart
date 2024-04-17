@@ -9,6 +9,8 @@ class ProductSearchViewModel extends PageViewModel<ProductSearchState, ProductSe
   ProductSearchStateStatus get status => state.status;
 
   Future<List<Product>> findProductsByName(String name) async {
+    emit(state.copyWith(message: ''));
+
     try {
       return await productsRepository.findProduct(name: name);
     } on AppError catch(e) {
@@ -19,7 +21,7 @@ class ProductSearchViewModel extends PageViewModel<ProductSearchState, ProductSe
   }
 
   Future<void> findAndSetProductByCode(String code) async {
-    emit(state.copyWith(status: ProductSearchStateStatus.inProgress));
+    emit(state.copyWith(status: ProductSearchStateStatus.inProgress, message: ''));
 
     try {
       List<Product> products = await productsRepository.findProduct(code: code);
