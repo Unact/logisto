@@ -76,7 +76,7 @@ class ProductArrivalUnloadPackages extends Table {
   TextColumn get typeName => text()();
 }
 
-class ProductArrivalPackageTypes extends Table {
+class PackageTypes extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
 }

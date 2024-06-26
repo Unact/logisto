@@ -14,6 +14,10 @@ class AppRepository extends BaseRepository {
     return dataStore.watchAppInfo();
   }
 
+  Stream<List<PackageType>> watchPackageTypes() {
+    return dataStore.watchPackageTypes();
+  }
+
   Future<ApiPaymentCredentials> getApiPaymentCredentials() async {
     try {
       return await api.getPaymentCredentials();
@@ -53,8 +57,7 @@ class AppRepository extends BaseRepository {
         ).toSet().toList();
         List<ProductArrivalUnloadPackage> productArrivalUnloadPackages = productArrivalExs
           .map((e) => e.unloadPackages).expand((e) => e).toList();
-        List<ProductArrivalPackageType> productArrivalPackageTypes = data.productArrivalPackageTypes
-          .map((e) => e.toDatabaseEnt()).toList();
+        List<PackageType> packageTypes = data.packageTypes.map((e) => e.toDatabaseEnt()).toList();
         List<Storage> storages = (
           orderEx.map((e) => e.storageTo).whereType<Storage>().toList() +
           orderEx.map((e) => e.storageFrom).whereType<Storage>().toList() +
@@ -72,7 +75,7 @@ class AppRepository extends BaseRepository {
         await dataStore.productArrivalsDao.loadProductArrivalPackages(productArrivalPackages);
         await dataStore.productArrivalsDao.loadProductArrivalUnloadPackages(productArrivalUnloadPackages);
         await dataStore.productArrivalsDao.loadProductArrivalPackageLines(productArrivalPackageLines);
-        await dataStore.productArrivalsDao.loadProductArrivalPackageTypes(productArrivalPackageTypes);
+        await dataStore.loadPackageTypes(packageTypes);
         await dataStore.productsDao.loadProductStores(productStores);
         await dataStore.productTransfersDao.clearProductTransfers();
         await dataStore.productArrivalsDao.clearProductArrivalNewPackages();

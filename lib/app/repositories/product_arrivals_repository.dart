@@ -41,10 +41,6 @@ class ProductArrivalsRepository extends BaseRepository {
     return dataStore.productArrivalsDao.watchProductArrivalPackageNewLinesEx(id);
   }
 
-  Stream<List<ProductArrivalPackageType>> watchProductArrivalPackageTypes() {
-    return dataStore.productArrivalsDao.watchProductArrivalPackageTypes();
-  }
-
   Future<void> addProductArrivalNewPackage({
     required int productArrivalId,
     required int typeId,
@@ -211,9 +207,9 @@ class ProductArrivalsRepository extends BaseRepository {
     try {
       ApiProductArrival newApiProductArrival = await api.productArrivalsFinishUnload(
         id: productArrivalEx.productArrival.id,
-        packages: newPackages.map((e) => { 'productArrivalPackageTypeId': e.typeId }).toList(),
+        packages: newPackages.map((e) => { 'packageTypeId': e.typeId }).toList(),
         unloadPackages: newUnloadPackages.map(
-          (e) => { 'productArrivalPackageTypeId': e.typeId, 'amount': e.amount }
+          (e) => { 'packageTypeId': e.typeId, 'amount': e.amount }
         ).toList()
       );
 

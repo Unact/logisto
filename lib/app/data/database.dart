@@ -25,12 +25,12 @@ part 'users_dao.dart';
 @DriftDatabase(
   tables: [
     Users,
+    PackageTypes,
     Products,
     ProductArrivals,
     ProductArrivalLines,
     ProductArrivalPackages,
     ProductArrivalUnloadPackages,
-    ProductArrivalPackageTypes,
     ProductArrivalPackageLines,
     ProductArrivalNewPackages,
     ProductArrivalPackageNewLines,
@@ -71,8 +71,19 @@ class AppDataStore extends _$AppDataStore {
     required bool logStatements
   }) : super(_openConnection(logStatements));
 
+  Future<void> loadPackageTypes(List<PackageType> packageTypeList) async {
+    await batch((batch) {
+      batch.deleteWhere(packageTypes, (row) => const Constant(true));
+      batch.insertAll(packageTypes, packageTypeList, mode: InsertMode.insertOrReplace);
+    });
+  }
+
   Stream<AppInfoResult> watchAppInfo() {
     return appInfo().watchSingle();
+  }
+
+  Stream<List<PackageType>> watchPackageTypes() {
+    return select(packageTypes).watch();
   }
 
   Future<int> updatePref(PrefsCompanion pref) {
@@ -112,7 +123,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

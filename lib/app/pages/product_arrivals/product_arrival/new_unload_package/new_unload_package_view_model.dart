@@ -1,11 +1,18 @@
 part of 'new_unload_package_page.dart';
 
 class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, NewUnloadPackageStateStatus> {
+  final AppRepository appRepository;
   final ProductArrivalsRepository productArrivalsRepository;
 
-  StreamSubscription<List<ProductArrivalPackageType>>? productArrivalPackageTypesSubscription;
+  StreamSubscription<List<PackageType>>? packageTypesSubscription;
 
-  NewUnloadPackageViewModel(this.productArrivalsRepository, {required ProductArrivalEx productArrivalEx}) :
+  NewUnloadPackageViewModel(
+    this.appRepository,
+    this.productArrivalsRepository,
+    {
+      required ProductArrivalEx productArrivalEx
+    }
+  ) :
     super(NewUnloadPackageState(productArrivalEx: productArrivalEx));
 
   @override
@@ -15,20 +22,19 @@ class NewUnloadPackageViewModel extends PageViewModel<NewUnloadPackageState, New
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    productArrivalPackageTypesSubscription = productArrivalsRepository
-      .watchProductArrivalPackageTypes().listen((event) {
-        emit(state.copyWith(status: NewUnloadPackageStateStatus.dataLoaded, types: event));
-      });
+    packageTypesSubscription = appRepository.watchPackageTypes().listen((event) {
+      emit(state.copyWith(status: NewUnloadPackageStateStatus.dataLoaded, types: event));
+    });
   }
 
   @override
   Future<void> close() async {
     await super.close();
 
-    await productArrivalPackageTypesSubscription?.cancel();
+    await packageTypesSubscription?.cancel();
   }
 
-  void setType(ProductArrivalPackageType type) {
+  void setType(PackageType type) {
     emit(state.copyWith(
       status: NewUnloadPackageStateStatus.setType,
       type: type

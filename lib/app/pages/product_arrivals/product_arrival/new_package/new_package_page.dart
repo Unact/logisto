@@ -9,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/constants/style.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/product_arrivals_repository.dart';
 import '/app/widgets/widgets.dart';
 
@@ -27,6 +28,7 @@ class NewPackagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<NewPackageViewModel>(
       create: (context) => NewPackageViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<ProductArrivalsRepository>(context),
         productArrivalEx: productArrivalEx
       ),
@@ -61,12 +63,12 @@ class NewPackageViewState extends State<_NewPackageView> {
                     autofocus: true,
                     decoration: const InputDecoration(labelText: 'Тип', labelStyle: Style.listTileText),
                     items: vm.state.types.map((e) {
-                      return DropdownMenuItem<ProductArrivalPackageType>(
+                      return DropdownMenuItem<PackageType>(
                         value: e,
                         child: Text(e.name, style: Style.listTileText)
                       );
                     }).toList(),
-                    onChanged: (ProductArrivalPackageType? value) => value != null ? vm.setType(value) : null
+                    onChanged: (PackageType? value) => value != null ? vm.setType(value) : null
                   ),
                   TextFormField(
                     focusNode: amountFocus,

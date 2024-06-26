@@ -22,16 +22,16 @@ class NewUnloadPackageState {
   final NewUnloadPackageStateStatus status;
   final String message;
   final ProductArrivalEx productArrivalEx;
-  final List<ProductArrivalPackageType> types;
-  final ProductArrivalPackageType? type;
+  final List<PackageType> types;
+  final PackageType? type;
   final int? amount;
 
   NewUnloadPackageState copyWith({
     NewUnloadPackageStateStatus? status,
     String? message,
     ProductArrivalEx? productArrivalEx,
-    List<ProductArrivalPackageType>? types,
-    ProductArrivalPackageType? type,
+    List<PackageType>? types,
+    PackageType? type,
     Optional<int>? amount
   }) {
     return NewUnloadPackageState(
