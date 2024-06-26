@@ -1,23 +1,23 @@
 part of 'entities.dart';
 
-class ApiProductArrivalPackageType extends Equatable {
+class ApiPackageType extends Equatable {
   final int id;
   final String name;
 
-  const ApiProductArrivalPackageType({
+  const ApiPackageType({
     required this.id,
     required this.name,
   });
 
-  factory ApiProductArrivalPackageType.fromJson(dynamic json) {
-    return ApiProductArrivalPackageType(
+  factory ApiPackageType.fromJson(dynamic json) {
+    return ApiPackageType(
       id: json['id'],
       name: json['name']
     );
   }
 
-  ProductArrivalPackageType toDatabaseEnt() {
-    return ProductArrivalPackageType(
+  PackageType toDatabaseEnt() {
+    return PackageType(
       id: id,
       name: name
     );

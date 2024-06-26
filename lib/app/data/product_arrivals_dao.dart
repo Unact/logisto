@@ -8,7 +8,6 @@ part of 'database.dart';
     ProductArrivalPackages,
     ProductArrivalUnloadPackages,
     ProductArrivalPackageLines,
-    ProductArrivalPackageTypes,
     ProductArrivalPackageNewLines,
     ProductArrivalPackageNewCells,
     ProductArrivalPackageNewCodes,
@@ -37,13 +36,6 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
     await batch((batch) {
       batch.deleteWhere(productArrivalPackages, (row) => const Constant(true));
       batch.insertAll(productArrivalPackages, packageList, mode: InsertMode.insertOrReplace);
-    });
-  }
-
-  Future<void> loadProductArrivalPackageTypes(List<ProductArrivalPackageType> packageTypeList) async {
-    await batch((batch) {
-      batch.deleteWhere(productArrivalPackageTypes, (row) => const Constant(true));
-      batch.insertAll(productArrivalPackageTypes, packageTypeList, mode: InsertMode.insertOrReplace);
     });
   }
 
@@ -155,10 +147,6 @@ class ProductArrivalsDao extends DatabaseAccessor<AppDataStore> with _$ProductAr
 
   Future<void> clearProductArrivalNewUnloadPackages() async {
     await delete(productArrivalNewUnloadPackages).go();
-  }
-
-  Stream<List<ProductArrivalPackageType>> watchProductArrivalPackageTypes() {
-    return select(productArrivalPackageTypes).watch();
   }
 
   Stream<List<ProductArrivalNewPackage>> watchProductArrivalNewPackages(int productArrivalId) {

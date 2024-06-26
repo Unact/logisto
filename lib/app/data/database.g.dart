@@ -407,6 +407,176 @@ class UsersCompanion extends UpdateCompanion<User> {
   }
 }
 
+class $PackageTypesTable extends PackageTypes
+    with TableInfo<$PackageTypesTable, PackageType> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PackageTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'package_types';
+  @override
+  VerificationContext validateIntegrity(Insertable<PackageType> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PackageType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PackageType(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $PackageTypesTable createAlias(String alias) {
+    return $PackageTypesTable(attachedDatabase, alias);
+  }
+}
+
+class PackageType extends DataClass implements Insertable<PackageType> {
+  final int id;
+  final String name;
+  const PackageType({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  PackageTypesCompanion toCompanion(bool nullToAbsent) {
+    return PackageTypesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory PackageType.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PackageType(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  PackageType copyWith({int? id, String? name}) => PackageType(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('PackageType(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PackageType && other.id == this.id && other.name == this.name);
+}
+
+class PackageTypesCompanion extends UpdateCompanion<PackageType> {
+  final Value<int> id;
+  final Value<String> name;
+  const PackageTypesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  PackageTypesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<PackageType> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  PackageTypesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return PackageTypesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PackageTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2742,185 +2912,6 @@ class ProductArrivalUnloadPackagesCompanion
           ..write('productArrivalId: $productArrivalId, ')
           ..write('amount: $amount, ')
           ..write('typeName: $typeName')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ProductArrivalPackageTypesTable extends ProductArrivalPackageTypes
-    with
-        TableInfo<$ProductArrivalPackageTypesTable, ProductArrivalPackageType> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ProductArrivalPackageTypesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [id, name];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'product_arrival_package_types';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<ProductArrivalPackageType> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  ProductArrivalPackageType map(Map<String, dynamic> data,
-      {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ProductArrivalPackageType(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-    );
-  }
-
-  @override
-  $ProductArrivalPackageTypesTable createAlias(String alias) {
-    return $ProductArrivalPackageTypesTable(attachedDatabase, alias);
-  }
-}
-
-class ProductArrivalPackageType extends DataClass
-    implements Insertable<ProductArrivalPackageType> {
-  final int id;
-  final String name;
-  const ProductArrivalPackageType({required this.id, required this.name});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    return map;
-  }
-
-  ProductArrivalPackageTypesCompanion toCompanion(bool nullToAbsent) {
-    return ProductArrivalPackageTypesCompanion(
-      id: Value(id),
-      name: Value(name),
-    );
-  }
-
-  factory ProductArrivalPackageType.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ProductArrivalPackageType(
-      id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-    };
-  }
-
-  ProductArrivalPackageType copyWith({int? id, String? name}) =>
-      ProductArrivalPackageType(
-        id: id ?? this.id,
-        name: name ?? this.name,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('ProductArrivalPackageType(')
-          ..write('id: $id, ')
-          ..write('name: $name')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, name);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ProductArrivalPackageType &&
-          other.id == this.id &&
-          other.name == this.name);
-}
-
-class ProductArrivalPackageTypesCompanion
-    extends UpdateCompanion<ProductArrivalPackageType> {
-  final Value<int> id;
-  final Value<String> name;
-  const ProductArrivalPackageTypesCompanion({
-    this.id = const Value.absent(),
-    this.name = const Value.absent(),
-  });
-  ProductArrivalPackageTypesCompanion.insert({
-    this.id = const Value.absent(),
-    required String name,
-  }) : name = Value(name);
-  static Insertable<ProductArrivalPackageType> custom({
-    Expression<int>? id,
-    Expression<String>? name,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (name != null) 'name': name,
-    });
-  }
-
-  ProductArrivalPackageTypesCompanion copyWith(
-      {Value<int>? id, Value<String>? name}) {
-    return ProductArrivalPackageTypesCompanion(
-      id: id ?? this.id,
-      name: name ?? this.name,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ProductArrivalPackageTypesCompanion(')
-          ..write('id: $id, ')
-          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -7808,6 +7799,7 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
+  late final $PackageTypesTable packageTypes = $PackageTypesTable(this);
   late final $ProductsTable products = $ProductsTable(this);
   late final $StoragesTable storages = $StoragesTable(this);
   late final $ProductArrivalsTable productArrivals =
@@ -7818,8 +7810,6 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $ProductArrivalLinesTable(this);
   late final $ProductArrivalUnloadPackagesTable productArrivalUnloadPackages =
       $ProductArrivalUnloadPackagesTable(this);
-  late final $ProductArrivalPackageTypesTable productArrivalPackageTypes =
-      $ProductArrivalPackageTypesTable(this);
   late final $ProductArrivalPackageLinesTable productArrivalPackageLines =
       $ProductArrivalPackageLinesTable(this);
   late final $ProductArrivalNewPackagesTable productArrivalNewPackages =
@@ -7876,13 +7866,13 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         users,
+        packageTypes,
         products,
         storages,
         productArrivals,
         productArrivalPackages,
         productArrivalLines,
         productArrivalUnloadPackages,
-        productArrivalPackageTypes,
         productArrivalPackageLines,
         productArrivalNewPackages,
         productArrivalPackageNewLines,
@@ -8136,8 +8126,6 @@ mixin _$ProductArrivalsDaoMixin on DatabaseAccessor<AppDataStore> {
       attachedDatabase.productArrivalUnloadPackages;
   $ProductArrivalPackageLinesTable get productArrivalPackageLines =>
       attachedDatabase.productArrivalPackageLines;
-  $ProductArrivalPackageTypesTable get productArrivalPackageTypes =>
-      attachedDatabase.productArrivalPackageTypes;
   $ProductArrivalPackageNewLinesTable get productArrivalPackageNewLines =>
       attachedDatabase.productArrivalPackageNewLines;
   $StorageCellsTable get storageCells => attachedDatabase.storageCells;
