@@ -52,31 +52,41 @@ class _OrdersQRScanPageViewState extends State<_OrdersQRScanPageView> {
       builder: (context, state) {
         OrdersQRScanPageViewModel vm = context.read<OrdersQRScanPageViewModel>();
 
-        return Scaffold(
-          body: ScanView(
-            showScanner: true,
-            onRead: vm.readQRCode,
-            child: Container()
-        ),
-        bottomSheet:
-          SizedBox(
-            height: MediaQuery.of(context).size.height/3,
-            child: ListView(
-            children: [
-              ListTile(
-                trailing: TextButton(
-                  onPressed: () {},
-                  child: TextButton(
-                    onPressed: vm.confirmOrders,
-                    child: Text(
-                      'Завершить',
-                      style: Style.listTileTitleText.merge(const TextStyle(color: Colors.black))
-                    )
-                  )
+        return ScanView(
+          showScanner: true,
+          onRead: vm.readQRCode,
+          child: vm.state.orderScanned.isEmpty ? Container() : DraggableScrollableSheet(
+            initialChildSize: 0.33,
+            builder: (BuildContext context, scrollController) {
+              return Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).canvasColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25),
+                  ),
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  children: [
+                    ListTile(
+                      trailing: TextButton(
+                        onPressed: () {},
+                        child: TextButton(
+                          onPressed: vm.confirmOrders,
+                          child: Text(
+                            'Завершить',
+                            style: Style.listTileTitleText.merge(const TextStyle(color: Colors.black))
+                          )
+                        )
+                      )
+                    ),
+                    ...vm.state.orderScanned.entries.map((e) => _scannedOrderTile(context, e))
+                  ]
                 )
-              ),
-              ...vm.state.orderScanned.entries.map((e) => _scannedOrderTile(context, e))
-            ])
+              );
+            }
           )
         );
       },
