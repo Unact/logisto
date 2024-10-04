@@ -13,6 +13,7 @@ import '/app/repositories/orders_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'order/order_page.dart';
+import 'orders_qr_scan/orders_qr_scan_page.dart';
 
 part 'orders_state.dart';
 part 'orders_view_model.dart';
@@ -100,6 +101,13 @@ class _OrdersViewState extends State<_OrdersView> {
     ).show();
   }
 
+  Future<void> showOrdersQRScan() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (BuildContext context) => OrdersQRScanPagePage())
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrdersViewModel, OrdersState>(
@@ -108,6 +116,11 @@ class _OrdersViewState extends State<_OrdersView> {
           appBar: AppBar(
             title: const Text('Заказы'),
             actions: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.assignment_turned_in),
+                onPressed: showOrdersQRScan,
+                tooltip: 'Массовая выдача заказов'
+              ),
               IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: showQRScan,
